@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
 export const metadata: Metadata = {
-   title: "Register",
-   description: "Create a new account",
+   title: "Регистрация",
+   description: "Создание нового аккаунта",
 };
 
 export default function RegisterPage() {
@@ -13,21 +13,27 @@ export default function RegisterPage() {
       <div className="flex min-h-screen flex-col md:flex-row">
          {/* Left side with full-height image */}
          <div className="relative w-full md:w-1/2 min-h-[30vh] md:min-h-screen">
+            {/* Image (Lower z-index to be behind the overlay) */}
             <Image
                src="/img/portrait.png"
-               alt="Portrait"
+               alt="Портрет"
                fill
-               className="object-cover"
+               className="object-cover z-0"
                priority
             />
+
+            {/* Dark Overlay (Ensure it's above the image but not fully opaque) */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-transparent z-10 pointer-events-none"></div>
          </div>
 
          {/* Right side - register form */}
          <div className="flex w-full items-center justify-center p-8 md:w-1/2">
             <div className="mx-auto w-full max-w-md space-y-6">
                <div className="space-y-2 text-center">
-                  <h1 className="text-3xl font-bold">Register</h1>
-                  <p className="text-muted-foreground">Create a new account</p>
+                  <h1 className="text-3xl font-bold">Регистрация</h1>
+                  <p className="text-muted-foreground">
+                     Создайте новый аккаунт
+                  </p>
                </div>
 
                <div className="space-y-4">
@@ -36,13 +42,13 @@ export default function RegisterPage() {
                         htmlFor="email"
                         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                      >
-                        Email
+                        Эл. почта
                      </label>
                      <input
                         id="email"
                         type="email"
                         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        placeholder="m@example.com"
+                        placeholder="mail@example.com"
                         required
                      />
                   </div>
@@ -51,7 +57,7 @@ export default function RegisterPage() {
                         htmlFor="password"
                         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                      >
-                        Password
+                        Пароль
                      </label>
                      <input
                         id="password"
@@ -65,7 +71,7 @@ export default function RegisterPage() {
                         htmlFor="confirm-password"
                         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                      >
-                        Confirm Password
+                        Подтверждение пароля
                      </label>
                      <input
                         id="confirm-password"
@@ -75,7 +81,7 @@ export default function RegisterPage() {
                      />
                   </div>
                   <Button type="submit" className="w-full">
-                     Register
+                     Зарегистрироваться
                   </Button>
                </div>
 
@@ -85,7 +91,7 @@ export default function RegisterPage() {
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
                      <span className="bg-background px-2 text-muted-foreground">
-                        Or continue with
+                        Или продолжить с помощью
                      </span>
                   </div>
                </div>
@@ -132,18 +138,44 @@ export default function RegisterPage() {
 
                <div className="text-xs text-muted-foreground">
                   Нажимая на одну из кнопок Зарегистрироваться, вы соглашаетесь
-                  с Пользовательским соглашением, StarMake и Политикой
-                  конфиденциальности, а также даете согласие на обработку
-                  Персональных данных.
+                  с{" "}
+                  <Link
+                     href="/terms"
+                     className="font-medium text-primary hover:underline"
+                  >
+                     Пользовательским соглашением
+                  </Link>
+                  ,{" "}
+                  <Link
+                     href="/"
+                     className="font-medium text-primary hover:underline"
+                  >
+                     StarMake
+                  </Link>{" "}
+                  и{" "}
+                  <Link
+                     href="/privacy"
+                     className="font-medium text-primary hover:underline"
+                  >
+                     Политикой конфиденциальности
+                  </Link>
+                  , а также даете согласие на обработку{" "}
+                  <Link
+                     href="/data"
+                     className="font-medium text-primary hover:underline"
+                  >
+                     Персональных данных
+                  </Link>
+                  .
                </div>
 
                <div className="text-center text-sm">
-                  Already have an account?{" "}
+                  Уже есть аккаунт?{" "}
                   <Link
                      href="/login"
                      className="font-medium text-primary underline underline-offset-4"
                   >
-                     Login
+                     Войти
                   </Link>
                </div>
             </div>
