@@ -1,10 +1,6 @@
-"use client";
-
+import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Navbar } from "@/components/Navbar/navbar";
-import "./globals.css";
-import Footer from "@/components/HomePage/footer";
-import { usePathname } from "next/navigation";
+import "../globals.css";
 
 const geistSans = Geist({
    variable: "--font-geist-sans",
@@ -16,22 +12,22 @@ const geistMono = Geist_Mono({
    subsets: ["latin"],
 });
 
-export default function RootLayout({
+export const metadata: Metadata = {
+   title: "Authentication - StarMake",
+   description: "Login or register for StarMake platform",
+};
+
+export default function AuthLayout({
    children,
 }: Readonly<{
    children: React.ReactNode;
 }>) {
-   const pathname = usePathname();
-   const isAuthPage = pathname === "/login" || pathname === "/register";
-
    return (
       <html lang="en">
          <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
          >
-            {!isAuthPage && <Navbar />}
-            <main>{children}</main>
-            {!isAuthPage && <Footer />}
+            {children}
          </body>
       </html>
    );
