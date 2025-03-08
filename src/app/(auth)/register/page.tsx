@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { SocialAuth } from "@/components/shared/auth/SocialAuth";
+import { Logo } from "@/components/shared/Logo";
 
 export default function RegisterPage() {
    const handleGoogleAuth = () => {
@@ -37,7 +38,8 @@ export default function RegisterPage() {
          {/* Right side - register form */}
          <div className="flex w-full items-center justify-center p-8 md:w-1/2">
             <div className="mx-auto w-full max-w-md space-y-6">
-               <div className="space-y-2 text-center">
+               <div className="text-center">
+                  <Logo href="/" className="inline-block mb-6" size="lg" />
                   <h1 className="text-3xl font-bold">Регистрация</h1>
                   <p className="text-muted-foreground">
                      Создайте новый аккаунт

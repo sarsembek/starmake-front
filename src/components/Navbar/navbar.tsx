@@ -1,5 +1,4 @@
 "use client";
-import Link from "next/link";
 import { Menu } from "lucide-react";
 
 import {
@@ -17,6 +16,8 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { Logo } from "@/components/shared/Logo";
 
 export function Navbar() {
    // Custom navigation link style without hover background
@@ -29,17 +30,7 @@ export function Navbar() {
       <header className="sticky top-0 z-50 border-b bg-white">
          <div className="container flex h-14 items-center justify-between px-4 md:px-0 m-auto">
             <div className="flex items-center gap-4">
-               <Link href="/" className="font-bold text-lg">
-                  <span
-                     className="bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-purple-300 font-extrabold"
-                     style={{
-                        textShadow: "0px 0px 1px rgba(168, 85, 247, 0.4)",
-                     }}
-                  >
-                     STAR
-                  </span>
-                  <span className="text-gray-700 dark:text-gray-400">MAKE</span>
-               </Link>
+               <Logo href="/" />
 
                {/* Navigation menu after the logo */}
                <div className="hidden md:flex">
@@ -103,20 +94,7 @@ export function Navbar() {
                            <SheetTitle className="sr-only">
                               Navigation Menu
                            </SheetTitle>
-                           <div className="font-bold text-lg">
-                              <span
-                                 className="bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-purple-300 font-extrabold"
-                                 style={{
-                                    textShadow:
-                                       "0px 0px 1px rgba(168, 85, 247, 0.4)",
-                                 }}
-                              >
-                                 STAR
-                              </span>
-                              <span className="text-gray-700 dark:text-gray-400">
-                                 MAKE
-                              </span>
-                           </div>
+                           <Logo />
                         </div>
                         <nav className="flex-1 p-6">
                            <div className="flex flex-col space-y-8">
