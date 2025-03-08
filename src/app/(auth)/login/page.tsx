@@ -20,11 +20,10 @@ export default function LoginPage() {
 
    return (
       <div className="flex min-h-screen flex-col md:flex-row">
-         {/* Left side - placeholder for image */}
+         {/* Left side - placeholder for image - hidden on mobile */}
          <div
-            className="flex w-full items-center justify-center 
-           bg-gradient-to-r from-purple-700 via-indigo-600 to-blue-500 
-           p-8 md:w-1/2"
+            className="hidden md:flex md:w-1/2 items-center justify-center 
+           bg-gradient-to-r from-purple-700 via-indigo-600 to-blue-500"
          >
             <Image
                src="/img/stats-section.png"
@@ -33,6 +32,7 @@ export default function LoginPage() {
                height={400}
             />
          </div>
+
          {/* Right side - login form */}
          <div className="flex w-full items-center justify-center p-8 md:w-1/2">
             <div className="mx-auto w-full max-w-md space-y-6">

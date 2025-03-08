@@ -20,8 +20,8 @@ export default function RegisterPage() {
 
    return (
       <div className="flex min-h-screen flex-col md:flex-row">
-         {/* Left side with full-height image */}
-         <div className="relative w-full md:w-1/2 min-h-[30vh] md:min-h-screen">
+         {/* Left side with full-height image - hidden on mobile */}
+         <div className="hidden md:block relative md:w-1/2 md:min-h-screen">
             {/* Image (Lower z-index to be behind the overlay) */}
             <Image
                src="/img/portrait.png"
