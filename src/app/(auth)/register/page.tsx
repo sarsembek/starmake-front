@@ -1,13 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { SocialAuth } from "@/components/shared/auth/SocialAuth";
 import { Logo } from "@/components/shared/Logo";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { RegisterForm } from "@/components/auth/RegisterForm";
 
 export default function RegisterPage() {
+   const router = useRouter();
+
    const handleGoogleAuth = () => {
       // Implement Google auth logic
       console.log("Google auth clicked");
@@ -18,11 +22,32 @@ export default function RegisterPage() {
       console.log("Telegram auth clicked");
    };
 
+   // Switch to login without adding to browser history
+   const goToLogin = (e: React.MouseEvent) => {
+      e.preventDefault();
+      router.replace("/login");
+   };
+
+   // Go back to previous page (likely home)
+   const goBack = () => {
+      router.back();
+   };
+
    return (
       <div className="flex min-h-screen flex-col md:flex-row">
+         {/* Back button - visible on all screen sizes */}
+         <Button
+            variant="ghost"
+            size="icon"
+            onClick={goBack}
+            className="absolute top-4 left-4 z-50"
+         >
+            <ArrowLeft className="h-5 w-5" />
+            <span className="sr-only">Назад</span>
+         </Button>
+
          {/* Left side with full-height image - hidden on mobile */}
          <div className="hidden md:block relative md:w-1/2 md:min-h-screen">
-            {/* Image (Lower z-index to be behind the overlay) */}
             <Image
                src="/img/portrait.png"
                alt="Портрет"
@@ -30,8 +55,6 @@ export default function RegisterPage() {
                className="object-cover z-0"
                priority
             />
-
-            {/* Dark Overlay (Ensure it's above the image but not fully opaque) */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-transparent z-10 pointer-events-none"></div>
          </div>
 
@@ -46,43 +69,7 @@ export default function RegisterPage() {
                   </p>
                </div>
 
-               <div className="space-y-4">
-                  <div className="space-y-2">
-                     <label
-                        htmlFor="email"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                     >
-                        Эл. почта
-                     </label>
-                     <Input
-                        id="email"
-                        type="email"
-                        placeholder="mail@example.com"
-                        required
-                     />
-                  </div>
-                  <div className="space-y-2">
-                     <label
-                        htmlFor="password"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                     >
-                        Пароль
-                     </label>
-                     <Input id="password" type="password" required />
-                  </div>
-                  <div className="space-y-2">
-                     <label
-                        htmlFor="confirm-password"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                     >
-                        Подтверждение пароля
-                     </label>
-                     <Input id="confirm-password" type="password" required />
-                  </div>
-                  <Button type="submit" className="w-full">
-                     Зарегистрироваться
-                  </Button>
-               </div>
+               <RegisterForm />
 
                <SocialAuth
                   onGoogleAuth={handleGoogleAuth}
@@ -124,12 +111,13 @@ export default function RegisterPage() {
 
                <div className="text-center text-sm">
                   Уже есть аккаунт?{" "}
-                  <Link
+                  <a
                      href="/login"
+                     onClick={goToLogin}
                      className="font-medium text-primary underline underline-offset-4"
                   >
                      Войти
-                  </Link>
+                  </a>
                </div>
             </div>
          </div>

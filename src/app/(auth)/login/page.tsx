@@ -1,13 +1,16 @@
 "use client";
 
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { SocialAuth } from "@/components/shared/auth/SocialAuth";
 import { Logo } from "@/components/shared/Logo";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { LoginForm } from "@/components/auth/LoginForm";
 
 export default function LoginPage() {
+   const router = useRouter();
+
    const handleGoogleAuth = () => {
       // Implement Google auth logic
       console.log("Google auth clicked");
@@ -18,8 +21,30 @@ export default function LoginPage() {
       console.log("Telegram auth clicked");
    };
 
+   // Switch to register without adding to browser history
+   const goToRegister = (e: React.MouseEvent) => {
+      e.preventDefault();
+      router.replace("/register");
+   };
+
+   // Go back to previous page (likely home)
+   const goBack = () => {
+      router.back();
+   };
+
    return (
       <div className="flex min-h-screen flex-col md:flex-row">
+         {/* Back button - visible on all screen sizes */}
+         <Button
+            variant="ghost"
+            size="icon"
+            onClick={goBack}
+            className="absolute top-4 left-4 z-50"
+         >
+            <ArrowLeft className="h-5 w-5" />
+            <span className="sr-only">Назад</span>
+         </Button>
+
          {/* Left side - placeholder for image - hidden on mobile */}
          <div
             className="hidden md:flex md:w-1/2 items-center justify-center 
@@ -44,34 +69,7 @@ export default function LoginPage() {
                   </p>
                </div>
 
-               <div className="space-y-4">
-                  <div className="space-y-2">
-                     <label
-                        htmlFor="email"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                     >
-                        Эл. почта
-                     </label>
-                     <Input
-                        id="email"
-                        type="email"
-                        placeholder="mail@example.com"
-                        required
-                     />
-                  </div>
-                  <div className="space-y-2">
-                     <label
-                        htmlFor="password"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                     >
-                        Пароль
-                     </label>
-                     <Input id="password" type="password" required />
-                  </div>
-                  <Button type="submit" className="w-full">
-                     Войти
-                  </Button>
-               </div>
+               <LoginForm />
 
                <SocialAuth
                   onGoogleAuth={handleGoogleAuth}
@@ -80,12 +78,13 @@ export default function LoginPage() {
 
                <div className="text-center text-sm">
                   Нет аккаунта?{" "}
-                  <Link
+                  <a
                      href="/register"
+                     onClick={goToRegister}
                      className="font-medium text-primary underline underline-offset-4"
                   >
                      Зарегистрироваться
-                  </Link>
+                  </a>
                </div>
             </div>
          </div>

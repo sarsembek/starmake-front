@@ -5,6 +5,8 @@ import { Navbar } from "@/components/Navbar/navbar";
 import "./globals.css";
 import Footer from "@/components/HomePage/footer";
 import { usePathname } from "next/navigation";
+import { AuthProvider } from "@/context/AuthContext";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const geistSans = Geist({
    variable: "--font-geist-sans",
@@ -16,6 +18,9 @@ const geistMono = Geist_Mono({
    subsets: ["latin"],
 });
 
+// Create a client
+const queryClient = new QueryClient();
+
 export default function RootLayout({
    children,
 }: Readonly<{
@@ -25,14 +30,18 @@ export default function RootLayout({
    const isAuthPage = pathname === "/login" || pathname === "/register";
 
    return (
-      <html lang="en">
-         <body
-            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-         >
-            {!isAuthPage && <Navbar />}
-            <main>{children}</main>
-            {!isAuthPage && <Footer />}
-         </body>
-      </html>
+      <QueryClientProvider client={queryClient}>
+         <AuthProvider>
+            <html lang="en">
+               <body
+                  className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+               >
+                  {!isAuthPage && <Navbar />}
+                  <main>{children}</main>
+                  {!isAuthPage && <Footer />}
+               </body>
+            </html>
+         </AuthProvider>
+      </QueryClientProvider>
    );
 }
