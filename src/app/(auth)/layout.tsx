@@ -1,26 +1,40 @@
-import type { Metadata } from "next";
+"use client";
+
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
 import "../globals.css";
-
-// const geistSans = Geist({
-//    variable: "--font-geist-sans",
-//    subsets: ["latin"],
-// });
-
-// const geistMono = Geist_Mono({
-//    variable: "--font-geist-mono",
-//    subsets: ["latin"],
-// });
-
-export const metadata: Metadata = {
-   title: "Authentication - StarMake",
-   description: "Login or register for StarMake platform",
-};
 
 export default function AuthLayout({
    children,
-}: Readonly<{
+}: {
    children: React.ReactNode;
-}>) {
-   // Don't include html or body tags here - just return the children
+}) {
+   const { isAuthenticated } = useAuth();
+   const router = useRouter();
+   const [checking, setChecking] = useState(true);
+
+   useEffect(() => {
+      // Short delay to ensure auth state is loaded
+      const timer = setTimeout(() => {
+         setChecking(false);
+
+         if (isAuthenticated) {
+            console.log(
+               "Auth layout detected authenticated user, redirecting to home"
+            );
+            router.replace("/");
+         }
+      }, 200);
+
+      return () => clearTimeout(timer);
+   }, [isAuthenticated, router]);
+
+   // Show nothing during initial check to prevent flash
+   if (checking || isAuthenticated) {
+      return null;
+   }
+
    return children;
 }

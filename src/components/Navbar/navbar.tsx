@@ -1,6 +1,8 @@
 "use client";
 import { Menu, User, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
    NavigationMenu,
    NavigationMenuItem,
@@ -28,6 +30,14 @@ import { Logo } from "@/components/shared/Logo";
 
 export function Navbar() {
    const { user, isAuthenticated, logout } = useAuth();
+   const router = useRouter();
+   const [mounted, setMounted] = useState(false);
+
+   // Debug auth state
+   useEffect(() => {
+      console.log("Auth state in Navbar:", { isAuthenticated, user });
+      setMounted(true);
+   }, [isAuthenticated, user]);
 
    // Custom navigation link style without hover background
    const navLinkStyle = cn(
@@ -37,9 +47,33 @@ export function Navbar() {
 
    const handleLogout = () => {
       logout();
-      // You may want to redirect after logout
-      // router.push("/");
+      router.push("/");
    };
+
+   // Don't render authentication-dependent UI until after client-side hydration
+   if (!mounted) {
+      return (
+         <header className="sticky top-0 z-50 border-b bg-white">
+            <div className="container flex h-14 items-center justify-between px-4 md:px-0 m-auto">
+               <div className="flex items-center gap-4">
+                  <Logo href="/" />
+                  {/* Navigation menu skeleton */}
+                  <div className="hidden md:flex">
+                     <NavigationMenu>
+                        <NavigationMenuList>
+                           {/* Same menu items */}
+                        </NavigationMenuList>
+                     </NavigationMenu>
+                  </div>
+               </div>
+               <div className="flex items-center gap-4">
+                  {/* Auth placeholder */}
+                  <div className="h-9 w-20"></div>
+               </div>
+            </div>
+         </header>
+      );
+   }
 
    return (
       <header className="sticky top-0 z-50 border-b bg-white">

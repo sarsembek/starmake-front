@@ -3,13 +3,20 @@
 import Image from "next/image";
 import { SocialAuth } from "@/components/shared/auth/SocialAuth";
 import { Logo } from "@/components/shared/Logo";
-import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ArrowLeft, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LoginForm } from "@/components/auth/LoginForm";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAuthRedirect } from "@/hooks/auth/useAuthRedirect";
 
 export default function LoginPage() {
    const router = useRouter();
+   const searchParams = useSearchParams();
+   const isRegistered = searchParams.get("registered") === "true";
+
+   // Redirect authenticated users to home page
+   useAuthRedirect();
 
    const handleGoogleAuth = () => {
       // Implement Google auth logic
@@ -59,15 +66,25 @@ export default function LoginPage() {
          </div>
 
          {/* Right side - login form */}
-         <div className="flex w-full items-center justify-center p-8 md:w-1/2">
+         <div className="flex w-full min-h-screen items-center justify-center p-8 md:w-1/2">
             <div className="mx-auto w-full max-w-md space-y-6">
-               <div className="text-center">
+               <div className="md:text-center">
                   <Logo href="/" className="inline-block mb-6" size="lg" />
                   <h1 className="text-3xl font-bold">Вход</h1>
                   <p className="text-muted-foreground">
                      Введите данные для входа
                   </p>
                </div>
+
+               {isRegistered && (
+                  <Alert className="border-green-500 bg-green-50">
+                     <CheckCircle className="h-4 w-4 text-green-500" />
+                     <AlertDescription className="text-green-700">
+                        Регистрация успешна! Пожалуйста, подтвердите ваш email
+                        адрес, перейдя по ссылке в письме.
+                     </AlertDescription>
+                  </Alert>
+               )}
 
                <LoginForm />
 

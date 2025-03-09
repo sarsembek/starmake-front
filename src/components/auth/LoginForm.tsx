@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useLoginMutation } from "@/hooks/auth/useLoginMutation";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, Mail } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export function LoginForm() {
@@ -14,7 +14,15 @@ export function LoginForm() {
    const [errorMessage, setErrorMessage] = useState("");
    const router = useRouter();
 
-   const { mutate: login, isPending } = useLoginMutation();
+   const {
+      mutate: login,
+      isPending,
+      needsVerification,
+      emailForVerification,
+      resendConfirmationEmail,
+      isResendingConfirmation,
+      resendConfirmationSuccess,
+   } = useLoginMutation();
 
    const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault();
@@ -24,7 +32,6 @@ export function LoginForm() {
          { email, password },
          {
             onSuccess: () => {
-               // Redirect to home page after successful login
                router.push("/");
             },
             onError: (err) => {
@@ -32,6 +39,12 @@ export function LoginForm() {
                   setErrorMessage("Неверный формат email или пароля");
                } else if (err.response?.status === 401) {
                   setErrorMessage("Неверный email или пароль");
+               } else if (
+                  err.response?.status === 403 &&
+                  err.response.data.detail ===
+                     "Please verify your email before accessing this resource."
+               ) {
+                  // This error is now handled by the hook state
                } else {
                   setErrorMessage(
                      "Ошибка входа. Пожалуйста, попробуйте снова."
@@ -53,6 +66,38 @@ export function LoginForm() {
             </Alert>
          )}
 
+         {needsVerification && (
+            <Alert className="border-amber-500 bg-amber-50">
+               <Mail className="h-5 w-5 text-amber-600" />
+               <div className="ml-2 flex-1 space-y-2">
+                  <AlertDescription className="text-amber-700">
+                     Пожалуйста, подтвердите ваш email перед входом.
+                     {!resendConfirmationSuccess && (
+                        <Button
+                           variant="link"
+                           className="p-0 h-auto text-amber-700 font-medium underline underline-offset-4 ml-1"
+                           onClick={resendConfirmationEmail}
+                           disabled={isResendingConfirmation}
+                        >
+                           {isResendingConfirmation
+                              ? "Отправка..."
+                              : "Отправить письмо повторно"}
+                        </Button>
+                     )}
+                  </AlertDescription>
+                  {resendConfirmationSuccess && (
+                     <div className="flex items-start gap-2 mt-2 bg-green-100 p-2 rounded text-sm text-green-800">
+                        <CheckCircle className="h-4 w-4 mt-0.5 text-green-600" />
+                        <span>
+                           Письмо для подтверждения отправлено на адрес{" "}
+                           {emailForVerification}
+                        </span>
+                     </div>
+                  )}
+               </div>
+            </Alert>
+         )}
+
          <div className="space-y-2">
             <label
                htmlFor="email"
@@ -66,7 +111,7 @@ export function LoginForm() {
                placeholder="mail@example.com"
                value={email}
                onChange={(e) => setEmail(e.target.value)}
-               disabled={isPending}
+               disabled={isPending || isResendingConfirmation}
                required
             />
          </div>
@@ -83,12 +128,16 @@ export function LoginForm() {
                type="password"
                value={password}
                onChange={(e) => setPassword(e.target.value)}
-               disabled={isPending}
+               disabled={isPending || isResendingConfirmation}
                required
             />
          </div>
 
-         <Button type="submit" className="w-full" disabled={isPending}>
+         <Button
+            type="submit"
+            className="w-full"
+            disabled={isPending || isResendingConfirmation}
+         >
             {isPending ? "Выполняется вход..." : "Войти"}
          </Button>
       </form>

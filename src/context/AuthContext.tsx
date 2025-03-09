@@ -7,6 +7,7 @@ import {
    useState,
    useEffect,
    ReactNode,
+   useCallback,
 } from "react";
 import Cookies from "js-cookie";
 
@@ -16,6 +17,7 @@ interface AuthContextType {
    user: User | null;
    token: string | null;
    isAuthenticated: boolean;
+   isLoading: boolean;
    setUser: (user: User | null) => void;
    setToken: (token: string | null) => void;
    logout: () => void;
@@ -27,24 +29,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    const [user, setUser] = useState<User | null>(null);
    const [token, setToken] = useState<string | null>(null);
    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+   const [isLoading, setIsLoading] = useState(true); // Renamed isInitialized to isLoading for clarity
 
+   // Initialize auth state from cookies
    useEffect(() => {
-      // Load token from cookies on initial load
-      const storedToken = Cookies.get(TOKEN_COOKIE_NAME);
-      if (storedToken) {
-         setToken(storedToken);
-         setIsAuthenticated(true);
-         // Optionally fetch user data here using the token
-         // fetchUserProfile(storedToken).then(setUser);
-      }
+      const initAuth = async () => {
+         try {
+            const storedToken = Cookies.get(TOKEN_COOKIE_NAME);
+            
+            if (storedToken) {
+               console.log(
+                  "Found token in cookies:",
+                  storedToken.substring(0, 10) + "..."
+               );
+               setToken(storedToken);
+               setIsAuthenticated(true);
+               
+               // TODO: You can fetch user profile here
+               // const userData = await fetchUserProfile(storedToken)
+               // setUser(userData);
+            }
+         } catch (error) {
+            console.error("Failed to initialize auth:", error);
+         } finally {
+            // Mark initialization as complete
+            setIsLoading(false);
+         }
+      };
+
+      initAuth();
    }, []);
 
-   const logout = () => {
+   // Update isAuthenticated whenever token changes
+   useEffect(() => {
+      if (!isLoading) { // Only update after initialization
+         console.log("Auth state updated:", { token: !!token, user: !!user });
+         setIsAuthenticated(!!token);
+      }
+   }, [token, user, isLoading]);
+
+   const logout = useCallback(() => {
+      console.log("Logging out");
       setUser(null);
       setToken(null);
       setIsAuthenticated(false);
       Cookies.remove(TOKEN_COOKIE_NAME);
-   };
+   }, []);
 
    return (
       <AuthContext.Provider
@@ -52,6 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             user,
             token,
             isAuthenticated,
+            isLoading,
             setUser,
             setToken,
             logout,

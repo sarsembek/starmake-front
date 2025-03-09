@@ -8,9 +8,13 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RegisterForm } from "@/components/auth/RegisterForm";
+import { useAuthRedirect } from "@/hooks/auth/useAuthRedirect";
 
 export default function RegisterPage() {
    const router = useRouter();
+
+   // Redirect authenticated users to home page
+   useAuthRedirect();
 
    const handleGoogleAuth = () => {
       // Implement Google auth logic
@@ -59,10 +63,10 @@ export default function RegisterPage() {
          </div>
 
          {/* Right side - register form */}
-         <div className="flex w-full items-center justify-center p-8 md:w-1/2">
+         <div className="flex w-full min-h-screen items-center justify-center p-8 md:w-1/2">
             <div className="mx-auto w-full max-w-md space-y-6">
-               <div className="text-center">
-                  <Logo href="/" className="inline-block mb-6" size="lg" />
+               <div className="md:text-center">
+                  <Logo href="/" className="inline-block mb-6 mt-6" size="lg" />
                   <h1 className="text-3xl font-bold">Регистрация</h1>
                   <p className="text-muted-foreground">
                      Создайте новый аккаунт

@@ -5,9 +5,14 @@ import { SocialIcon } from "react-social-icons";
 interface SocialAuthProps {
    onGoogleAuth?: () => void;
    onTelegramAuth?: () => void;
+   disabled?: boolean; // Add disabled prop
 }
 
-export function SocialAuth({ onGoogleAuth, onTelegramAuth }: SocialAuthProps) {
+export function SocialAuth({
+   onGoogleAuth,
+   onTelegramAuth,
+   disabled = false,
+}: SocialAuthProps) {
    return (
       <>
          <div className="relative">
@@ -26,12 +31,13 @@ export function SocialAuth({ onGoogleAuth, onTelegramAuth }: SocialAuthProps) {
                variant="outline"
                className="w-full flex items-center gap-2"
                onClick={onGoogleAuth}
+               disabled={disabled}
             >
                <SocialIcon
                   network="google"
                   style={{ width: 24, height: 24 }}
                   className="!h-5 !w-5"
-                  fgColor="currentColor"
+                  fgColor={disabled ? "gray" : "currentColor"}
                   bgColor="transparent"
                />
                Google
@@ -40,12 +46,13 @@ export function SocialAuth({ onGoogleAuth, onTelegramAuth }: SocialAuthProps) {
                variant="outline"
                className="w-full flex items-center gap-2"
                onClick={onTelegramAuth}
+               disabled={disabled}
             >
                <SocialIcon
                   network="telegram"
                   style={{ width: 24, height: 24 }}
                   className="!h-5 !w-5"
-                  fgColor="currentColor"
+                  fgColor={disabled ? "gray" : "currentColor"}
                   bgColor="transparent"
                />
                Telegram

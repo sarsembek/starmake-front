@@ -39,3 +39,22 @@ export type ValidationError = {
 export type EmailExistsError = {
    detail: string;
 };
+
+export type EmailConfirmationRequest = {
+   token: string;
+};
+
+export type EmailConfirmationResponse = User;
+
+export type SendConfirmationEmailRequest = {
+   email: string;
+};
+
+export type SendConfirmationEmailResponse = {
+   message: string;
+   token: string;
+};
+
+export type UnverifiedEmailError = {
+   detail: string;
+};
