@@ -1,12 +1,12 @@
 "use client";
 
 import { Geist, Geist_Mono } from "next/font/google";
-import { Navbar } from "@/components/navbar/navbar";
 import "./globals.css";
 import Footer from "@/components/home-page/footer";
 import { usePathname } from "next/navigation";
 import { AuthProvider } from "@/context/AuthContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Navbar } from "@/components/navbar/navbar";
 
 const geistSans = Geist({
    variable: "--font-geist-sans",
