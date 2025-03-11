@@ -2,9 +2,8 @@
 
 import { ReelCard } from "@/components/reel/reel-card/reel-card";
 import { Sidebar } from "@/components/reel/sidebar/sidebar";
-import { Film, Star, Globe, Utensils, Activity } from "lucide-react";
 import { useState } from "react";
-import { Category } from "@/types/reel/category.type";
+import { useCategories } from "@/hooks/useCategories";
 import {
    Pagination,
    PaginationContent,
@@ -14,11 +13,6 @@ import {
    PaginationNext,
    PaginationPrevious,
 } from "@/components/ui/pagination";
-
-// Extended category type for UI with icon
-interface UICategory extends Category {
-   icon?: React.ReactNode;
-}
 
 // Sample data based on the provided schema
 const generateReels = (count: number) => {
@@ -44,7 +38,7 @@ const generateReels = (count: number) => {
       language: i % 3 === 0 ? "es" : i % 5 === 0 ? "fr" : "en",
       country: i % 3 === 0 ? "ES" : i % 5 === 0 ? "FR" : "US",
       category: {
-         id: (i % 5) + 1,
+         id: (i % 39) + 1,
          name: ["Entertainment", "Education", "Travel", "Food", "Fitness"][
             i % 5
          ],
@@ -63,48 +57,10 @@ const generateReels = (count: number) => {
 const sampleReels = generateReels(24);
 const itemsPerPage = 12;
 
-// Updated categories with the correct type
-const categories: UICategory[] = [
-   {
-      id: 1,
-      name: "Entertainment",
-      name_rus: "Развлечения",
-      icon: <Film className="h-4 w-4" />,
-      count_reels: 42,
-   },
-   {
-      id: 2,
-      name: "Education",
-      name_rus: "Образование",
-      icon: <Star className="h-4 w-4" />,
-      count_reels: 28,
-   },
-   {
-      id: 3,
-      name: "Travel",
-      name_rus: "Путешествия",
-      icon: <Globe className="h-4 w-4" />,
-      count_reels: 35,
-   },
-   {
-      id: 4,
-      name: "Food",
-      name_rus: "Еда",
-      icon: <Utensils className="h-4 w-4" />,
-      count_reels: 20,
-   },
-   {
-      id: 5,
-      name: "Fitness",
-      name_rus: "Фитнес",
-      icon: <Activity className="h-4 w-4" />,
-      count_reels: 15,
-   },
-];
-
 export default function LibraryPage() {
    const [currentPage, setCurrentPage] = useState(1);
    const [activeCategory, setActiveCategory] = useState(0);
+   const { data: apiCategories, isLoading } = useCategories();
 
    // Filter reels by category if needed
    const filteredReels =
@@ -129,6 +85,19 @@ export default function LibraryPage() {
    const handleCategorySelect = (categoryId: number) => {
       setActiveCategory(categoryId);
       setCurrentPage(1); // Reset to first page when changing category
+   };
+
+   // Get the category name_rus for the title
+   const getCategoryTitle = () => {
+      if (activeCategory === 0) return "Все рилсы";
+
+      if (isLoading || !apiCategories) return "Загрузка...";
+
+      const selectedCategory = apiCategories.find(
+         (cat) => cat.id === activeCategory
+      );
+
+      return selectedCategory?.name_rus || "Рилсы";
    };
 
    // Function to generate pagination items
@@ -215,7 +184,6 @@ export default function LibraryPage() {
    return (
       <div className="flex min-h-screen bg-background">
          <Sidebar
-            categories={categories}
             activeCategory={activeCategory}
             onSelectCategory={handleCategorySelect}
          />
@@ -224,11 +192,7 @@ export default function LibraryPage() {
             <div className="container mx-auto max-w-7xl">
                <header className="mb-8">
                   <h1 className="text-3xl font-bold tracking-tight">
-                     {activeCategory === 0
-                        ? "Все рилсы" // Changed to Russian
-                        : categories.find((c) => c.id === activeCategory)
-                             ?.name_rus || "Рилсы"}{" "}
-                     {/* Use name_rus instead of name */}
+                     {getCategoryTitle()}
                   </h1>
                   <p className="text-muted-foreground mt-1">
                      Откройте для себя удивительный контент от создателей со

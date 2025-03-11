@@ -36,6 +36,8 @@ export function useLoginMutation() {
             sameSite: "strict",
          });
 
+         localStorage.setItem("user", JSON.stringify(data.user));
+
          // Update auth context
          setToken(data.token);
          setUser(data.user);

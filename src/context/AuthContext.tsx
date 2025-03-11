@@ -36,18 +36,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const initAuth = async () => {
          try {
             const storedToken = Cookies.get(TOKEN_COOKIE_NAME);
-            
+            const storedUser = localStorage.getItem("user");
+
             if (storedToken) {
                console.log(
                   "Found token in cookies:",
                   storedToken.substring(0, 10) + "..."
                );
                setToken(storedToken);
+               
                setIsAuthenticated(true);
                
                // TODO: You can fetch user profile here
                // const userData = await fetchUserProfile(storedToken)
                // setUser(userData);
+            }
+            if (storedUser) {
+               setUser(JSON.parse(storedUser));
             }
          } catch (error) {
             console.error("Failed to initialize auth:", error);

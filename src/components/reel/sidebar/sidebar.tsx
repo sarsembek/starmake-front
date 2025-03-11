@@ -1,92 +1,61 @@
 "use client";
 
-import type React from "react";
-
-import { useState } from "react";
-import {
-   ChevronDown,
-   Hash,
-   Film,
-   Flame,
-   Clock,
-   Star,
-   Heart,
-   Globe,
-   Menu,
-} from "lucide-react";
-
+import React, { useState } from "react";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { cn } from "@/lib/utils";
-import { Category as CategoryType } from "@/types/reel/category.type";
-
-interface UICategory extends CategoryType {
-   icon?: React.ReactNode;
-}
+import { useCategories } from "@/hooks/useCategories";
+import { SidebarHeader } from "./components/sidebar-header";
+import { SidebarFooter } from "./components/sidebar-footer";
+import { CategoryGroup } from "./components/category-group";
+import { LoadingState } from "./components/loading-state";
+import { mapCategoriesToUI } from "./utils/category-mapper";
+import { groupCategories } from "./utils/category-grouper";
 
 interface SidebarProps {
-   categories: UICategory[];
    activeCategory?: number;
    onSelectCategory?: (categoryId: number) => void;
-}
+ }
 
-export function Sidebar({
-   categories,
-   activeCategory,
-   onSelectCategory,
-}: SidebarProps) {
+export function Sidebar({ activeCategory, onSelectCategory }: SidebarProps) {
    const [isOpen, setIsOpen] = useState(false);
+   const { data: apiCategories, isLoading, error } = useCategories();
 
-   const defaultCategories: UICategory[] = [
-      {
-         id: 0,
-         name: "All Reels",
-         name_rus: "Все ролики",
-         count_reels: 120,
-         icon: <Film className="h-4 w-4" />,
-      },
-      {
-         id: 1,
-         name: "Trending",
-         name_rus: "В тренде",
-         count_reels: 42,
-         icon: <Flame className="h-4 w-4" />,
-      },
-      {
-         id: 2,
-         name: "Latest",
-         name_rus: "Последние",
-         count_reels: 28,
-         icon: <Clock className="h-4 w-4" />,
-      },
-      {
-         id: 3,
-         name: "Popular",
-         name_rus: "Популярные",
-         count_reels: 35,
-         icon: <Star className="h-4 w-4" />,
-      },
-      {
-         id: 4,
-         name: "Favorites",
-         name_rus: "Избранное",
-         count_reels: 15,
-         icon: <Heart className="h-4 w-4" />,
-      },
-   ];
-
-   const allCategories = [
-      ...defaultCategories,
-      ...categories.filter(
-         (c) => !defaultCategories.some((dc) => dc.id === c.id)
-      ),
-   ];
+   // Process categories using utility functions
+   const uiCategories = mapCategoriesToUI(apiCategories);
+   const categoryGroups = groupCategories(uiCategories);
 
    const handleCategoryClick = (categoryId: number) => {
       if (onSelectCategory) {
          onSelectCategory(categoryId);
       }
+   };
+
+   // Render sidebar content based on state
+   const renderContent = () => {
+      if (isLoading) {
+         return <LoadingState />;
+      }
+
+      if (error) {
+         return (
+            <div className="text-destructive text-sm py-4">
+               Ошибка загрузки категорий
+            </div>
+         );
+      }
+
+      return categoryGroups.map((group, index) => (
+         <CategoryGroup
+            key={`group-${index}`}
+            group={group}
+            groupIndex={index}
+            activeCategory={activeCategory}
+            onCategoryClick={handleCategoryClick}
+            onClose={() => setIsOpen(false)}
+         />
+      ));
    };
 
    return (
@@ -108,111 +77,28 @@ export function Sidebar({
                   side="left"
                   className="p-0 w-[280px] flex flex-col"
                >
-                  {/* Fixed Header */}
-                  <div className="p-4 border-b shrink-0">
-                     <h2 className="text-lg font-semibold">Категории</h2>
-                  </div>
-
-                  {/* Scrollable Content */}
+                  <SidebarHeader />
                   <ScrollArea className="flex-1">
                      <div className="p-4">
-                        <nav className="space-y-1">
-                           {allCategories.map((category) => (
-                              <Button
-                                 key={category.id}
-                                 variant="ghost"
-                                 className={cn(
-                                    "w-full justify-start gap-2 text-left font-normal",
-                                    activeCategory === category.id &&
-                                       "bg-muted font-medium"
-                                 )}
-                                 onClick={() => {
-                                    handleCategoryClick(category.id);
-                                    setIsOpen(false);
-                                 }}
-                              >
-                                 {category.icon || <Hash className="h-4 w-4" />}
-                                 {category.name_rus}
-                                 {category.count_reels !== undefined && (
-                                    <span className="ml-auto text-xs text-muted-foreground">
-                                       {category.count_reels}
-                                    </span>
-                                 )}
-                              </Button>
-                           ))}
-                        </nav>
+                        <nav>{renderContent()}</nav>
                      </div>
                   </ScrollArea>
-
-                  {/* Fixed Footer */}
-                  <div className="p-4 border-t shrink-0">
-                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                           <Globe className="h-4 w-4 text-muted-foreground" />
-                           <span className="text-sm text-muted-foreground">
-                              Язык
-                           </span>
-                        </div>
-                        <Button variant="ghost" size="sm" className="h-8 gap-1">
-                           Русский
-                           <ChevronDown className="h-4 w-4" />
-                        </Button>
-                     </div>
-                  </div>
+                  <SidebarFooter />
                </SheetContent>
             </Sheet>
          </div>
 
          {/* Desktop Sidebar */}
          <aside className="hidden lg:flex flex-col w-64 border-r h-screen sticky top-0">
-            {/* Fixed Header */}
-            <div className="p-4 border-b shrink-0">
-               <h2 className="text-lg font-semibold">Категории</h2>
-            </div>
-
-            {/* Scrollable Content */}
+            <SidebarHeader />
             <div className="flex-1 overflow-hidden">
                <ScrollArea className="h-full">
                   <div className="p-4">
-                     <nav className="space-y-1">
-                        {allCategories.map((category) => (
-                           <Button
-                              key={category.id}
-                              variant="ghost"
-                              className={cn(
-                                 "w-full justify-start gap-2 text-left font-normal",
-                                 activeCategory === category.id &&
-                                    "bg-muted font-medium"
-                              )}
-                              onClick={() => handleCategoryClick(category.id)}
-                           >
-                              {category.icon || <Hash className="h-4 w-4" />}
-                              {category.name_rus}
-                              {category.count_reels !== undefined && (
-                                 <span className="ml-auto text-xs text-muted-foreground">
-                                    {category.count_reels}
-                                 </span>
-                              )}
-                           </Button>
-                        ))}
-                     </nav>
+                     <nav>{renderContent()}</nav>
                   </div>
                </ScrollArea>
             </div>
-
-            {/* Fixed Footer */}
-            <div className="p-4 border-t shrink-0">
-               <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                     <Globe className="h-4 w-4 text-muted-foreground" />
-                     <span className="text-sm text-muted-foreground">Язык</span>
-                  </div>
-                  <Button variant="ghost" size="sm" className="h-8 gap-1">
-                     Русский
-                     <ChevronDown className="h-4 w-4" />
-                  </Button>
-               </div>
-            </div>
+            <SidebarFooter />
          </aside>
       </>
    );
