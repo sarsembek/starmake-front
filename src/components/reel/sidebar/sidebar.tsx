@@ -16,7 +16,7 @@ import { groupCategories } from "./utils/category-grouper";
 interface SidebarProps {
    activeCategory?: number;
    onSelectCategory?: (categoryId: number) => void;
- }
+}
 
 export function Sidebar({ activeCategory, onSelectCategory }: SidebarProps) {
    const [isOpen, setIsOpen] = useState(false);
@@ -61,21 +61,22 @@ export function Sidebar({ activeCategory, onSelectCategory }: SidebarProps) {
    return (
       <>
          {/* Mobile Sidebar Trigger */}
-         <div className="lg:hidden fixed top-4 left-4 z-40">
+         <div className="lg:hidden fixed top-6 left-6 z-50">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
                <SheetTrigger asChild>
                   <Button
                      variant="outline"
                      size="icon"
-                     className="rounded-full"
+                     className="rounded-full bg-blue-500 text-white p-2 shadow-lg"
+                     onClick={() => console.log("Sidebar button clicked")}
                   >
-                     <Menu className="h-5 w-5" />
+                     <Menu className="h-6 w-6" />
                      <span className="sr-only">Toggle sidebar</span>
                   </Button>
                </SheetTrigger>
                <SheetContent
                   side="left"
-                  className="p-0 w-[280px] flex flex-col"
+                  className="p-0 w-[280px] flex flex-col bg-white"
                >
                   <SidebarHeader />
                   <ScrollArea className="flex-1">

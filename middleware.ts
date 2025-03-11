@@ -1,24 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
-import Cookies from "js-cookie";
 
 // Define public routes that do NOT require authentication
 const publicRoutes = ["/login", "/register", "/"];
 
-export async function middleware(req: NextRequest) {
+export function middleware(req: NextRequest) {
    const path = req.nextUrl.pathname;
-   const isPublicRoute = publicRoutes.includes(path);
+   const isPublicRoute = publicRoutes.some(
+      (route) => path === route || path.startsWith(`${route}/`)
+   );
 
-   // Get authentication token from cookies
-   const authToken = Cookies.get("auth_token");
+   // Get authentication token from cookies using server-side API
+   const authToken = req.cookies.get("auth_token");
 
-   // If accessing a protected route (anything except public routes) and no token exists -> redirect to login
+   // If accessing a protected route and no token exists -> redirect to login
    if (!isPublicRoute && !authToken) {
       const url = new URL("/login", req.url);
       url.searchParams.set("from", path); // Store original URL for redirect after login
       return NextResponse.redirect(url);
    }
 
-   // If accessing a public route while authenticated -> redirect to dashboard (or library)
+   // If accessing a public route while authenticated -> redirect to library
    if (isPublicRoute && authToken) {
       return NextResponse.redirect(new URL("/library", req.url));
    }
@@ -27,5 +28,14 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-   matcher: "/:path*", // ✅ This applies the middleware to ALL routes
+   matcher: [
+      /*
+       * Match all request paths except:
+       * - _next/static (static files)
+       * - _next/image (image optimization files)
+       * - favicon.ico (favicon file)
+       * - public files (images, etc.)
+       */
+      "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+   ],
 };
