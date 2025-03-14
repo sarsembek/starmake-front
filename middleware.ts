@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 // Define public routes that do NOT require authentication
 const publicRoutes = ["/login", "/register", "/"];
 
-export async function middleware(req: NextRequest) {
+export function middleware(req: NextRequest) {
    const path = req.nextUrl.pathname;
    const isPublicRoute = publicRoutes.some(
       (route) => path === route || path.startsWith(`${route}/`)
@@ -14,29 +14,33 @@ export async function middleware(req: NextRequest) {
 
    // If accessing a protected route and no token exists -> redirect to login
    if (!isPublicRoute && !authToken) {
+      // Create redirect URL with special flag for history handling
       const url = new URL("/login", req.url);
-      url.searchParams.set("from", path); // Store original URL for redirect after login
-      return NextResponse.redirect(url);
+      url.searchParams.set("from", path);
+      url.searchParams.set("nohistory", "true"); // Add this flag for client-side detection
+
+      // Create response with redirect
+      const response = NextResponse.redirect(url);
+
+      // Set a cookie to indicate this was a protected route redirect
+      // This helps us track that we came from a redirect rather than direct navigation
+      response.cookies.set("redirect_from_protected", "true", {
+         maxAge: 60, // Short lived - just for the redirect
+         path: "/",
+      });
+
+      return response;
    }
 
-   // If accessing a public route while authenticated -> redirect to library
-   if (isPublicRoute && authToken) {
-      return NextResponse.redirect(new URL("/library", req.url));
+   // For public routes, clear the redirect cookie
+   if (isPublicRoute) {
+      const response = NextResponse.next();
+      response.cookies.delete("redirect_from_protected");
+      return response;
    }
 
-   // Handle API requests to track 401 responses
-   const response = NextResponse.next();
-   return track401Response(req, response);
-}
-
-// Function to track 401 responses and redirect users
-async function track401Response(req: NextRequest, response: Response) {
-   if (response.status === 401) {
-      const url = new URL("/login", req.url);
-      url.searchParams.set("from", req.nextUrl.pathname); // Store original URL
-      return NextResponse.redirect(url);
-   }
-   return response;
+   // For all other cases, proceed normally
+   return NextResponse.next();
 }
 
 export const config = {

@@ -14,6 +14,7 @@ export default function LoginPage() {
    const router = useRouter();
    const searchParams = useSearchParams();
    const isRegistered = searchParams.get("registered") === "true";
+   const fromProtectedRoute = searchParams.has("from");
 
    // Redirect authenticated users to home page
    useAuthRedirect();
@@ -34,9 +35,15 @@ export default function LoginPage() {
       router.replace("/register");
    };
 
-   // Go back to previous page (likely home)
+   // Go back to previous page or home if from protected route
    const goBack = () => {
-      router.back();
+      if (fromProtectedRoute) {
+         // If redirected from protected route, go home instead
+         router.push("/");
+      } else {
+         // Otherwise use normal back behavior
+         router.back();
+      }
    };
 
    return (

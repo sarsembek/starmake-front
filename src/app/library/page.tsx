@@ -70,7 +70,7 @@ export default function LibraryPage() {
    useEffect(() => {
       if (!isAuthenticated) {
          // Store current path
-         router.push("/login");
+         router.push("/login?from=library");
       }
    }, [isAuthenticated, router]);
 

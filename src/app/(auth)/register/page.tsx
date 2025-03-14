@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { SocialAuth } from "@/components/shared/auth/SocialAuth";
 import { Logo } from "@/components/shared/Logo";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RegisterForm } from "@/components/auth/RegisterForm";
@@ -12,6 +12,8 @@ import { useAuthRedirect } from "@/hooks/auth/useAuthRedirect";
 
 export default function RegisterPage() {
    const router = useRouter();
+   const searchParams = useSearchParams();
+   const fromProtectedRoute = searchParams.has("from");
 
    // Redirect authenticated users to home page
    useAuthRedirect();
@@ -32,9 +34,15 @@ export default function RegisterPage() {
       router.replace("/login");
    };
 
-   // Go back to previous page (likely home)
+   // Go back to previous page or home if from protected route
    const goBack = () => {
-      router.back();
+      if (fromProtectedRoute) {
+         // If redirected from protected route, go home instead
+         router.push("/");
+      } else {
+         // Otherwise use normal back behavior
+         router.back();
+      }
    };
 
    return (
