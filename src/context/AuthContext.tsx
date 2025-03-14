@@ -44,9 +44,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                   storedToken.substring(0, 10) + "..."
                );
                setToken(storedToken);
-               
+
                setIsAuthenticated(true);
-               
+
                // TODO: You can fetch user profile here
                // const userData = await fetchUserProfile(storedToken)
                // setUser(userData);
@@ -67,7 +67,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
    // Update isAuthenticated whenever token changes
    useEffect(() => {
-      if (!isLoading) { // Only update after initialization
+      if (!isLoading) {
+         // Only update after initialization
          console.log("Auth state updated:", { token: !!token, user: !!user });
          setIsAuthenticated(!!token);
       }
@@ -80,6 +81,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsAuthenticated(false);
       Cookies.remove(TOKEN_COOKIE_NAME);
    }, []);
+
+   // Listen for logout events (from outside React components like interceptors)
+   useEffect(() => {
+      const handleLogoutEvent = () => {
+         logout();
+      };
+
+      window.addEventListener("auth:logout", handleLogoutEvent);
+
+      return () => {
+         window.removeEventListener("auth:logout", handleLogoutEvent);
+      };
+   }, [logout]);
+
+   // Listen for auth token expiration events
+   useEffect(() => {
+      const handleLogoutEvent = () => {
+         console.log("Auth token expired, logging out");
+         logout();
+      };
+
+      window.addEventListener("auth:logout", handleLogoutEvent);
+
+      return () => {
+         window.removeEventListener("auth:logout", handleLogoutEvent);
+      };
+   }, [logout]);
 
    return (
       <AuthContext.Provider

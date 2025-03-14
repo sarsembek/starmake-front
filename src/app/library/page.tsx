@@ -2,8 +2,10 @@
 
 import { ReelCard } from "@/components/reel/reel-card/reel-card";
 import { Sidebar } from "@/components/reel/sidebar/sidebar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useCategories } from "@/hooks/useCategories";
+import { useAuth } from "@/context/AuthContext";
 import {
    Pagination,
    PaginationContent,
@@ -58,9 +60,19 @@ const sampleReels = generateReels(24);
 const itemsPerPage = 12;
 
 export default function LibraryPage() {
+   const router = useRouter();
+   const { isAuthenticated } = useAuth();
    const [currentPage, setCurrentPage] = useState(1);
    const [activeCategory, setActiveCategory] = useState(0);
    const { data: apiCategories, isLoading } = useCategories();
+
+   // Redirect to login if not authenticated
+   useEffect(() => {
+      if (!isAuthenticated) {
+         // Store current path
+         router.push("/login");
+      }
+   }, [isAuthenticated, router]);
 
    // Filter reels by category if needed
    const filteredReels =

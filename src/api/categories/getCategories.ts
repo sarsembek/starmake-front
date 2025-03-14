@@ -1,18 +1,11 @@
 import { Category } from "@/types/reel/category.type";
-import axios from "axios";
+import { axiosWithAuth } from "@/lib/axios";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-export const getCategories = async (token: string): Promise<Category[]> => {
+export const getCategories = async (): Promise<Category[]> => {
    try {
-      // Get all 39 categories at once by using a large enough limit
-      const response = await axios.get<Category[]>(
-         `${API_URL}/library/api/v1/categories/?skip=0&limit=50`,
-         {
-            headers: {
-               Authorization: `Bearer ${token}`,
-            },
-         }
+      // Note: No need to pass token manually anymore
+      const response = await axiosWithAuth.get<Category[]>(
+         "/library/api/v1/categories/?skip=0&limit=50"
       );
       return response.data;
    } catch (error) {
