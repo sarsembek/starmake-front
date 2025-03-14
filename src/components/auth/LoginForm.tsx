@@ -24,6 +24,17 @@ export function LoginForm() {
       resendConfirmationSuccess,
    } = useLoginMutation();
 
+   const handleLoginSuccess = () => {
+      // Get any stored return path
+      const returnPath = localStorage.getItem("returnPath") || "/";
+
+      // Clear it from storage
+      localStorage.removeItem("returnPath");
+
+      // Navigate to the return path
+      router.push(returnPath);
+   };
+
    const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault();
       setErrorMessage("");
@@ -31,9 +42,7 @@ export function LoginForm() {
       login(
          { email, password },
          {
-            onSuccess: () => {
-               router.push("/");
-            },
+            onSuccess: handleLoginSuccess,
             onError: (err) => {
                if (err.response?.status === 422) {
                   setErrorMessage("Неверный формат email или пароля");

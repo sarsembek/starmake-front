@@ -2,10 +2,10 @@
 
 import { ReelCard } from "@/components/reel/reel-card/reel-card";
 import { Sidebar } from "@/components/reel/sidebar/sidebar";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useCategories } from "@/hooks/useCategories";
-import { useAuth } from "@/context/AuthContext";
+import { useReels } from "@/hooks/useReels";
+import { VideoProvider } from "@/context/VideoContext";
 import {
    Pagination,
    PaginationContent,
@@ -16,77 +16,27 @@ import {
    PaginationPrevious,
 } from "@/components/ui/pagination";
 
-// Sample data based on the provided schema
-const generateReels = (count: number) => {
-   return Array.from({ length: count }, (_, i) => ({
-      id: i + 1,
-      shortcode: `abc${i + 100}`,
-      title: `Reel #${i + 1}: Amazing content for your feed`,
-      description:
-         i % 3 === 0
-            ? `This is a longer description for reel #${
-                 i + 1
-              }. It contains more details about the content and what makes it special.`
-            : undefined,
-      videoUrl: "https://example.com/videos/video.mp4",
-      thumbnailUrl: `/placeholder.svg?height=640&width=360&text=Reel+${i + 1}`,
-      postUrl: `https://example.com/reels/abc${i + 100}`,
-      ownerUsername: `user_${(i % 5) + 1}`,
-      likes: Math.floor(Math.random() * 2000) + 100,
-      viewCount: Math.floor(Math.random() * 50000) + 1000,
-      commentCount: Math.floor(Math.random() * 200) + 10,
-      hashtags: "trending,viral,content,reels",
-      tags: "video,social,media",
-      language: i % 3 === 0 ? "es" : i % 5 === 0 ? "fr" : "en",
-      country: i % 3 === 0 ? "ES" : i % 5 === 0 ? "FR" : "US",
-      category: {
-         id: (i % 39) + 1,
-         name: ["Entertainment", "Education", "Travel", "Food", "Fitness"][
-            i % 5
-         ],
-         name_rus: [
-            "Развлечения",
-            "Образование",
-            "Путешествия",
-            "Еда",
-            "Фитнес",
-         ][i % 5],
-         count_reels: [42, 28, 35, 20, 15][i % 5],
-      },
-   }));
-};
-
-const sampleReels = generateReels(24);
 const itemsPerPage = 12;
 
 export default function LibraryPage() {
-   const router = useRouter();
-   const { isAuthenticated } = useAuth();
+   // const { isAuthenticated } = useAuth();
    const [currentPage, setCurrentPage] = useState(1);
    const [activeCategory, setActiveCategory] = useState(0);
-   const { data: apiCategories, isLoading } = useCategories();
 
-   // Redirect to login if not authenticated
-   useEffect(() => {
-      if (!isAuthenticated) {
-         // Store current path
-         router.push("/login?from=library");
-      }
-   }, [isAuthenticated, router]);
+   // Fetch categories
+   const { data: apiCategories, isLoading: categoriesLoading } =
+      useCategories();
 
-   // Filter reels by category if needed
-   const filteredReels =
-      activeCategory === 0
-         ? sampleReels
-         : sampleReels.filter((reel) => reel.category?.id === activeCategory);
-
-   // Calculate pagination
-   const totalPages = Math.ceil(filteredReels.length / itemsPerPage);
-   const startIndex = (currentPage - 1) * itemsPerPage;
-   const currentReels = filteredReels.slice(
-      startIndex,
-      startIndex + itemsPerPage
-   );
+   // Fetch reels with current filters
+   const {
+      data: reelsData,
+      isLoading: reelsLoading,
+      error: reelsError,
+   } = useReels({
+      page: currentPage,
+      size: itemsPerPage,
+      categoryId: activeCategory > 0 ? activeCategory : undefined,
+   });
 
    const handlePageChange = (page: number) => {
       setCurrentPage(page);
@@ -101,19 +51,21 @@ export default function LibraryPage() {
 
    // Get the category name_rus for the title
    const getCategoryTitle = () => {
-      if (activeCategory === 0) return "Все рилсы";
+      if (activeCategory === 0) return "All Reels";
 
-      if (isLoading || !apiCategories) return "Загрузка...";
+      if (categoriesLoading || !apiCategories) return "Loading...";
 
       const selectedCategory = apiCategories.find(
          (cat) => cat.id === activeCategory
       );
 
-      return selectedCategory?.name_rus || "Рилсы";
+      return selectedCategory?.name_rus || "Reels";
    };
 
    // Function to generate pagination items
    const renderPaginationItems = () => {
+      const totalPages = reelsData?.pages || 1;
+
       // For small number of pages, show all of them
       if (totalPages <= 5) {
          return Array.from({ length: totalPages }, (_, i) => (
@@ -179,91 +131,178 @@ export default function LibraryPage() {
       }
 
       // Always include last page
-      items.push(
-         <PaginationItem key={totalPages}>
-            <PaginationLink
-               isActive={currentPage === totalPages}
-               onClick={() => handlePageChange(totalPages)}
-            >
-               {totalPages}
-            </PaginationLink>
-         </PaginationItem>
-      );
+      if (totalPages > 1) {
+         items.push(
+            <PaginationItem key={totalPages}>
+               <PaginationLink
+                  isActive={currentPage === totalPages}
+                  onClick={() => handlePageChange(totalPages)}
+               >
+                  {totalPages}
+               </PaginationLink>
+            </PaginationItem>
+         );
+      }
 
       return items;
    };
 
    return (
-      <div className="flex min-h-screen bg-background">
-         <Sidebar
-            activeCategory={activeCategory}
-            onSelectCategory={handleCategorySelect}
-         />
+      <VideoProvider>
+         <div className="flex min-h-screen bg-background">
+            <Sidebar
+               activeCategory={activeCategory}
+               onSelectCategory={handleCategorySelect}
+            />
 
-         <main className="flex-1 p-4 lg:p-6">
-            <div className="container mx-auto max-w-7xl">
-               <header className="mb-8">
-                  <h1 className="text-3xl font-bold tracking-tight">
-                     {getCategoryTitle()}
-                  </h1>
-                  <p className="text-muted-foreground mt-1">
-                     Откройте для себя удивительный контент от создателей со
-                     всего мира
-                  </p>
-               </header>
+            <main className="flex-1 p-4 lg:p-6">
+               <div className="container mx-auto max-w-7xl">
+                  <header className="mb-8">
+                     <h1 className="text-3xl font-bold tracking-tight">
+                        {getCategoryTitle()}
+                     </h1>
+                     <p className="text-muted-foreground mt-1">
+                        Discover amazing content from creators worldwide
+                     </p>
+                  </header>
 
-               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {currentReels.map((reel) => (
-                     <ReelCard key={reel.id} {...reel} />
-                  ))}
+                  {reelsLoading ? (
+                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {Array(12)
+                           .fill(0)
+                           .map((_, index) => (
+                              <div
+                                 key={index}
+                                 className="h-[400px] bg-gray-100 rounded-md animate-pulse"
+                              ></div>
+                           ))}
+                     </div>
+                  ) : reelsError ? (
+                     <div className="text-center py-10">
+                        <h3 className="text-lg font-medium text-red-500">
+                           Ошибка при загрузке данных
+                        </h3>
+                        <p className="text-muted-foreground">
+                           Пожалуйста, попробуйте позже
+                        </p>
+                     </div>
+                  ) : (
+                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {reelsData?.items.map((reel) => {
+                           // Find the matching category
+                           const category = apiCategories?.find(
+                              (cat) => cat.id === reel.category_id
+                           );
+
+                           return (
+                              <ReelCard
+                                 shortcode={reel.shortcode}
+                                 key={reel.id}
+                                 id={reel.id}
+                                 title={reel.title}
+                                 description={reel.description}
+                                 video_url={reel.video_url}
+                                 file_url={reel.file_url}
+                                 thumbnail_url={reel.thumbnail_url}
+                                 owner_username={reel.owner_username}
+                                 likes={reel.likes}
+                                 view_count={reel.view_count}
+                                 comment_count={reel.comment_count}
+                                 hashtags={reel.hashtags}
+                                 language={reel.language}
+                                 country={reel.country}
+                                 category_id={reel.category_id}
+                                 tags={reel.tags}
+                                 transcribed_text={reel.transcribed_text}
+                                 repeat_instructions={reel.repeat_instructions}
+                                 improvement_suggestions={
+                                    reel.improvement_suggestions
+                                 }
+                                 source={reel.source}
+                                 created_at={reel.created_at}
+                                 is_favorite={reel.is_favorite}
+                                 post_url={reel.post_url}
+                                 category={
+                                    category
+                                       ? {
+                                            id: category.id,
+                                            name: category.name,
+                                            name_rus: category.name_rus,
+                                         }
+                                       : undefined
+                                 }
+                              />
+                           );
+                        })}
+                     </div>
+                  )}
+
+                  {/* Pagination Component */}
+                  {reelsData && reelsData.pages > 1 && (
+                     <div className="mt-8">
+                        <Pagination>
+                           <PaginationContent>
+                              <PaginationItem>
+                                 <PaginationPrevious
+                                    onClick={() =>
+                                       handlePageChange(
+                                          Math.max(1, currentPage - 1)
+                                       )
+                                    }
+                                    aria-disabled={currentPage === 1}
+                                    tabIndex={currentPage === 1 ? -1 : 0}
+                                    className={
+                                       currentPage === 1
+                                          ? "pointer-events-none opacity-50"
+                                          : ""
+                                    }
+                                 />
+                              </PaginationItem>
+
+                              {renderPaginationItems()}
+
+                              <PaginationItem>
+                                 <PaginationNext
+                                    onClick={() =>
+                                       handlePageChange(
+                                          Math.min(
+                                             reelsData.pages,
+                                             currentPage + 1
+                                          )
+                                       )
+                                    }
+                                    aria-disabled={
+                                       currentPage === reelsData.pages
+                                    }
+                                    tabIndex={
+                                       currentPage === reelsData.pages ? -1 : 0
+                                    }
+                                    className={
+                                       currentPage === reelsData.pages
+                                          ? "pointer-events-none opacity-50"
+                                          : ""
+                                    }
+                                 />
+                              </PaginationItem>
+                           </PaginationContent>
+                        </Pagination>
+                     </div>
+                  )}
+
+                  {/* Show message when no reels are found */}
+                  {reelsData?.items.length === 0 && !reelsLoading && (
+                     <div className="text-center py-10">
+                        <h3 className="text-lg font-medium">
+                           В этой категории пока нет рилсов
+                        </h3>
+                        <p className="text-muted-foreground">
+                           Попробуйте выбрать другую категорию
+                        </p>
+                     </div>
+                  )}
                </div>
-
-               {/* shadcn Pagination Component */}
-               {totalPages > 1 && (
-                  <div className="mt-8">
-                     <Pagination>
-                        <PaginationContent>
-                           <PaginationItem>
-                              <PaginationPrevious
-                                 onClick={() =>
-                                    handlePageChange(
-                                       Math.max(1, currentPage - 1)
-                                    )
-                                 }
-                                 aria-disabled={currentPage === 1}
-                                 tabIndex={currentPage === 1 ? -1 : 0}
-                                 className={
-                                    currentPage === 1
-                                       ? "pointer-events-none opacity-50"
-                                       : ""
-                                 }
-                              />
-                           </PaginationItem>
-
-                           {renderPaginationItems()}
-
-                           <PaginationItem>
-                              <PaginationNext
-                                 onClick={() =>
-                                    handlePageChange(
-                                       Math.min(totalPages, currentPage + 1)
-                                    )
-                                 }
-                                 aria-disabled={currentPage === totalPages}
-                                 tabIndex={currentPage === totalPages ? -1 : 0}
-                                 className={
-                                    currentPage === totalPages
-                                       ? "pointer-events-none opacity-50"
-                                       : ""
-                                 }
-                              />
-                           </PaginationItem>
-                        </PaginationContent>
-                     </Pagination>
-                  </div>
-               )}
-            </div>
-         </main>
-      </div>
+            </main>
+         </div>
+      </VideoProvider>
    );
 }

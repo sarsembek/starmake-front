@@ -27,7 +27,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
    const [user, setUser] = useState<User | null>(null);
-   const [token, setToken] = useState<string | null>(null);
+   const [tokenState, setTokenState] = useState<string | null>(null);
    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
    const [isLoading, setIsLoading] = useState(true); // Renamed isInitialized to isLoading for clarity
 
@@ -69,10 +69,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    useEffect(() => {
       if (!isLoading) {
          // Only update after initialization
-         console.log("Auth state updated:", { token: !!token, user: !!user });
-         setIsAuthenticated(!!token);
+         console.log("Auth state updated:", { token: !!tokenState, user: !!user });
+         setIsAuthenticated(!!tokenState);
       }
-   }, [token, user, isLoading]);
+   }, [tokenState, user, isLoading]);
 
    const logout = useCallback(() => {
       console.log("Logging out");
@@ -109,11 +109,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
    }, [logout]);
 
+   // When a token is set/removed, sync with cookies for middleware to access
+   const setToken = useCallback((newToken: string | null) => {
+      if (newToken) {
+         Cookies.set(TOKEN_COOKIE_NAME, newToken, {
+            expires: 7, // 7 days
+            path: "/",
+         });
+         setTokenState(newToken);
+      } else {
+         Cookies.remove(TOKEN_COOKIE_NAME, { path: "/" });
+         setTokenState(null);
+      }
+   }, []);
+
    return (
       <AuthContext.Provider
          value={{
             user,
-            token,
+            token: tokenState,
             isAuthenticated,
             isLoading,
             setUser,
