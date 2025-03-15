@@ -4,7 +4,7 @@ import { Reel } from "@/types/reel/reel.type";
 export const getReel = async (shortcode: string): Promise<Reel> => {
    try {
       const response = await axiosWithAuth.get<Reel>(
-         `/library/api/v1/reel/${shortcode}`
+         `/library/api/v1/reels/${shortcode}`
       );
       return response.data;
    } catch (error) {
