@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-// import Image from "next/image";
+import { useRouter } from "next/navigation";
 import {
    Heart,
    Eye,
@@ -18,7 +18,6 @@ import { useVideo } from "@/context/VideoContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Reel } from "@/types/reel/reel.type";
 import {
    Tooltip,
@@ -31,10 +30,8 @@ export function ReelCard({
    id,
    title,
    description,
-   // video_url,
    file_url,
-   // thumbnail_url,
-   // owner_username,
+   shortcode, // Make sure shortcode is included in props
    likes,
    view_count,
    comment_count,
@@ -43,6 +40,7 @@ export function ReelCard({
    country,
    category,
 }: Reel & { category?: { id: number; name: string; name_rus?: string } }) {
+   const router = useRouter();
    const [isLiked, setIsLiked] = useState(false);
    const [likeCount, setLikeCount] = useState(likes);
    const [isMuted, setIsMuted] = useState(true);
@@ -57,9 +55,7 @@ export function ReelCard({
 
    // Set up refs with callback to handle both video and intersection observer
    const setRefs = (el: HTMLVideoElement | null) => {
-      // Set the videoRef
       videoRef.current = el;
-      // Set the inViewRef (for intersection observer)
       inViewRef(el);
    };
 
@@ -89,7 +85,8 @@ export function ReelCard({
       }
    }, [inView]);
 
-   const handleLike = () => {
+   const handleLike = (e: React.MouseEvent) => {
+      e.stopPropagation(); // Prevent card click when clicking like button
       if (isLiked) {
          setLikeCount((prev) => prev - 1);
       } else {
@@ -98,13 +95,12 @@ export function ReelCard({
       setIsLiked(!isLiked);
    };
 
-   const handleMuteToggle = () => {
+   const handleMuteToggle = (e: React.MouseEvent) => {
+      e.stopPropagation(); // Prevent card click when clicking mute button
       if (videoRef.current) {
          if (isMuted) {
-            // This video is being unmuted, so make it the active video
             setActiveVideoId(id);
          } else {
-            // This video is being muted, so clear active video if it's this one
             if (activeVideoId === id) {
                setActiveVideoId(null);
             }
@@ -114,15 +110,24 @@ export function ReelCard({
       }
    };
 
+   // Handle card click to navigate to reel details
+   const handleCardClick = () => {
+      if (shortcode) {
+         router.push(`/library/reels/${shortcode}`);
+      }
+   };
+
    const videoSrc = file_url;
    const hashtagArray = hashtags
       ? hashtags.split(",").map((tag) => tag.trim())
       : [];
 
    return (
-      <Card className="overflow-hidden h-full flex flex-col pt-0">
+      <Card
+         className="overflow-hidden h-full flex flex-col pt-0 cursor-pointer"
+         onClick={handleCardClick}
+      >
          <div className="relative aspect-[9/16] w-full">
-            {/* Always render video element for autoplay, but control it with CSS */}
             <video
                ref={setRefs}
                src={videoSrc}
@@ -130,11 +135,10 @@ export function ReelCard({
                loop
                playsInline
                muted={true}
-               autoPlay={false} // We control this via JS
+               autoPlay={false}
                poster={"/placeholder.svg"}
             />
 
-            {/* Like button and mute button overlay */}
             <div className="absolute top-4 right-4 flex flex-col gap-4">
                <Button
                   variant="secondary"
@@ -149,7 +153,6 @@ export function ReelCard({
                   />
                </Button>
 
-               {/* New mute/unmute button */}
                <Button
                   variant="secondary"
                   size="icon"
@@ -164,7 +167,6 @@ export function ReelCard({
                </Button>
             </div>
 
-            {/* Content overlay */}
             <CardContent className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 pt-16 space-y-2">
                <h3 className="font-bold text-base line-clamp-1 text-white">
                   {title}
@@ -242,24 +244,6 @@ export function ReelCard({
                      </TooltipProvider>
                   )}
                </div>
-
-               {/* User info overlay */}
-               {/* <div className="bottom-4 left-4 right-12 flex flex-col gap-2">
-                  <div className="flex items-center gap-2">
-                     <Avatar className="h-8 w-8 border border-white">
-                        <AvatarImage
-                           src={`/placeholder.svg?height=32&width=32`}
-                           alt={owner_username || "User"}
-                        />
-                        <AvatarFallback>
-                           {owner_username?.substring(0, 2) || "UN"}
-                        </AvatarFallback>
-                     </Avatar>
-                     <span className="text-white font-medium text-sm">
-                        {owner_username || "Anonymous"}
-                     </span>
-                  </div>
-               </div> */}
             </CardContent>
          </div>
 
