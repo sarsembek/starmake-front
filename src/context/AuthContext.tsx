@@ -69,36 +69,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    useEffect(() => {
       if (!isLoading) {
          // Only update after initialization
-         console.log("Auth state updated:", { token: !!tokenState, user: !!user });
+         console.log("Auth state updated:", {
+            token: !!tokenState,
+            user: !!user,
+         });
          setIsAuthenticated(!!tokenState);
       }
    }, [tokenState, user, isLoading]);
 
    const logout = useCallback(() => {
       console.log("Logging out");
+
+      // Clear all states
       setUser(null);
       setToken(null);
       setIsAuthenticated(false);
+
+      // Clear cookies with all possible configurations to ensure deletion
       Cookies.remove(TOKEN_COOKIE_NAME);
+      Cookies.remove(TOKEN_COOKIE_NAME, { path: "/" });
+
+      // Also clear localStorage
+      localStorage.removeItem("user");
+
+      // Force reload the page to ensure middleware evaluates the new state
+      window.location.href = "/login";
    }, []);
 
    // Listen for logout events (from outside React components like interceptors)
    useEffect(() => {
       const handleLogoutEvent = () => {
-         logout();
-      };
-
-      window.addEventListener("auth:logout", handleLogoutEvent);
-
-      return () => {
-         window.removeEventListener("auth:logout", handleLogoutEvent);
-      };
-   }, [logout]);
-
-   // Listen for auth token expiration events
-   useEffect(() => {
-      const handleLogoutEvent = () => {
-         console.log("Auth token expired, logging out");
          logout();
       };
 

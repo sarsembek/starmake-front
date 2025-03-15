@@ -51,7 +51,7 @@ export default function LibraryPage() {
 
    // Get the category name_rus for the title
    const getCategoryTitle = () => {
-      if (activeCategory === 0) return "All Reels";
+      if (activeCategory === 0) return "Reels";
 
       if (categoriesLoading || !apiCategories) return "Loading...";
 
@@ -162,7 +162,7 @@ export default function LibraryPage() {
                         {getCategoryTitle()}
                      </h1>
                      <p className="text-muted-foreground mt-1">
-                        Discover amazing content from creators worldwide
+                        Откройте для себя удивительный контент от создателей со всего мира
                      </p>
                   </header>
 

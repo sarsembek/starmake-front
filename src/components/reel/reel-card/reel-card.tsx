@@ -18,7 +18,7 @@ import { useVideo } from "@/context/VideoContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Reel } from "@/types/reel/reel.type";
 import {
    Tooltip,
@@ -33,8 +33,8 @@ export function ReelCard({
    description,
    // video_url,
    file_url,
-   thumbnail_url,
-   owner_username,
+   // thumbnail_url,
+   // owner_username,
    likes,
    view_count,
    comment_count,
@@ -131,7 +131,7 @@ export function ReelCard({
                playsInline
                muted={true}
                autoPlay={false} // We control this via JS
-               poster={thumbnail_url || "/placeholder.svg"}
+               poster={"/placeholder.svg"}
             />
 
             {/* Like button and mute button overlay */}
@@ -200,7 +200,7 @@ export function ReelCard({
                               </div>
                            </TooltipTrigger>
                            <TooltipContent>
-                              <p>Category</p>
+                              <p>Категория</p>
                            </TooltipContent>
                         </Tooltip>
                      </TooltipProvider>
@@ -218,7 +218,7 @@ export function ReelCard({
                               </div>
                            </TooltipTrigger>
                            <TooltipContent>
-                              <p>Language</p>
+                              <p>Язык</p>
                            </TooltipContent>
                         </Tooltip>
                      </TooltipProvider>
@@ -236,7 +236,7 @@ export function ReelCard({
                               </div>
                            </TooltipTrigger>
                            <TooltipContent>
-                              <p>Country</p>
+                              <p>Страна</p>
                            </TooltipContent>
                         </Tooltip>
                      </TooltipProvider>
@@ -244,7 +244,7 @@ export function ReelCard({
                </div>
 
                {/* User info overlay */}
-               <div className="bottom-4 left-4 right-12 flex flex-col gap-2">
+               {/* <div className="bottom-4 left-4 right-12 flex flex-col gap-2">
                   <div className="flex items-center gap-2">
                      <Avatar className="h-8 w-8 border border-white">
                         <AvatarImage
@@ -259,7 +259,7 @@ export function ReelCard({
                         {owner_username || "Anonymous"}
                      </span>
                   </div>
-               </div>
+               </div> */}
             </CardContent>
          </div>
 
