@@ -60,19 +60,18 @@ export function Sidebar({ activeCategory, onSelectCategory }: SidebarProps) {
 
    return (
       <>
-         {/* Mobile Sidebar Trigger */}
-         <div className="lg:hidden fixed top-6 left-6 z-50">
+         {/* Mobile Sidebar Trigger - Only shown on small screens */}
+         <div className="block lg:hidden p-4 pb-0">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
-               <SheetTrigger asChild>
+               <SheetTrigger className="flex items-center gap-2">
                   <Button
-                     variant="outline"
+                     // variant="outline"
                      size="icon"
-                     className="rounded-full bg-blue-500 text-white p-2 shadow-lg"
-                     onClick={() => console.log("Sidebar button clicked")}
+                     className="p-2 shadow-lg"
                   >
                      <Menu className="h-6 w-6" />
-                     <span className="sr-only">Toggle sidebar</span>
                   </Button>
+                  <p className="font-semibold">Категории</p>
                </SheetTrigger>
                <SheetContent
                   side="left"

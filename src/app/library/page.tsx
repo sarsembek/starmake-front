@@ -149,7 +149,7 @@ export default function LibraryPage() {
 
    return (
       <VideoProvider>
-         <div className="flex min-h-screen bg-background">
+         <div className="lg:flex min-h-screen bg-background">
             <Sidebar
                activeCategory={activeCategory}
                onSelectCategory={handleCategorySelect}

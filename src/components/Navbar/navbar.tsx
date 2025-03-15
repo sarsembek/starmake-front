@@ -32,6 +32,8 @@ export function Navbar() {
    const { user, isAuthenticated, logout } = useAuth();
    const router = useRouter();
    const [mounted, setMounted] = useState(false);
+   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
    // Debug auth state
    useEffect(() => {
@@ -47,7 +49,15 @@ export function Navbar() {
 
    const handleLogout = () => {
       logout();
+      setIsDropdownOpen(false);
+      setIsSheetOpen(false);
       router.push("/");
+   };
+
+   const navigateToProfile = () => {
+      setIsDropdownOpen(false);
+      setIsSheetOpen(false);
+      router.push("/profile/");
    };
 
    // Don't render authentication-dependent UI until after client-side hydration
@@ -118,7 +128,10 @@ export function Navbar() {
             <div className="flex items-center gap-4">
                {/* Show user email or login button based on authentication state */}
                {isAuthenticated ? (
-                  <DropdownMenu>
+                  <DropdownMenu
+                     open={isDropdownOpen}
+                     onOpenChange={setIsDropdownOpen}
+                  >
                      <DropdownMenuTrigger asChild>
                         <Button
                            variant="ghost"
@@ -131,13 +144,16 @@ export function Navbar() {
                         </Button>
                      </DropdownMenuTrigger>
                      <DropdownMenuContent align="end" className="w-56">
-                        <DropdownMenuItem disabled className="font-medium">
-                           {user?.email}
+                        <DropdownMenuItem
+                           className="font-medium cursor-pointer"
+                           onClick={navigateToProfile}
+                        >
+                           Профиль
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                            onClick={handleLogout}
-                           className="text-destructive focus:text-destructive"
+                           className="text-destructive focus:text-destructive cursor-pointer"
                         >
                            <LogOut className="mr-2 h-4 w-4" />
                            <span>Выйти</span>
@@ -155,7 +171,7 @@ export function Navbar() {
                )}
 
                {/* Mobile menu button */}
-               <Sheet>
+               <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                   <SheetTrigger asChild>
                      <Button
                         variant="outline"
@@ -179,18 +195,21 @@ export function Navbar() {
                               <Link
                                  href="/"
                                  className="text-lg font-medium hover:text-primary"
+                                 onClick={() => setIsSheetOpen(false)}
                               >
                                  Главная
                               </Link>
                               <Link
                                  href="/library/"
                                  className="text-lg font-medium hover:text-primary"
+                                 onClick={() => setIsSheetOpen(false)}
                               >
                                  Библиотека рилсов
                               </Link>
                               <Link
                                  href="/sandbox/script-builder/"
                                  className="text-lg font-medium hover:text-primary"
+                                 onClick={() => setIsSheetOpen(false)}
                               >
                                  Конструктор сценария
                               </Link>
@@ -203,6 +222,12 @@ export function Navbar() {
                                        <span>{user?.email}</span>
                                     </div>
                                     <button
+                                       onClick={navigateToProfile}
+                                       className="flex items-center gap-2 text-lg font-medium hover:text-primary"
+                                    >
+                                       Профиль
+                                    </button>
+                                    <button
                                        onClick={handleLogout}
                                        className="flex items-center gap-2 text-lg font-medium text-destructive hover:text-destructive"
                                     >
@@ -214,6 +239,7 @@ export function Navbar() {
                                  <Link
                                     href="/login/"
                                     className="text-lg font-medium hover:text-primary"
+                                    onClick={() => setIsSheetOpen(false)}
                                  >
                                     Войти
                                  </Link>

@@ -1,11 +1,19 @@
 export type User = {
+   id: number;
    email: string;
    is_verified: boolean;
    is_active: boolean;
    is_staff: boolean;
    is_limited: boolean;
    plan_type: string;
-   id: number;
+   role?: string;
+   name_tg?: string;
+   instagram?: string;
+   email_tg?: string;
+   start_date?: string;
+   end_date?: string;
+   left_days?: number;
+   subscription_expired?: boolean;
 };
 
 export type RegisterRequest = {
