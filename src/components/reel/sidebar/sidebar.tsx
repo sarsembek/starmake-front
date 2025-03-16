@@ -75,15 +75,17 @@ export function Sidebar({ activeCategory, onSelectCategory }: SidebarProps) {
                </SheetTrigger>
                <SheetContent
                   side="left"
-                  className="p-0 w-[280px] flex flex-col bg-white"
+                  className="p-0 w-[280px] flex flex-col bg-white h-full max-h-screen"
                >
                   <SidebarHeader />
-                  <ScrollArea className="flex-1">
-                     <div className="p-4">
+                  <ScrollArea className="flex-1 overflow-y-auto">
+                     <div className="px-4">
                         <nav>{renderContent()}</nav>
                      </div>
                   </ScrollArea>
-                  <SidebarFooter />
+                  <div className="border-t">
+                     <SidebarFooter />
+                  </div>
                </SheetContent>
             </Sheet>
          </div>

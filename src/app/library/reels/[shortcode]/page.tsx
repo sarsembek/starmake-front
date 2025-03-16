@@ -14,16 +14,17 @@ export default function ReelPage() {
 
    const { data: reel, isLoading, error } = useReel(shortcode);
 
-   if (isLoading) {
+   if (isLoading || (!error && !reel)) {
       return <ReelSkeleton />;
    }
 
-   if (error || !reel) {
+   if (!isLoading && (error || !reel)) {
       return <ReelError />;
    }
 
    return <ReelDetails {...reel} />;
 }
+
 
 function ReelSkeleton() {
    return (

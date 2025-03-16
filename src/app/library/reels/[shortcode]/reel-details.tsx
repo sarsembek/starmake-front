@@ -121,7 +121,7 @@ export function ReelDetails({
          <div className="grid grid-cols-1 md:grid-cols-2 md:gap-8 gap-4">
             <div className="md:col-span-1">
                <Card className="overflow-hidden pt-0">
-                  <div className="relative aspect-video md:aspect-[9/16] w-full">
+                  <div className="relative md:aspect-[9/16] w-full">
                      <video
                         ref={setRefs}
                         src={videoSrc}
