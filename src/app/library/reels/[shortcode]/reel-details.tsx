@@ -15,6 +15,7 @@ import {
    Copy,
 } from "lucide-react";
 import { useInView } from "react-intersection-observer";
+import { useFavoriteReel, useUnfavoriteReel } from "@/hooks/useFavoriteReels";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -25,7 +26,7 @@ import type { Reel } from "@/types/reel/reel.type";
 import { useCategories } from "@/hooks/useCategories";
 
 export function ReelDetails({
-   // id,
+   id, // Uncommented this as we need it for favorite API calls
    title,
    description,
    file_url,
@@ -41,16 +42,26 @@ export function ReelDetails({
    improvement_suggestions,
    tags,
    category_id,
+   is_favorite,
 }: Reel) {
-   const [isLiked, setIsLiked] = useState(false);
-   const [likeCount, setLikeCount] = useState(likes);
+   // Track favorite state based on the API response
+   const [isFavorite, setIsFavorite] = useState(is_favorite || false);
    const [isMuted, setIsMuted] = useState(true);
    const videoRef = useRef<HTMLVideoElement>(null);
+
+   // Initialize favorite hooks
+   const addToFavorites = useFavoriteReel();
+   const removeFromFavorites = useUnfavoriteReel();
 
    const { data: categories } = useCategories();
 
    // Find the matching category from our categories data
    const category = categories?.find((category) => category.id === category_id);
+
+   // Update local state when prop changes
+   useEffect(() => {
+      setIsFavorite(is_favorite || false);
+   }, [is_favorite]);
 
    // Track if video is in view using IntersectionObserver
    const { ref: inViewRef, inView } = useInView({
@@ -79,13 +90,19 @@ export function ReelDetails({
       }
    }, [inView]);
 
-   const handleLike = () => {
-      if (isLiked) {
-         setLikeCount((prev) => prev - 1);
+   // Handle favorite toggle with API calls
+   const handleFavoriteToggle = () => {
+      if (!isFavorite) {
+         // Add to favorites
+         addToFavorites.mutate(id, {
+            onSuccess: () => setIsFavorite(true),
+         });
       } else {
-         setLikeCount((prev) => prev + 1);
+         // Remove from favorites
+         removeFromFavorites.mutate(id, {
+            onSuccess: () => setIsFavorite(false),
+         });
       }
-      setIsLiked(!isLiked);
    };
 
    const handleMuteToggle = () => {
@@ -97,7 +114,7 @@ export function ReelDetails({
 
    const handleCopyLink = () => {
       navigator.clipboard.writeText(
-         `${window.location.origin}/reels/${shortcode}`
+         `${window.location.origin}/library/reel/${shortcode}`
       );
       // You could add a toast notification here
    };
@@ -139,11 +156,15 @@ export function ReelDetails({
                            variant="secondary"
                            size="icon"
                            className="rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50"
-                           onClick={handleLike}
+                           onClick={handleFavoriteToggle}
+                           disabled={
+                              addToFavorites.isPending ||
+                              removeFromFavorites.isPending
+                           }
                         >
                            <Heart
                               className={`h-5 w-5 ${
-                                 isLiked
+                                 isFavorite
                                     ? "fill-red-500 text-red-500"
                                     : "text-white"
                               }`}
@@ -163,15 +184,6 @@ export function ReelDetails({
                            )}
                         </Button>
 
-                        {/* <Button
-                  variant="secondary"
-                  size="icon"
-                  className="rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50"
-                  onClick={handleSave}
-                >
-                  <Bookmark className={`h-5 w-5 ${isSaved ? "fill-primary text-primary" : "text-white"}`} />
-                </Button> */}
-
                         <Button
                            variant="secondary"
                            size="icon"
@@ -188,10 +200,10 @@ export function ReelDetails({
                         <div className="flex items-center gap-1">
                            <Heart
                               className={`h-5 w-5 ${
-                                 isLiked ? "text-red-500 fill-red-500" : ""
+                                 isFavorite ? "text-red-500 fill-red-500" : ""
                               }`}
                            />
-                           <span className="text-sm">{likeCount}</span>
+                           <span className="text-sm">{likes}</span>
                         </div>
 
                         <div className="flex items-center gap-1">
@@ -204,18 +216,15 @@ export function ReelDetails({
                            <span className="text-sm">{comment_count}</span>
                         </div>
                      </div>
-
-                     {/* <Button variant="ghost" size="sm" onClick={() => {}}>
-                        <Share2 className="h-5 w-5 mr-2" />
-                        Поделиться
-                     </Button> */}
                   </CardFooter>
                </Card>
             </div>
 
+            {/* Rest of the component remains the same */}
             <div className="md:col-span-1">
                <Card>
                   <CardContent className="px-4 md:px-6">
+                     {/* Content remains the same */}
                      <h2 className="text-xl font-semibold mb-2">{title}</h2>
                      <p className="text-muted-foreground mb-4">{description}</p>
 
@@ -297,8 +306,6 @@ export function ReelDetails({
                </Card>
             </div>
          </div>
-
-         {/* Related reels section could be added here */}
       </div>
    );
 }

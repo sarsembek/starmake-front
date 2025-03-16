@@ -1,5 +1,6 @@
 import { axiosWithAuth } from "@/lib/axios";
 import { Reel } from "@/types/reel/reel.type";
+import { PaginatedResponse } from "@/types/common/pagination.type";
 
 export interface GetReelsParams {
    page?: number;
@@ -10,20 +11,7 @@ export interface GetReelsParams {
    search?: string;
 }
 
-export interface ReelsResponse {
-   items: Reel[];
-   total: number;
-   page: number;
-   size: number;
-   pages: number;
-   links: {
-      first: string;
-      last: string;
-      self: string;
-      next: string | null;
-      prev: string | null;
-   };
-}
+export type ReelsResponse = PaginatedResponse<Reel>;
 
 export const getReels = async (
    params: GetReelsParams
@@ -57,9 +45,13 @@ export const getReels = async (
       queryParams.append("search", search);
    }
 
-   const response = await axiosWithAuth.get<ReelsResponse>(
-      `/library/api/v1/reels/?${queryParams.toString()}`
-   );
-
-   return response.data;
+   try {
+      const response = await axiosWithAuth.get<ReelsResponse>(
+         `/library/api/v1/reels/?${queryParams.toString()}`
+      );
+      return response.data;
+   } catch (error) {
+      console.error("Failed to fetch reels:", error);
+      throw error;
+   }
 };

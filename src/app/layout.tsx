@@ -6,6 +6,7 @@ import Footer from "@/components/Footer/footer";
 import { usePathname } from "next/navigation";
 import { Navbar } from "@/components/Navbar/navbar";
 import { Providers } from "./providers";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
    variable: "--font-geist-sans",
@@ -34,6 +35,7 @@ export default function RootLayout({
                {!isAuthPage && <Navbar />}
                <main>{children}</main>
                {!isAuthPage && <Footer />}
+               <Toaster />
             </body>
          </html>
       </Providers>

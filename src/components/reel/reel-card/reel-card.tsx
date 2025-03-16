@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 import { useVideo } from "@/context/VideoContext";
+import { useCategories } from "@/hooks/useCategories";
+import { useFavoriteReel, useUnfavoriteReel } from "@/hooks/useFavoriteReels";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -26,26 +28,52 @@ import {
    TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+// Define the possible sizes for ReelCard
+type ReelCardSize = "sm" | "md" | "lg";
+
 export function ReelCard({
    id,
    title,
    description,
    file_url,
-   shortcode, // Make sure shortcode is included in props
+   shortcode,
    likes,
    view_count,
    comment_count,
    hashtags,
    language,
    country,
+   category_id,
    category,
-}: Reel & { category?: { id: number; name: string; name_rus?: string } }) {
+   is_favorite,
+   size = "md", // Add size prop with default of "md"
+}: Reel & {
+   category?: { id: number; name: string; name_rus?: string };
+   size?: ReelCardSize;
+}) {
    const router = useRouter();
-   const [isLiked, setIsLiked] = useState(false);
-   const [likeCount, setLikeCount] = useState(likes);
    const [isMuted, setIsMuted] = useState(true);
+   const [isFavorite, setIsFavorite] = useState(is_favorite || false);
    const videoRef = useRef<HTMLVideoElement>(null);
    const { activeVideoId, setActiveVideoId } = useVideo();
+
+   // Fetch all categories
+   const { data: categories } = useCategories();
+
+   // Find the matching category from our categories data
+   const categoryData =
+      category_id && categories
+         ? categories.find((cat) => cat.id === category_id)
+         : category; // Fallback to passed category prop if no match
+
+   // Mutations for favorite functionality
+   const addToFavorites = useFavoriteReel();
+   const removeFromFavorites = useUnfavoriteReel();
+
+   // Update local favorite state when prop changes
+   useEffect(() => {
+      setIsFavorite(is_favorite || false);
+   }, [is_favorite]);
 
    // Track if video is in view using IntersectionObserver
    const { ref: inViewRef, inView } = useInView({
@@ -85,14 +113,21 @@ export function ReelCard({
       }
    }, [inView]);
 
-   const handleLike = (e: React.MouseEvent) => {
-      e.stopPropagation(); // Prevent card click when clicking like button
-      if (isLiked) {
-         setLikeCount((prev) => prev - 1);
+   // Handle favorite toggle
+   const handleFavoriteToggle = (e: React.MouseEvent) => {
+      e.stopPropagation(); // Prevent card click when clicking favorite button
+
+      if (!isFavorite) {
+         // Add to favorites
+         addToFavorites.mutate(id, {
+            onSuccess: () => setIsFavorite(true),
+         });
       } else {
-         setLikeCount((prev) => prev + 1);
+         // Remove from favorites
+         removeFromFavorites.mutate(id, {
+            onSuccess: () => setIsFavorite(false),
+         });
       }
-      setIsLiked(!isLiked);
    };
 
    const handleMuteToggle = (e: React.MouseEvent) => {
@@ -122,12 +157,31 @@ export function ReelCard({
       ? hashtags.split(",").map((tag) => tag.trim())
       : [];
 
+   // Size-specific styling
+   const iconSize = size === "sm" ? "h-4 w-4" : "h-5 w-5";
+   const buttonSize = size === "sm" ? "sm" : "icon";
+   const cardPadding = size === "sm" ? "p-2" : "p-4";
+   const textSize = {
+      title:
+         size === "sm" ? "text-sm" : size === "lg" ? "text-lg" : "text-base",
+      description:
+         size === "sm" ? "text-xs" : size === "lg" ? "text-base" : "text-sm",
+      stats: size === "sm" ? "text-xs" : "text-sm",
+   };
+
+   // Add aspect ratio control based on size
+   const aspectRatio = size === "sm" ? "aspect-[9/13]" : "aspect-[9/16]";
+
+   // Add different sizing for card container
+   const cardSizeClass =
+      size === "sm" ? "h-full" : size === "lg" ? "h-full" : "h-full";
+
    return (
       <Card
-         className="overflow-hidden h-full flex flex-col pt-0 cursor-pointer"
+         className={`overflow-hidden ${cardSizeClass} ${size === 'sm' ? 'py-0 gap-0': 'py-6'} flex flex-col pt-0 cursor-pointer`}
          onClick={handleCardClick}
       >
-         <div className="relative aspect-[9/16] w-full">
+         <div className={`relative ${aspectRatio} w-full`}>
             <video
                ref={setRefs}
                src={videoSrc}
@@ -139,133 +193,169 @@ export function ReelCard({
                poster={"/placeholder.svg"}
             />
 
-            <div className="absolute top-4 right-4 flex flex-col gap-4">
+            <div className="absolute top-2 right-2 flex flex-col gap-2">
                <Button
                   variant="secondary"
-                  size="icon"
+                  size={buttonSize}
                   className="rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50"
-                  onClick={handleLike}
+                  onClick={handleFavoriteToggle}
                >
                   <Heart
-                     className={`h-5 w-5 ${
-                        isLiked ? "fill-red-500 text-red-500" : "text-white"
+                     className={`${iconSize} ${
+                        isFavorite ? "fill-red-500 text-red-500" : "text-white"
                      }`}
                   />
                </Button>
 
                <Button
                   variant="secondary"
-                  size="icon"
+                  size={buttonSize}
                   className="rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50"
                   onClick={handleMuteToggle}
                >
                   {isMuted ? (
-                     <VolumeX className="h-5 w-5 text-white" />
+                     <VolumeX className={iconSize + " text-white"} />
                   ) : (
-                     <Volume2 className="h-5 w-5 text-white" />
+                     <Volume2 className={iconSize + " text-white"} />
                   )}
                </Button>
             </div>
 
-            <CardContent className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 pt-16 space-y-2">
-               <h3 className="font-bold text-base line-clamp-1 text-white">
+            <CardContent
+               className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent ${cardPadding} pt-16 space-y-1.5`}
+            >
+               <h3
+                  className={`font-bold ${textSize.title} line-clamp-1 text-white`}
+               >
                   {title}
                </h3>
 
                {description && (
-                  <p className="text-white/80 text-sm mt-1 line-clamp-2">
+                  <p
+                     className={`text-white/80 ${textSize.description} mt-1 ${
+                        size === "sm" ? "line-clamp-1" : "line-clamp-2"
+                     }`}
+                  >
                      {description}
                   </p>
                )}
 
-               <div className="flex flex-wrap gap-1 mt-2">
-                  {hashtagArray.slice(0, 3).map((tag, index) => (
-                     <Badge
-                        key={`hashtag-${index}`}
-                        variant="secondary"
-                        className="bg-white/20 text-white hover:bg-white/30"
-                     >
-                        #{tag}
-                     </Badge>
-                  ))}
-               </div>
-               <div className="flex items-center gap-2">
-                  {category && (
-                     <TooltipProvider>
-                        <Tooltip>
-                           <TooltipTrigger asChild>
-                              <div className="flex items-center gap-1">
-                                 <Tag className="h-4 w-4 text-white" />
-                                 <span className="text-xs text-white">
-                                    {category.name_rus || category.name}
-                                 </span>
-                              </div>
-                           </TooltipTrigger>
-                           <TooltipContent>
-                              <p>Категория</p>
-                           </TooltipContent>
-                        </Tooltip>
-                     </TooltipProvider>
-                  )}
+               {/* Only show hashtags for md and lg sizes */}
+               {size !== "sm" && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                     {hashtagArray.slice(0, 3).map((tag, index) => (
+                        <Badge
+                           key={`hashtag-${index}`}
+                           variant="secondary"
+                           className="bg-white/20 text-white hover:bg-white/30"
+                        >
+                           #{tag}
+                        </Badge>
+                     ))}
+                  </div>
+               )}
 
-                  {language && (
-                     <TooltipProvider>
-                        <Tooltip>
-                           <TooltipTrigger asChild>
-                              <div className="flex items-center gap-1">
-                                 <Globe className="h-4 w-4 text-white" />
-                                 <span className="text-xs text-white uppercase">
-                                    {language}
-                                 </span>
-                              </div>
-                           </TooltipTrigger>
-                           <TooltipContent>
-                              <p>Язык</p>
-                           </TooltipContent>
-                        </Tooltip>
-                     </TooltipProvider>
-                  )}
+               {/* Only show category, language, country for md and lg sizes */}
+               {size !== "sm" && (
+                  <div className="flex items-center gap-2">
+                     {categoryData && (
+                        <TooltipProvider>
+                           <Tooltip>
+                              <TooltipTrigger asChild>
+                                 <div className="flex items-center gap-1">
+                                    <Tag className={`${iconSize} text-white`} />
+                                    <span className="text-xs text-white">
+                                       {categoryData.name_rus ||
+                                          categoryData.name}
+                                    </span>
+                                 </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                 <p>Категория</p>
+                              </TooltipContent>
+                           </Tooltip>
+                        </TooltipProvider>
+                     )}
 
-                  {country && (
-                     <TooltipProvider>
-                        <Tooltip>
-                           <TooltipTrigger asChild>
-                              <div className="flex items-center gap-1">
-                                 <Flag className="h-4 w-4 text-white" />
-                                 <span className="text-xs text-white">
-                                    {country}
-                                 </span>
-                              </div>
-                           </TooltipTrigger>
-                           <TooltipContent>
-                              <p>Страна</p>
-                           </TooltipContent>
-                        </Tooltip>
-                     </TooltipProvider>
-                  )}
-               </div>
+                     {language && (
+                        <TooltipProvider>
+                           <Tooltip>
+                              <TooltipTrigger asChild>
+                                 <div className="flex items-center gap-1">
+                                    <Globe
+                                       className={`${iconSize} text-white`}
+                                    />
+                                    <span className="text-xs text-white uppercase">
+                                       {language}
+                                    </span>
+                                 </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                 <p>Язык</p>
+                              </TooltipContent>
+                           </Tooltip>
+                        </TooltipProvider>
+                     )}
+
+                     {country && (
+                        <TooltipProvider>
+                           <Tooltip>
+                              <TooltipTrigger asChild>
+                                 <div className="flex items-center gap-1">
+                                    <Flag
+                                       className={`${iconSize} text-white`}
+                                    />
+                                    <span className="text-xs text-white">
+                                       {country}
+                                    </span>
+                                 </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                 <p>Страна</p>
+                              </TooltipContent>
+                           </Tooltip>
+                        </TooltipProvider>
+                     )}
+                  </div>
+               )}
             </CardContent>
          </div>
 
-         <CardFooter className="flex justify-between">
-            <div className="flex items-center gap-4">
+         <CardFooter
+            className={`flex justify-between ${size === "sm" ? "p-4" : ""}`}
+         >
+            <div className="flex items-center gap-3">
                <div className="flex items-center gap-1">
-                  <Heart className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">
-                     {likeCount}
+                  <Heart
+                     className={`${size === "sm" ? "h-3 w-3" : "h-4 w-4"} ${
+                        isFavorite
+                           ? "fill-red-500 text-red-500"
+                           : "text-muted-foreground"
+                     }`}
+                  />
+                  <span className={`${textSize.stats} text-muted-foreground`}>
+                     {likes}
                   </span>
                </div>
 
                <div className="flex items-center gap-1">
-                  <Eye className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">
+                  <Eye
+                     className={`${
+                        size === "sm" ? "h-3 w-3" : "h-4 w-4"
+                     } text-muted-foreground`}
+                  />
+                  <span className={`${textSize.stats} text-muted-foreground`}>
                      {view_count}
                   </span>
                </div>
 
                <div className="flex items-center gap-1">
-                  <MessageCircle className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">
+                  <MessageCircle
+                     className={`${
+                        size === "sm" ? "h-3 w-3" : "h-4 w-4"
+                     } text-muted-foreground`}
+                  />
+                  <span className={`${textSize.stats} text-muted-foreground`}>
                      {comment_count}
                   </span>
                </div>
