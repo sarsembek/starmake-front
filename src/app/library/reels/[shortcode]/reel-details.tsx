@@ -144,7 +144,7 @@ export function ReelDetails({
                         src={videoSrc}
                         className="w-full h-full object-cover"
                         loop
-                        // playsInline
+                        playsInline
                         muted={isMuted}
                         controls={false}
                         poster={"/placeholder.svg"}
