@@ -26,10 +26,12 @@ export default function ScriptBuilderLayout({
          setProgressValue(70);
          setPrevPath("/script-builder");
          setNextPath("/script-builder/next-step");
+         setIsNextDisabled(false); // Enable button on subsequent pages
       } else if (pathname === "/script-builder/use-template") {
          setProgressValue(70);
          setPrevPath("/script-builder");
          setNextPath("/script-builder/next-step");
+         setIsNextDisabled(false); // Enable button on subsequent pages
       } else if (pathname === "/script-builder/next-step") {
          setProgressValue(100);
          setPrevPath(
@@ -38,8 +40,25 @@ export default function ScriptBuilderLayout({
                : "/script-builder/write-script"
          );
          setNextPath("/");
+         setIsNextDisabled(false); // Enable button on final page
       }
    }, [pathname]);
+
+   // Listen for option selection event from ChooseOption component
+   useEffect(() => {
+      const handleOptionSelected = () => {
+         // Enable the next button when an option is selected
+         setIsNextDisabled(false);
+      };
+
+      // Add event listener
+      window.addEventListener("optionSelected", handleOptionSelected);
+
+      // Clean up event listener
+      return () => {
+         window.removeEventListener("optionSelected", handleOptionSelected);
+      };
+   }, []);
 
    // Don't show footer on next-step page
    const showFooter = !pathname.includes("next-step");
