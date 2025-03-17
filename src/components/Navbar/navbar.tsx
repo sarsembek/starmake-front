@@ -111,7 +111,7 @@ export function Navbar() {
                         </NavigationMenuItem>
                         <NavigationMenuItem>
                            <Link
-                              href="/sandbox/script-builder/"
+                              href="/script-builder/"
                               legacyBehavior
                               passHref
                            >
@@ -207,7 +207,7 @@ export function Navbar() {
                                  Библиотека рилсов
                               </Link>
                               <Link
-                                 href="/sandbox/script-builder/"
+                                 href="/script-builder/"
                                  className="text-lg font-medium hover:text-primary"
                                  onClick={() => setIsSheetOpen(false)}
                               >
