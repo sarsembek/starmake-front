@@ -125,7 +125,7 @@ export function ReelDetails({
       : [];
 
    return (
-      <div className="container max-w-4xl mx-auto py-8">
+      <div className="container max-w-4xl mx-auto py-8 p-4">
          <div className="flex items-center mb-6">
             <Link href="/library" className="mr-4">
                <Button variant="ghost" size="icon">
@@ -144,7 +144,7 @@ export function ReelDetails({
                         src={videoSrc}
                         className="w-full h-full object-cover"
                         loop
-                        playsInline
+                        // playsInline
                         muted={isMuted}
                         controls={false}
                         poster={"/placeholder.svg"}
