@@ -11,7 +11,7 @@ interface SocialAuthProps {
 export function SocialAuth({
    onGoogleAuth,
    onTelegramAuth,
-   disabled = false,
+   disabled = true,
 }: SocialAuthProps) {
    return (
       <>
