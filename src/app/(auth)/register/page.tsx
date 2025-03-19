@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RegisterForm } from "@/components/auth/RegisterForm";
-import { useAuthRedirect } from "@/hooks/auth/useAuthRedirect";
+// import { useAuthRedirect } from "@/hooks/auth/useAuthRedirect";
 
 export default function RegisterPage() {
    const router = useRouter();
@@ -16,7 +16,7 @@ export default function RegisterPage() {
    const fromProtectedRoute = searchParams.has("from");
 
    // Redirect authenticated users to home page
-   useAuthRedirect();
+   // useAuthRedirect();
 
    const handleGoogleAuth = () => {
       // Implement Google auth logic

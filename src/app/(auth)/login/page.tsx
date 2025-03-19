@@ -8,7 +8,7 @@ import { ArrowLeft, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useAuthRedirect } from "@/hooks/auth/useAuthRedirect";
+// import { useAuthRedirect } from "@/hooks/auth/useAuthRedirect";
 
 export default function LoginPage() {
    const router = useRouter();
@@ -17,7 +17,7 @@ export default function LoginPage() {
    const fromProtectedRoute = searchParams.has("from");
 
    // Redirect authenticated users to home page
-   useAuthRedirect();
+   // useAuthRedirect();
 
    const handleGoogleAuth = () => {
       // Implement Google auth logic

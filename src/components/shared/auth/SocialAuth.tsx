@@ -57,7 +57,7 @@ export function SocialAuth({
                      </div>
                   </TooltipTrigger>
                   <TooltipContent>
-                     <p>Эта функция будет доступна в России</p>
+                     <p>Эта функция будет доступна в скоро</p>
                   </TooltipContent>
                </Tooltip>
             </TooltipProvider>
@@ -86,7 +86,7 @@ export function SocialAuth({
                      </div>
                   </TooltipTrigger>
                   <TooltipContent>
-                     <p>Эта функция будет доступна в России</p>
+                     <p>Эта функция будет доступна скоро</p>
                   </TooltipContent>
                </Tooltip>
             </TooltipProvider>
