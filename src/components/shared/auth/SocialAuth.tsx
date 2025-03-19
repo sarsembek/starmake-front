@@ -1,6 +1,12 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { SocialIcon } from "react-social-icons";
+import {
+   Tooltip,
+   TooltipContent,
+   TooltipProvider,
+   TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface SocialAuthProps {
    onGoogleAuth?: () => void;
@@ -27,36 +33,63 @@ export function SocialAuth({
          </div>
 
          <div className="grid grid-cols-2 gap-4">
-            <Button
-               variant="outline"
-               className="w-full flex items-center gap-2"
-               onClick={onGoogleAuth}
-               disabled={disabled}
-            >
-               <SocialIcon
-                  network="google"
-                  style={{ width: 24, height: 24 }}
-                  className="!h-5 !w-5"
-                  fgColor={disabled ? "gray" : "currentColor"}
-                  bgColor="transparent"
-               />
-               Google
-            </Button>
-            <Button
-               variant="outline"
-               className="w-full flex items-center gap-2"
-               onClick={onTelegramAuth}
-               disabled={disabled}
-            >
-               <SocialIcon
-                  network="telegram"
-                  style={{ width: 24, height: 24 }}
-                  className="!h-5 !w-5"
-                  fgColor={disabled ? "gray" : "currentColor"}
-                  bgColor="transparent"
-               />
-               Telegram
-            </Button>
+            <TooltipProvider>
+               <Tooltip>
+                  <TooltipTrigger asChild>
+                     <div className="w-full">
+                        {" "}
+                        {/* Wrapper div to properly position tooltip */}
+                        <Button
+                           variant="outline"
+                           className="w-full flex items-center gap-2"
+                           onClick={onGoogleAuth}
+                           disabled={disabled}
+                        >
+                           <SocialIcon
+                              network="google"
+                              style={{ width: 24, height: 24 }}
+                              className="!h-5 !w-5"
+                              fgColor={disabled ? "gray" : "currentColor"}
+                              bgColor="transparent"
+                           />
+                           Google
+                        </Button>
+                     </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                     <p>Эта функция будет доступна в России</p>
+                  </TooltipContent>
+               </Tooltip>
+            </TooltipProvider>
+
+            <TooltipProvider>
+               <Tooltip>
+                  <TooltipTrigger asChild>
+                     <div className="w-full">
+                        {" "}
+                        {/* Wrapper div to properly position tooltip */}
+                        <Button
+                           variant="outline"
+                           className="w-full flex items-center gap-2"
+                           onClick={onTelegramAuth}
+                           disabled={disabled}
+                        >
+                           <SocialIcon
+                              network="telegram"
+                              style={{ width: 24, height: 24 }}
+                              className="!h-5 !w-5"
+                              fgColor={disabled ? "gray" : "currentColor"}
+                              bgColor="transparent"
+                           />
+                           Telegram
+                        </Button>
+                     </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                     <p>Эта функция будет доступна в России</p>
+                  </TooltipContent>
+               </Tooltip>
+            </TooltipProvider>
          </div>
       </>
    );
