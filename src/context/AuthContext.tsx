@@ -9,130 +9,107 @@ import {
    ReactNode,
    useCallback,
 } from "react";
-import Cookies from "js-cookie";
-
-const TOKEN_COOKIE_NAME = "auth_token";
 
 interface AuthContextType {
    user: User | null;
-   token: string | null;
    isAuthenticated: boolean;
    isLoading: boolean;
    setUser: (user: User | null) => void;
-   setToken: (token: string | null) => void;
    logout: () => void;
+   checkAuthStatus: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
    const [user, setUser] = useState<User | null>(null);
-   const [tokenState, setTokenState] = useState<string | null>(null);
    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-   const [isLoading, setIsLoading] = useState(true); // Renamed isInitialized to isLoading for clarity
+   const [isLoading, setIsLoading] = useState(true);
 
-   // Initialize auth state from cookies
+   const checkAuthStatus = useCallback(async () => {
+      try {
+         // This endpoint should verify the HTTP-only cookie and return user data
+         const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/auth/me`,
+            {
+               credentials: "include", // Important: includes cookies in the request
+            }
+         );
+
+         if (response.ok) {
+            const userData = await response.json();
+            setUser(userData.user);
+            setIsAuthenticated(true);
+
+            // Cache user data for faster loading
+            localStorage.setItem("user_cache", JSON.stringify(userData.user));
+            return true;
+         } else {
+            setUser(null);
+            setIsAuthenticated(false);
+            localStorage.removeItem("user_cache");
+            return false;
+         }
+      } catch (error) {
+         console.error("Failed to check auth status:", error);
+         setUser(null);
+         setIsAuthenticated(false);
+         return false;
+      }
+   }, []);
+
+   // Initialize auth state
    useEffect(() => {
       const initAuth = async () => {
          try {
-            const storedToken = Cookies.get(TOKEN_COOKIE_NAME);
-            const storedUser = localStorage.getItem("user");
-
-            if (storedToken) {
-               console.log(
-                  "Found token in cookies:",
-                  storedToken.substring(0, 10) + "..."
-               );
-               setToken(storedToken);
-
-               setIsAuthenticated(true);
-
-               // TODO: You can fetch user profile here
-               // const userData = await fetchUserProfile(storedToken)
-               // setUser(userData);
+            // Try to load cached user data while checking auth status
+            const cachedUser = localStorage.getItem("user_cache");
+            if (cachedUser) {
+               setUser(JSON.parse(cachedUser));
+               setIsAuthenticated(true); // Temporarily assume authenticated
             }
-            if (storedUser) {
-               setUser(JSON.parse(storedUser));
-            }
+
+            // Verify authentication with server
+            await checkAuthStatus();
          } catch (error) {
             console.error("Failed to initialize auth:", error);
          } finally {
-            // Mark initialization as complete
             setIsLoading(false);
          }
       };
 
       initAuth();
-   }, []);
+   }, [checkAuthStatus]);
 
-   // Update isAuthenticated whenever token changes
-   useEffect(() => {
-      if (!isLoading) {
-         // Only update after initialization
-         console.log("Auth state updated:", {
-            token: !!tokenState,
-            user: !!user,
+   const logout = useCallback(async () => {
+      try {
+         // Call logout endpoint to clear the HTTP-only cookie
+         await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
+            method: "POST",
+            credentials: "include",
          });
-         setIsAuthenticated(!!tokenState);
+      } catch (error) {
+         console.error("Error during logout:", error);
       }
-   }, [tokenState, user, isLoading]);
 
-   const logout = useCallback(() => {
-      console.log("Logging out");
-
-      // Clear all states
+      // Clear local state
       setUser(null);
-      setToken(null);
       setIsAuthenticated(false);
+      localStorage.removeItem("user_cache");
 
-      // Clear cookies with all possible configurations to ensure deletion
-      Cookies.remove(TOKEN_COOKIE_NAME);
-      Cookies.remove(TOKEN_COOKIE_NAME, { path: "/" });
-
-      // Also clear localStorage
-      localStorage.removeItem("user");
-
-      // Force reload the page to ensure middleware evaluates the new state
+      // Redirect to login
       window.location.href = "/login";
-   }, []);
-
-   // Listen for logout events (from outside React components like interceptors)
-   useEffect(() => {
-      const handleLogoutEvent = () => {
-         logout();
-      };
-
-      window.addEventListener("auth:logout", handleLogoutEvent);
-
-      return () => {
-         window.removeEventListener("auth:logout", handleLogoutEvent);
-      };
-   }, [logout]);
-
-   // When a token is set/removed, sync with cookies for middleware to access
-   const setToken = useCallback((newToken: string | null) => {
-      if (newToken) {
-         Cookies.set(TOKEN_COOKIE_NAME, newToken, {
-            expires: 7, // 7 days
-            path: "/",
-         });
-         setTokenState(newToken);
-      } else {
-         Cookies.remove(TOKEN_COOKIE_NAME, { path: "/" });
-         setTokenState(null);
-      }
    }, []);
 
    return (
       <AuthContext.Provider
          value={{
             user,
-            token: tokenState,
             isAuthenticated,
             isLoading,
             setUser,
-            setToken,
             logout,
+            checkAuthStatus,
          }}
       >
          {children}

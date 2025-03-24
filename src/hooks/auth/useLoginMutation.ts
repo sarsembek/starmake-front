@@ -8,15 +8,15 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import Cookies from "js-cookie";
 import { useState } from "react";
+import Cookies from "js-cookie";
 
 // Cookie configuration
 const TOKEN_COOKIE_NAME = "auth_token";
-const TOKEN_EXPIRY_DAYS = 7; // Store token for 7 days
+// const TOKEN_EXPIRY_DAYS = 7; // Store token for 7 days
 
 export function useLoginMutation() {
-   const { setUser, setToken } = useAuth();
+   const { setUser, checkAuthStatus } = useAuth();
    const [needsVerification, setNeedsVerification] = useState(false);
    const [emailForVerification, setEmailForVerification] = useState<
       string | null
@@ -29,18 +29,14 @@ export function useLoginMutation() {
    >({
       mutationFn: loginUser,
       onSuccess: (data) => {
-         // Store token in cookies
-         Cookies.set(TOKEN_COOKIE_NAME, data.token, {
-            expires: TOKEN_EXPIRY_DAYS,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-         });
-
-         localStorage.setItem("user", JSON.stringify(data.user));
+         // Store user in localStorage for caching
+         localStorage.setItem("user_cache", JSON.stringify(data.user));
 
          // Update auth context
-         setToken(data.token);
          setUser(data.user);
+
+         // Verify our auth status (cookie should now be set)
+         checkAuthStatus();
 
          // Reset verification state
          setNeedsVerification(false);
