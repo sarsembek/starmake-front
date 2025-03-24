@@ -30,19 +30,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
          // This endpoint should verify the HTTP-only cookie and return user data
          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/auth/me`,
+            `${process.env.NEXT_PUBLIC_API_URL}/auth/profile`,
             {
                credentials: "include", // Important: includes cookies in the request
             }
          );
 
          if (response.ok) {
+            // Based on the backend response structure you shared,
+            // the user data is returned directly, not wrapped in a 'user' property
             const userData = await response.json();
-            setUser(userData.user);
+            setUser(userData);
             setIsAuthenticated(true);
 
             // Cache user data for faster loading
-            localStorage.setItem("user_cache", JSON.stringify(userData.user));
+            localStorage.setItem("user_cache", JSON.stringify(userData));
             return true;
          } else {
             setUser(null);
