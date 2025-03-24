@@ -25,7 +25,7 @@ export function middleware(req: NextRequest) {
    );
 
    // Get authentication token from cookies
-   const authToken = req.cookies.get("auth_token")?.value;
+   const authToken = req.cookies.get("access_token")?.value;
 
    console.log(`[Middleware] Path: ${path}, Token exists: ${!!authToken}`);
 

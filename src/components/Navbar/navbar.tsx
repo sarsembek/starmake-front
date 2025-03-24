@@ -1,5 +1,5 @@
 "use client";
-import { Menu, User, LogOut, MessageSquare } from "lucide-react"; // Added MessageSquare icon
+import { Menu, User, LogOut } from "lucide-react"; // Added MessageSquare icon
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -136,7 +136,6 @@ export function Navbar() {
                               onClick={navigateToChatbot}
                            >
                               <div className="flex items-center gap-1">
-                                 <MessageSquare className="h-4 w-4" />
                                  <span>Чатбот</span>
                               </div>
                            </NavigationMenuLink>
@@ -176,7 +175,6 @@ export function Navbar() {
                            className="font-medium cursor-pointer"
                            onClick={navigateToChatbot}
                         >
-                           <MessageSquare className="mr-2 h-4 w-4" />
                            <span>Чатбот</span>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
@@ -250,7 +248,6 @@ export function Navbar() {
                                  }}
                                  className="flex items-center gap-2 text-left text-lg font-medium hover:text-primary"
                               >
-                                 <MessageSquare className="h-4 w-4" />
                                  <span>Чатбот</span>
                               </button>
 
