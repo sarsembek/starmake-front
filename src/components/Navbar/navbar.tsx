@@ -1,5 +1,5 @@
 "use client";
-import { Menu, User, LogOut } from "lucide-react";
+import { Menu, User, LogOut, MessageSquare } from "lucide-react"; // Added MessageSquare icon
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -58,6 +58,15 @@ export function Navbar() {
       setIsDropdownOpen(false);
       setIsSheetOpen(false);
       router.push("/profile/");
+   };
+
+   // Function to handle chatbot navigation
+   const navigateToChatbot = () => {
+      setIsDropdownOpen(false);
+      setIsSheetOpen(false);
+
+      // Navigate to chatbot domain - the HTTP-only cookie will be sent automatically
+      window.location.href = "https://direct.starmake.ai";
    };
 
    // Don't render authentication-dependent UI until after client-side hydration
@@ -120,6 +129,18 @@ export function Navbar() {
                               </NavigationMenuLink>
                            </Link>
                         </NavigationMenuItem>
+                        <NavigationMenuItem>
+                           {/* Chatbot link in main navigation */}
+                           <NavigationMenuLink
+                              className={navLinkStyle}
+                              onClick={navigateToChatbot}
+                           >
+                              <div className="flex items-center gap-1">
+                                 <MessageSquare className="h-4 w-4" />
+                                 <span>Чатбот</span>
+                              </div>
+                           </NavigationMenuLink>
+                        </NavigationMenuItem>
                      </NavigationMenuList>
                   </NavigationMenu>
                </div>
@@ -149,6 +170,14 @@ export function Navbar() {
                            onClick={navigateToProfile}
                         >
                            Профиль
+                        </DropdownMenuItem>
+                        {/* Chatbot link in dropdown menu */}
+                        <DropdownMenuItem
+                           className="font-medium cursor-pointer"
+                           onClick={navigateToChatbot}
+                        >
+                           <MessageSquare className="mr-2 h-4 w-4" />
+                           <span>Чатбот</span>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
@@ -213,6 +242,17 @@ export function Navbar() {
                               >
                                  Конструктор сценария
                               </Link>
+                              {/* Chatbot link in mobile menu */}
+                              <button
+                                 onClick={() => {
+                                    setIsSheetOpen(false);
+                                    navigateToChatbot();
+                                 }}
+                                 className="flex items-center gap-2 text-left text-lg font-medium hover:text-primary"
+                              >
+                                 <MessageSquare className="h-4 w-4" />
+                                 <span>Чатбот</span>
+                              </button>
 
                               {/* Show user email or login link based on auth state */}
                               {isAuthenticated ? (

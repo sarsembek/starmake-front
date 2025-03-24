@@ -1,28 +1,21 @@
 import axios, {
    AxiosError,
    AxiosInstance,
-   //  AxiosRequestConfig,
    InternalAxiosRequestConfig,
 } from "axios";
-import Cookies from "js-cookie";
-import { refreshToken } from "@/api/auth/refreshToken";
 
-const TOKEN_COOKIE_NAME = "auth_token";
 let isRefreshing = false;
 let failedQueue: Array<{
-   resolve: (token: string) => void;
+   resolve: (value?: unknown) => void;
    reject: (error: Error | AxiosError) => void;
 }> = [];
 
-const processQueue = (
-   error: Error | AxiosError | null,
-   token: string | null = null
-) => {
+const processQueue = (error: Error | AxiosError | null) => {
    failedQueue.forEach((request) => {
-      if (token) {
-         request.resolve(token);
+      if (error) {
+         request.reject(error);
       } else {
-         request.reject(error || new Error("Token refresh failed"));
+         request.resolve();
       }
    });
    failedQueue = [];
@@ -34,21 +27,12 @@ export const createAxiosInstance = (): AxiosInstance => {
       headers: {
          "Content-Type": "application/json",
       },
+      withCredentials: true, // This is crucial for including cookies in requests
    });
 
-   // Add token to all requests
-   instance.interceptors.request.use(
-      (config: InternalAxiosRequestConfig) => {
-         const token = Cookies.get(TOKEN_COOKIE_NAME);
-         if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-         }
-         return config;
-      },
-      (error: Error | AxiosError) => Promise.reject(error)
-   );
+   // No need to add token to requests - HTTP-only cookies are sent automatically
 
-   // Add response interceptor for token refresh
+   // Add response interceptor for handling 401 errors
    instance.interceptors.response.use(
       (response) => response,
       async (error: AxiosError) => {
@@ -58,15 +42,15 @@ export const createAxiosInstance = (): AxiosInstance => {
          if (
             error.response?.status === 401 &&
             originalRequest &&
-            !originalRequest.url?.includes("refresh-token")
+            !originalRequest.url?.includes("refresh-token") &&
+            !isRefreshing
          ) {
             if (isRefreshing) {
-               // If we're already refreshing, add this request to the queue
-               return new Promise<string>((resolve, reject) => {
+               // If already refreshing, queue this request
+               return new Promise((resolve, reject) => {
                   failedQueue.push({ resolve, reject });
                })
-                  .then((token) => {
-                     originalRequest.headers.Authorization = `Bearer ${token}`;
+                  .then(() => {
                      return instance(originalRequest);
                   })
                   .catch((err) => {
@@ -77,23 +61,25 @@ export const createAxiosInstance = (): AxiosInstance => {
             isRefreshing = true;
 
             try {
-               // Try to refresh the token
-               const newToken = await refreshToken();
+               // Call refresh endpoint - the server will update the HTTP-only cookie
+               await axios.get(
+                  `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-token`,
+                  {
+                     withCredentials: true,
+                  }
+               );
 
-               // Update the original request with new token
-               originalRequest.headers.Authorization = `Bearer ${newToken}`;
-
-               // Process the queue with new token
-               processQueue(null, newToken);
+               // Process queued requests
+               processQueue(null);
 
                // Retry the original request
                return instance(originalRequest);
             } catch (refreshError) {
-               // If refreshing failed, logout the user
-               processQueue(refreshError as Error, null);
+               // If refresh fails, clear auth state and redirect to login
+               processQueue(refreshError as AxiosError);
 
-               // Dispatch logout event for the auth context to handle
-               window.dispatchEvent(new CustomEvent("auth:logout"));
+               // Dispatch logout event
+               window.dispatchEvent(new Event("auth:logout"));
 
                return Promise.reject(refreshError);
             } finally {
@@ -108,5 +94,14 @@ export const createAxiosInstance = (): AxiosInstance => {
    return instance;
 };
 
-// Export a singleton instance
+// Create and export the axios instance with auth handling
 export const axiosWithAuth = createAxiosInstance();
+
+// Create a regular axios instance without special handling for simple API calls
+export const axiosInstance = axios.create({
+   baseURL: process.env.NEXT_PUBLIC_API_URL,
+   headers: {
+      "Content-Type": "application/json",
+   },
+   withCredentials: true,
+});
