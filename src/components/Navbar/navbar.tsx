@@ -135,9 +135,7 @@ export function Navbar() {
                               className={navLinkStyle}
                               onClick={navigateToChatbot}
                            >
-                              <div className="flex items-center gap-1">
-                                 <span>Чатбот</span>
-                              </div>
+                              Чатбот
                            </NavigationMenuLink>
                         </NavigationMenuItem>
                      </NavigationMenuList>
