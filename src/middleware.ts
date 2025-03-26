@@ -25,12 +25,12 @@ export function middleware(req: NextRequest) {
    );
 
    // Get authentication token from cookies
-   const authToken = req.cookies.get("access_token")?.value;
+   const accessToken = req.cookies.get("access_token")?.value;
 
-   console.log(`[Middleware] Path: ${path}, Token exists: ${!!authToken}`);
+   console.log(`[Middleware] Path: ${path}, Token exists: ${!!accessToken}`);
 
    // If accessing a protected route without authentication, redirect to login
-   if (isProtectedRoute && !authToken) {
+   if (isProtectedRoute && !accessToken) {
       console.log(`[Middleware] Redirecting to login from ${path}`);
       const url = new URL("/login", req.url);
       url.searchParams.set("from", path);
@@ -38,7 +38,7 @@ export function middleware(req: NextRequest) {
    }
 
    // If accessing login/register while already authenticated, redirect to library
-   if (isPublicRoute && authToken && path !== "/") {
+   if (isPublicRoute && accessToken && path !== "/") {
       console.log(`[Middleware] Redirecting authenticated user to library`);
       return NextResponse.redirect(new URL("/library", req.url));
    }
