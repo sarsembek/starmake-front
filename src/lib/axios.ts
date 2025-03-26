@@ -3,6 +3,8 @@ import axios, {
    AxiosInstance,
    InternalAxiosRequestConfig,
 } from "axios";
+// Import refreshToken function directly for now
+import { refreshToken } from "@/api/auth/refreshToken";
 
 let isRefreshing = false;
 let failedQueue: Array<{
@@ -30,43 +32,44 @@ export const createAxiosInstance = (): AxiosInstance => {
       withCredentials: true, // This is crucial for including cookies in requests
    });
 
-   // No need to add token to requests - HTTP-only cookies are sent automatically
-
    // Add response interceptor for handling 401 errors
    instance.interceptors.response.use(
       (response) => response,
       async (error: AxiosError) => {
          const originalRequest = error.config as InternalAxiosRequestConfig;
 
-         // If error is 401 and not a refresh token request itself
+         // Debug the error first
+         console.log("Axios interceptor error:", {
+            status: error.response?.status,
+            url: originalRequest?.url,
+            isRefreshing,
+            method: originalRequest?.method,
+         });
+
+         // Check for 401 unauthorized error
          if (
             error.response?.status === 401 &&
             originalRequest &&
-            !originalRequest.url?.includes("refresh-token") &&
+            // Check if this is not already a refresh token request
+            originalRequest.url !== "/auth/refresh-token" &&
             !isRefreshing
          ) {
             if (isRefreshing) {
-               // If already refreshing, queue this request
                return new Promise((resolve, reject) => {
                   failedQueue.push({ resolve, reject });
                })
-                  .then(() => {
-                     return instance(originalRequest);
-                  })
-                  .catch((err) => {
-                     return Promise.reject(err);
-                  });
+                  .then(() => instance(originalRequest))
+                  .catch((err) => Promise.reject(err));
             }
 
             isRefreshing = true;
+            console.log("🔄 Axios interceptor: Token refresh started");
 
             try {
-               // Call refresh endpoint - the server will update the HTTP-only cookie
-               await axios.get(
-                  `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-token`,
-                  {
-                     withCredentials: true,
-                  }
+               // Use the refreshToken function directly in the interceptor
+               await refreshToken();
+               console.log(
+                  "✅ Token refreshed successfully in axios interceptor"
                );
 
                // Process queued requests
@@ -75,11 +78,14 @@ export const createAxiosInstance = (): AxiosInstance => {
                // Retry the original request
                return instance(originalRequest);
             } catch (refreshError) {
-               // If refresh fails, clear auth state and redirect to login
+               console.error(
+                  "❌ Token refresh failed in axios interceptor:",
+                  refreshError
+               );
                processQueue(refreshError as AxiosError);
 
-               // Dispatch logout event
-               window.dispatchEvent(new Event("auth:logout"));
+               // Dispatch logout event that will be handled by AuthContext
+               window.dispatchEvent(new CustomEvent("auth:logout"));
 
                return Promise.reject(refreshError);
             } finally {
