@@ -47,16 +47,13 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-   // This ensures the middleware runs for all routes except static assets
    matcher: [
-      /*
-       * Match all request paths except for:
-       * - _next/static (static files)
-       * - _next/image (image optimization files)
-       * - favicon.ico (favicon file)
-       * - public folder files (images, etc)
-       * - api routes
-       */
-      "/((?!_next/static|_next/image|favicon.ico|public/|api/).*)",
+      // Only run middleware on specific paths that need protection
+      "/library/:path*",
+      "/dashboard/:path*",
+      "/profile/:path*",
+      "/script-builder/:path*",
+      "/login",
+      "/register",
    ],
 };
