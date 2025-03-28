@@ -46,6 +46,22 @@ export const createAxiosInstance = (): AxiosInstance => {
             method: originalRequest?.method,
          });
 
+         // Check if this is a user limited error (403 with specific format)
+         if (
+            error.response?.status === 403 &&
+            typeof error.response?.data === "object" &&
+            (error.response?.data as { detail?: { ru?: string } })?.detail &&
+            typeof (error.response?.data as { detail?: unknown })?.detail === "object" &&
+            (error.response?.data as { detail?: { ru?: string } })?.detail?.ru === "Ваш аккаунт ограничен"
+         ) {
+            console.log("User limited error detected");
+
+            // Dispatch an event that will be caught by the SubscriptionContext
+            window.dispatchEvent(new CustomEvent("subscription:limited"));
+
+            return Promise.reject(error);
+         }
+
          // Check for 401 unauthorized error
          if (
             error.response?.status === 401 &&

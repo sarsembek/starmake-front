@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactNode, useState } from "react";
 import { AuthProvider } from "@/context/AuthContext";
 import { AxiosError } from "axios";
+import { SubscriptionProvider } from "@/context/SubscriptionContext";
 
 export function Providers({ children }: { children: ReactNode }) {
    const [queryClient] = useState(
@@ -29,7 +30,9 @@ export function Providers({ children }: { children: ReactNode }) {
    return (
       <QueryClientProvider client={queryClient}>
          <AuthProvider>
-            {children}
+            <SubscriptionProvider>
+               {children}
+            </SubscriptionProvider>
          </AuthProvider>
          {/* Remove this if you don't have the devtools installed */}
          {/* <ReactQueryDevtools initialIsOpen={false} /> */}
