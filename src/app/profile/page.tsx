@@ -31,6 +31,7 @@ import {
    PaginationNext,
    PaginationPrevious,
 } from "@/components/ui/pagination";
+import { PromoCodeForm } from "@/components/profile/PromoCodeForm";
 
 // Define number of items per page
 const ITEMS_PER_PAGE = 12;
@@ -381,6 +382,11 @@ export default function ProfilePage() {
                               </Button>
                            </CardFooter>
                         </Card>
+
+                        <section className="space-y-4 mt-6">
+                           <h2 className="text-2xl font-bold">Промокоды</h2>
+                           <PromoCodeForm />
+                        </section>
                      </TabsContent>
 
                      {/* Favorites Tab Content */}
