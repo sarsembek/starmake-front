@@ -8,8 +8,8 @@ import {
    AlertDialogFooter,
    AlertDialogHeader,
    AlertDialogTitle,
+   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { AlertTriangle } from "lucide-react";
 
@@ -45,14 +45,12 @@ export function SubscriptionLimitModal({
                </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex flex-col sm:flex-row gap-2">
-               <AlertDialogAction asChild className="w-full">
-                  <Button onClick={handleUpgrade} className="w-full">
-                     Обновить подписку
-                  </Button>
+               <AlertDialogAction onClick={handleUpgrade}>
+                  Обновить подписку
                </AlertDialogAction>
-               <Button variant="outline" onClick={onClose} className="w-full">
+               <AlertDialogCancel onClick={onClose}>
                   Закрыть
-               </Button>
+               </AlertDialogCancel>
             </AlertDialogFooter>
          </AlertDialogContent>
       </AlertDialog>
