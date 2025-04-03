@@ -134,12 +134,6 @@ export function LoginForm() {
                >
                   Пароль
                </label>
-               <Link
-                  href="/forgot-password"
-                  className="text-sm font-medium text-primary hover:underline"
-               >
-                  Забыли пароль?
-               </Link>
             </div>
             <Input
                id="password"
@@ -149,6 +143,14 @@ export function LoginForm() {
                disabled={isPending || isResendingConfirmation}
                required
             />
+            <div className="flex justify-end">
+               <Link
+                 href="/forgot-password"
+                 className="text-sm font-medium text-primary hover:underline"
+               >
+                 Забыли пароль?
+               </Link>
+            </div>
          </div>
 
          <Button
