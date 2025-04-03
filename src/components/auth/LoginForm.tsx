@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertCircle, CheckCircle, Mail } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import Link from "next/link";
 
 export function LoginForm() {
    const [email, setEmail] = useState("");
@@ -126,12 +127,14 @@ export function LoginForm() {
          </div>
 
          <div className="space-y-2">
-            <label
-               htmlFor="password"
-               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-               Пароль
-            </label>
+            <div className="flex items-center justify-between">
+               <label
+                  htmlFor="password"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+               >
+                  Пароль
+               </label>
+            </div>
             <Input
                id="password"
                type="password"
@@ -140,6 +143,14 @@ export function LoginForm() {
                disabled={isPending || isResendingConfirmation}
                required
             />
+            <div className="flex justify-end">
+               <Link
+                 href="/forgot-password"
+                 className="text-sm font-medium text-primary hover:underline"
+               >
+                 Забыли пароль?
+               </Link>
+            </div>
          </div>
 
          <Button
