@@ -15,7 +15,7 @@ export default function ForgotPasswordPage() {
    const [email, setEmail] = useState("");
    const [errorMessage, setErrorMessage] = useState("");
    const router = useRouter();
-   
+
    const {
       mutate: requestReset,
       isPending,
@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
    const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault();
       setErrorMessage("");
-      
+
       // Basic email validation
       if (!email || !email.includes("@")) {
          setErrorMessage("Пожалуйста, введите корректный email адрес");
@@ -40,7 +40,10 @@ export default function ForgotPasswordPage() {
             onError: (err) => {
                if (err.response?.status === 422) {
                   const validationErrors = err.response.data.detail;
-                  if (Array.isArray(validationErrors) && validationErrors.length > 0) {
+                  if (
+                     Array.isArray(validationErrors) &&
+                     validationErrors.length > 0
+                  ) {
                      setErrorMessage(validationErrors[0].msg);
                   } else {
                      setErrorMessage("Некорректный email адрес");
@@ -71,10 +74,10 @@ export default function ForgotPasswordPage() {
                Назад
             </button>
          </div>
-         
-         <div className="flex-1 flex items-center justify-center p-4 md:p-8">
+
+         <div className="flex-1 flex items-start justify-center pt-16 md:pt-24 px-4 md:px-8">
             <div className="mx-auto w-full max-w-md space-y-6">
-               <div className="md:text-center">
+               <div className="md:text-center space-y-2">
                   <Logo href="/" className="inline-block mb-6" size="lg" />
                   <h1 className="text-3xl font-bold">Восстановление пароля</h1>
                   <p className="text-muted-foreground">
@@ -87,13 +90,16 @@ export default function ForgotPasswordPage() {
                      <Alert className="border-green-500 bg-green-50">
                         <CheckCircle className="h-5 w-5 text-green-600" />
                         <AlertDescription className="text-green-700">
-                           Инструкция по сбросу пароля отправлена на указанный email.
-                           Пожалуйста, проверьте вашу почту и следуйте инструкциям.
+                           Инструкция по сбросу пароля отправлена на указанный
+                           email. Пожалуйста, проверьте вашу почту и следуйте
+                           инструкциям.
                         </AlertDescription>
                      </Alert>
                      <div className="flex flex-col space-y-4">
                         <Button asChild>
-                           <Link href="/login">Вернуться на страницу входа</Link>
+                           <Link href="/login">
+                              Вернуться на страницу входа
+                           </Link>
                         </Button>
                      </div>
                   </div>
@@ -129,9 +135,7 @@ export default function ForgotPasswordPage() {
                         className="w-full"
                         disabled={isPending}
                      >
-                        {isPending
-                           ? "Отправка..."
-                           : "Отправить инструкцию"}
+                        {isPending ? "Отправка..." : "Отправить инструкцию"}
                      </Button>
 
                      <div className="text-center text-sm">

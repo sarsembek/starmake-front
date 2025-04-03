@@ -18,7 +18,7 @@ export default function ResetPasswordPage() {
    const [password, setPassword] = useState("");
    const [confirmPassword, setConfirmPassword] = useState("");
    const [errorMessage, setErrorMessage] = useState("");
-   
+
    const {
       mutate: resetPassword,
       isPending,
@@ -33,7 +33,7 @@ export default function ResetPasswordPage() {
          const timeout = setTimeout(() => {
             router.push("/login");
          }, 3000);
-         
+
          return () => clearTimeout(timeout);
       }
    }, [resetSuccess, router]);
@@ -41,13 +41,13 @@ export default function ResetPasswordPage() {
    const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault();
       setErrorMessage("");
-      
+
       // Validate password
       if (password.length < 8) {
          setErrorMessage("Пароль должен содержать минимум 8 символов");
          return;
       }
-      
+
       // Check if passwords match
       if (password !== confirmPassword) {
          setErrorMessage("Пароли не совпадают");
@@ -64,13 +64,20 @@ export default function ResetPasswordPage() {
          {
             onError: (err) => {
                if (err.response?.status === 400) {
-                  setErrorMessage("Некорректный или устаревший токен сброса пароля");
+                  setErrorMessage(
+                     "Некорректный или устаревший токен сброса пароля"
+                  );
                } else if (err.response?.status === 422) {
                   const validationErrors = err.response.data.detail;
-                  if (Array.isArray(validationErrors) && validationErrors.length > 0) {
+                  if (
+                     Array.isArray(validationErrors) &&
+                     validationErrors.length > 0
+                  ) {
                      setErrorMessage(validationErrors[0].msg);
                   } else {
-                     setErrorMessage("Ошибка валидации. Проверьте правильность данных");
+                     setErrorMessage(
+                        "Ошибка валидации. Проверьте правильность данных"
+                     );
                   }
                } else {
                   setErrorMessage(
@@ -85,7 +92,7 @@ export default function ResetPasswordPage() {
    // If no token provided, show error
    if (!token) {
       return (
-         <div className="flex min-h-screen items-center justify-center p-4">
+         <div className="flex min-h-screen items-start justify-center pt-16 md:pt-24 p-4">
             <div className="mx-auto w-full max-w-md space-y-6">
                <div className="text-center">
                   <Logo href="/" className="inline-block mb-6" size="lg" />
@@ -109,7 +116,7 @@ export default function ResetPasswordPage() {
    }
 
    return (
-      <div className="flex min-h-screen items-center justify-center p-4">
+      <div className="flex min-h-screen items-start justify-center pt-16 md:pt-24 p-4">
          <div className="mx-auto w-full max-w-md space-y-6">
             <div className="md:text-center">
                <Logo href="/" className="inline-block mb-6" size="lg" />
@@ -124,7 +131,8 @@ export default function ResetPasswordPage() {
                   <Alert className="border-green-500 bg-green-50">
                      <CheckCircle className="h-5 w-5 text-green-600" />
                      <AlertDescription className="text-green-700">
-                        Пароль успешно изменен! Вы будете перенаправлены на страницу входа.
+                        Пароль успешно изменен! Вы будете перенаправлены на
+                        страницу входа.
                      </AlertDescription>
                   </Alert>
                </div>
@@ -171,14 +179,8 @@ export default function ResetPasswordPage() {
                      />
                   </div>
 
-                  <Button
-                     type="submit"
-                     className="w-full"
-                     disabled={isPending}
-                  >
-                     {isPending
-                        ? "Сохранение..."
-                        : "Сохранить новый пароль"}
+                  <Button type="submit" className="w-full" disabled={isPending}>
+                     {isPending ? "Сохранение..." : "Сохранить новый пароль"}
                   </Button>
                </form>
             )}
