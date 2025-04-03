@@ -14,8 +14,11 @@ import {
 } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 import { useVideo } from "@/context/VideoContext";
-import { useCategories } from "@/hooks/useCategories";
-import { useFavoriteReel, useUnfavoriteReel } from "@/hooks/useFavoriteReels";
+import { useCategories } from "@/hooks/reels/useCategories";
+import {
+   useFavoriteReel,
+   useUnfavoriteReel,
+} from "@/hooks/reels/useFavoriteReels";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -178,7 +181,9 @@ export function ReelCard({
 
    return (
       <Card
-         className={`overflow-hidden ${cardSizeClass} ${size === 'sm' ? 'py-0 gap-0': 'py-6'} flex flex-col pt-0 cursor-pointer`}
+         className={`overflow-hidden ${cardSizeClass} ${
+            size === "sm" ? "py-0 gap-0" : "py-6"
+         } flex flex-col pt-0 cursor-pointer`}
          onClick={handleCardClick}
       >
          <div className={`relative ${aspectRatio} w-full`}>

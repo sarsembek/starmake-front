@@ -15,7 +15,10 @@ import {
    Copy,
 } from "lucide-react";
 import { useInView } from "react-intersection-observer";
-import { useFavoriteReel, useUnfavoriteReel } from "@/hooks/useFavoriteReels";
+import {
+   useFavoriteReel,
+   useUnfavoriteReel,
+} from "@/hooks/reels/useFavoriteReels";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -23,7 +26,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import type { Reel } from "@/types/reel/reel.type";
-import { useCategories } from "@/hooks/useCategories";
+import { useCategories } from "@/hooks/reels/useCategories";
+import { SimilarReelsSlider } from "@/components/reel/similar-reels/SimilarReelsSlider";
 
 export function ReelDetails({
    id, // Uncommented this as we need it for favorite API calls
@@ -306,6 +310,11 @@ export function ReelDetails({
                </Card>
             </div>
          </div>
+
+         {/* Add similar reels section */}
+         <section className="mt-12">
+            <SimilarReelsSlider reelId={id} />
+         </section>
       </div>
    );
 }

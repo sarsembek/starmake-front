@@ -3,8 +3,8 @@
 import { ReelCard } from "@/components/reel/reel-card/reel-card";
 import { Sidebar } from "@/components/reel/sidebar/sidebar";
 import { useState } from "react";
-import { useCategories } from "@/hooks/useCategories";
-import { useReels } from "@/hooks/useReels";
+import { useCategories } from "@/hooks/reels/useCategories";
+import { useReels } from "@/hooks/reels/useReels";
 import { VideoProvider } from "@/context/VideoContext";
 import {
    Pagination,
@@ -162,7 +162,8 @@ export default function LibraryPage() {
                         {getCategoryTitle()}
                      </h1>
                      <p className="text-muted-foreground mt-1">
-                        Откройте для себя удивительный контент от создателей со всего мира
+                        Откройте для себя удивительный контент от создателей со
+                        всего мира
                      </p>
                   </header>
 

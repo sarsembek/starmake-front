@@ -5,7 +5,7 @@ import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useCategories } from "@/hooks/useCategories";
+import { useCategories } from "@/hooks/reels/useCategories";
 import { SidebarHeader } from "./components/sidebar-header";
 import { SidebarFooter } from "./components/sidebar-footer";
 import { CategoryGroup } from "./components/category-group";

@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { ReelDetails } from "./reel-details";
-import { useReel } from "@/hooks/useReel";
+import { useReel } from "@/hooks/reels/useReel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -24,7 +24,6 @@ export default function ReelPage() {
 
    return <ReelDetails {...reel} />;
 }
-
 
 function ReelSkeleton() {
    return (
@@ -62,13 +61,13 @@ function ReelError() {
       <div className="container max-w-4xl mx-auto py-8 px-4 text-center">
          <h2 className="text-2xl font-bold text-red-500">Reel не найден</h2>
          <p className="mt-2">
-         Запрашиваемый ролик не найден или произошла ошибка при его загрузке
-         это. Пожалуйста, попробуйте позже.
+            Запрашиваемый ролик не найден или произошла ошибка при его загрузке
+            это. Пожалуйста, попробуйте позже.
          </p>
          <Link href="/library">
             <Button className="mt-4">
                <ArrowLeft className="h-4 w-4 mr-2" />
-                Вернуться к библиотеке
+               Вернуться к библиотеке
             </Button>
          </Link>
       </div>

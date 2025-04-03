@@ -19,7 +19,7 @@ import { Label } from "@/components/ui/label";
 import { Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { User } from "@/types/auth/auth.type";
-import { useFavoriteReels } from "@/hooks/useFavoriteReels";
+import { useFavoriteReels } from "@/hooks/reels/useFavoriteReels";
 import { ReelCard } from "@/components/reel/reel-card/reel-card";
 import { VideoProvider } from "@/context/VideoContext";
 import {
