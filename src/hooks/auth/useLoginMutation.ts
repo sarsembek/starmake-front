@@ -49,7 +49,7 @@ export function useLoginMutation() {
          if (
             error.response?.status === 403 &&
             error.response.data.detail ===
-               "Please verify your email before accessing this resource."
+               "Please verify your email before logging in."
          ) {
             // Set state for verification needed
             setNeedsVerification(true);
