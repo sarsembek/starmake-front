@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { VideoProvider } from "@/context/VideoContext";
 
 export default function ReelPage() {
    const params = useParams<{ shortcode: string }>();
@@ -22,7 +23,11 @@ export default function ReelPage() {
       return <ReelError />;
    }
 
-   return <ReelDetails {...reel} />;
+   return (
+      <VideoProvider>
+         <ReelDetails {...reel} />
+      </VideoProvider>
+   );
 }
 
 function ReelSkeleton() {
