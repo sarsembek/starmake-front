@@ -16,9 +16,11 @@ interface AuthContextType {
    user: User | null;
    isAuthenticated: boolean;
    isLoading: boolean;
+   isLimited: boolean; // Add this new state
    setUser: (user: User | null) => void;
    logout: () => void;
    checkAuthStatus: () => Promise<boolean>;
+   setIsLimited: (state: boolean) => void; // Add setter function
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,6 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    const [user, setUser] = useState<User | null>(null);
    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
    const [isLoading, setIsLoading] = useState(true);
+   const [isLimited, setIsLimited] = useState(false); // New state for limited access
    const { refresh } = useRefreshToken();
    const authCheckInProgress = useRef(false);
 
@@ -61,6 +64,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setUser(userData);
             setIsAuthenticated(true);
             localStorage.setItem("user_cache", JSON.stringify(userData));
+
+            // Check if user is limited based on subscription expiration
+            setIsLimited(userData.is_limited);
+
             return true;
          } else if (response.status === 401) {
             // If we get a 401, try refreshing the token
@@ -114,6 +121,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setIsAuthenticated(false);
             localStorage.removeItem("user_cache");
             return false;
+         } else if (response.status === 403) {
+            // Check if this is our specific limited error
+            try {
+               const errorData = await response.json();
+               if (errorData?.detail?.ru === "Ваш аккаунт ограничен") {
+                  console.log("User account is limited");
+                  setIsLimited(true);
+                  localStorage.setItem("user_limited", "true");
+                  return false;
+               }
+            } catch (parseError) {
+               console.error("Error parsing response", parseError);
+            }
          }
 
          // Other error cases
@@ -151,7 +171,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
    // Expose stable function that delegates to ref implementation
    const checkAuthStatus = useCallback(async () => {
-      return checkAuthStatusRef.current ? (await checkAuthStatusRef.current()) ?? false : false;
+      return checkAuthStatusRef.current
+         ? (await checkAuthStatusRef.current()) ?? false
+         : false;
    }, []);
 
    const logout = useCallback(async () => {
@@ -181,6 +203,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (cachedUser && isMounted) {
                setUser(JSON.parse(cachedUser));
                setIsAuthenticated(true); // Temporarily assume authenticated
+            }
+
+            // Check if user was previously limited on initial load
+            const wasLimited = localStorage.getItem("user_limited") === "true";
+            if (wasLimited) {
+               setIsLimited(true);
             }
 
             // Even with cached data, always verify with server
@@ -217,9 +245,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             user,
             isAuthenticated,
             isLoading,
+            isLimited, // Provide this to consumers
             setUser,
             logout,
             checkAuthStatus,
+            setIsLimited, // Provide the setter
          }}
       >
          {children}
