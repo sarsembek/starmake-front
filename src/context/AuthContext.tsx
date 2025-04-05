@@ -11,6 +11,8 @@ import {
    useCallback,
    useRef,
 } from "react";
+import { logoutUser } from "@/api/auth/logoutUser";
+
 
 interface AuthContextType {
    user: User | null;
@@ -177,14 +179,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    }, []);
 
    const logout = useCallback(async () => {
-      try {
-         await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
-            method: "POST",
-            credentials: "include",
-         });
-      } catch (error) {
-         console.error("Error during logout:", error);
-      }
+      logoutUser();
 
       setUser(null);
       setIsAuthenticated(false);
