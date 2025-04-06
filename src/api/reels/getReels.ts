@@ -7,8 +7,6 @@ export interface GetReelsParams {
    page?: number;
    size?: number;
    categoryId?: number;
-   language?: string;
-   country?: string;
    search?: string;
 }
 
@@ -18,50 +16,41 @@ export const getReels = async (
    params: GetReelsParams
 ): Promise<ReelsResponse> => {
    try {
-      const {
-         page = 1,
-         size = 12,
-         categoryId,
-         language,
-         country,
-         search,
-      } = params;
-
       const queryParams = new URLSearchParams();
-      queryParams.append("page", page.toString());
-      queryParams.append("size", size.toString());
 
-      if (categoryId && categoryId > 0) {
-         queryParams.append("category_id", categoryId.toString());
+      if (params.page) {
+         queryParams.append("page", params.page.toString());
       }
 
-      if (language) {
-         queryParams.append("language", language);
+      if (params.size) {
+         queryParams.append("size", params.size.toString());
       }
 
-      if (country) {
-         queryParams.append("country", country);
+      if (params.categoryId) {
+         queryParams.append("category_id", params.categoryId.toString());
       }
 
-      if (search) {
-         queryParams.append("search", search);
+      if (params.search) {
+         queryParams.append("search", params.search);
       }
 
       const response = await axiosWithAuth.get<ReelsResponse>(
          `/library/api/v1/reels/?${queryParams.toString()}`
       );
+
       return response.data;
    } catch (error) {
       console.error("Failed to fetch reels:", error);
 
-      // Check for user limited error
+      // Check for the specific limited error format
       if (
          axios.isAxiosError(error) &&
          error.response?.status === 403 &&
-         error.response?.data?.detail?.ru === "Ваш аккаунт ограничен"
+         error.response.data?.detail?.en ===
+            "Limited users can only access up to 3 pages of results"
       ) {
-         // The global handler will catch this, but we can add specific handling here too
-         console.log("User is limited, cannot access library");
+         // Dispatch an event that will be caught by the SubscriptionContext
+         window.dispatchEvent(new CustomEvent("subscription:limited"));
       }
 
       throw error;
