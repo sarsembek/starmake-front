@@ -10,12 +10,12 @@ import { useAuth } from "@/context/AuthContext";
 
 // Hook to fetch user's favorite reels with pagination
 export function useFavoriteReels(page = 1, size = 12) {
-   const { isAuthenticated, isLimited } = useAuth();
+   const { isAuthenticated } = useAuth();
 
    return useQuery<FavoriteReelsResponse, Error>({
       queryKey: ["favoriteReels", page, size],
       queryFn: () => getFavoriteReels(page, size),
-      enabled: isAuthenticated && !isLimited,
+      enabled: isAuthenticated,
       staleTime: 5 * 60 * 1000, // 5 minutes
    });
 }

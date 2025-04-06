@@ -18,11 +18,11 @@ interface AuthContextType {
    user: User | null;
    isAuthenticated: boolean;
    isLoading: boolean;
-   isLimited: boolean; // Add this new state
+   // isLimited: boolean; // Add this new state
    setUser: (user: User | null) => void;
    logout: () => void;
    checkAuthStatus: () => Promise<boolean>;
-   setIsLimited: (state: boolean) => void; // Add setter function
+   // setIsLimited: (state: boolean) => void; // Add setter function
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    const [user, setUser] = useState<User | null>(null);
    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
    const [isLoading, setIsLoading] = useState(true);
-   const [isLimited, setIsLimited] = useState(false); // New state for limited access
+   // const [isLimited, setIsLimited] = useState(false); // New state for limited access
    const { refresh } = useRefreshToken();
    const authCheckInProgress = useRef(false);
 
@@ -67,8 +67,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setIsAuthenticated(true);
             localStorage.setItem("user_cache", JSON.stringify(userData));
 
-            // Check if user is limited based on subscription expiration
-            setIsLimited(userData.is_limited);
+            // // Check if user is limited based on subscription expiration
+            // setIsLimited(userData.is_limited);
 
             return true;
          } else if (response.status === 401) {
@@ -129,8 +129,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                const errorData = await response.json();
                if (errorData?.detail?.ru === "Ваш аккаунт ограничен") {
                   console.log("User account is limited");
-                  setIsLimited(true);
-                  localStorage.setItem("user_limited", "true");
+                  // setIsLimited(true);
+                  // localStorage.setItem("user_limited", "true");
                   return false;
                }
             } catch (parseError) {
@@ -200,11 +200,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                setIsAuthenticated(true); // Temporarily assume authenticated
             }
 
-            // Check if user was previously limited on initial load
-            const wasLimited = localStorage.getItem("user_limited") === "true";
-            if (wasLimited) {
-               setIsLimited(true);
-            }
+            // // Check if user was previously limited on initial load
+            // const wasLimited = localStorage.getItem("user_limited") === "true";
+            // if (wasLimited) {
+            //    setIsLimited(true);
+            // }
 
             // Even with cached data, always verify with server
             if (isMounted && checkAuthStatusRef.current) {
@@ -240,11 +240,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             user,
             isAuthenticated,
             isLoading,
-            isLimited, // Provide this to consumers
+            // isLimited, // Provide this to consumers
             setUser,
             logout,
             checkAuthStatus,
-            setIsLimited, // Provide the setter
+            // setIsLimited, // Provide the setter
          }}
       >
          {children}
