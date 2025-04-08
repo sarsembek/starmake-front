@@ -66,16 +66,19 @@ export function useLoginMutation() {
    });
 
    // Function to handle resending the confirmation email
-   const resendConfirmationEmail = async () => {
+   const resendConfirmationEmail = () => {
       if (!emailForVerification) return;
 
-      try {
-         await resendConfirmationMutation.mutateAsync({
-            email: emailForVerification,
-         });
-      } catch (error) {
-         console.error("Failed to resend confirmation email:", error);
-      }
+      // Use mutate instead of mutateAsync to avoid promise chain
+      resendConfirmationMutation.mutate(
+         { email: emailForVerification },
+         {
+            // Optional callbacks if needed
+            onError: (error) => {
+               console.error("Failed to resend confirmation email:", error);
+            }
+         }
+      );
    };
 
    return {

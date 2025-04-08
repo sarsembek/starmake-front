@@ -45,16 +45,20 @@ export function LoginForm() {
          {
             onSuccess: handleLoginSuccess,
             onError: (err) => {
+               // Don't set error message if it's the verification error
+               // This is already handled by needsVerification state
+               if (
+                  err.response?.status === 403 &&
+                  err.response.data.detail === "Please verify your email before logging in."
+               ) {
+                  // Don't set error message here
+                  return;
+               }
+               
                if (err.response?.status === 422) {
                   setErrorMessage("Неверный формат email или пароля");
                } else if (err.response?.status === 401) {
                   setErrorMessage("Неверный email или пароль");
-               } else if (
-                  err.response?.status === 403 &&
-                  err.response.data.detail ===
-                     "Please verify your email before accessing this resource."
-               ) {
-                  // This error is now handled by the hook state
                } else {
                   setErrorMessage(
                      "Ошибка входа. Пожалуйста, попробуйте снова."
@@ -65,12 +69,18 @@ export function LoginForm() {
       );
    };
 
+   // Separate handler for resend button to prevent form submission
+   const handleResendClick = (e: React.MouseEvent) => {
+      e.preventDefault(); // Prevent any form submission
+      resendConfirmationEmail();
+   };
+
    return (
       <form onSubmit={handleSubmit} className="space-y-4">
          {errorMessage && (
             <Alert variant="destructive">
                <AlertCircle className="h-4 w-4" />
-               <AlertDescription variant="destructive">
+               <AlertDescription>
                   {errorMessage}
                </AlertDescription>
             </Alert>
@@ -86,7 +96,7 @@ export function LoginForm() {
                         <Button
                            variant="link"
                            className="p-0 h-auto text-amber-700 font-medium underline underline-offset-4 ml-1"
-                           onClick={resendConfirmationEmail}
+                           onClick={handleResendClick}
                            disabled={isResendingConfirmation}
                         >
                            {isResendingConfirmation
@@ -134,6 +144,12 @@ export function LoginForm() {
                >
                   Пароль
                </label>
+               <Link
+                  href="/forgot-password"
+                  className="text-sm font-medium text-primary hover:underline"
+               >
+                  Забыли пароль?
+               </Link>
             </div>
             <Input
                id="password"
@@ -143,14 +159,6 @@ export function LoginForm() {
                disabled={isPending || isResendingConfirmation}
                required
             />
-            <div className="flex justify-end">
-               <Link
-                 href="/forgot-password"
-                 className="text-sm font-medium text-primary hover:underline"
-               >
-                 Забыли пароль?
-               </Link>
-            </div>
          </div>
 
          <Button
