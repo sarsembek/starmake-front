@@ -1,12 +1,15 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { v4 as uuidv4 } from "uuid";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronDown } from "lucide-react";
 import Image from "next/image";
+import { axiosWithAuth } from "@/lib/axios";
 import {
    DropdownMenu,
    DropdownMenuContent,
@@ -20,18 +23,21 @@ const loudStartOptions = [
    "Нам на это потребовалось 2 года, а ты узнаешь это за 30 секунд",
    "90% людей допускают эту ошибку",
    "Было ли у тебя такое, когда (ситуация из жизни). Что с этим делать?",
-   "Мы потратили на это более _____ денег за последний год, чтобы ты смог...",
-   "Для всех у кого есть проьлемы в _____ вот что нужно делать",
+   "Мы потратили на это более $1000 денег, чтобы я смог",
+   "Для всех у кого есть проьлемы - что нужно делать?",
+   // Add more options as needed
 ];
 
 const textAmplifierOptions = [
-   "Хватит это терпеть___",
-   "Мы готовились к этому два года___",
-   "Теперь расскажу как это исправить___",
-   "Чтобы решить эти проблемы, смотрите видео до конца___",
+   "Хватит это терпеть",
+   "Мы готовились к этому 2 года",
+   "Теперь я расскажу как исправить",
+   "Чтобы решить эти проблемы, смотрите видео до конца",
+   // Add more options as needed
 ];
 
 export function UseTemplate() {
+   const router = useRouter();
    const [formData, setFormData] = useState({
       loudStart: "",
       textAmplifier: "",
@@ -48,12 +54,38 @@ export function UseTemplate() {
       script: string;
       tags: string;
    } | null>(null);
+   const [, setFormSubmitting] = useState(false);
+
+   // Listen for form submission request from layout
+   useEffect(() => {
+      const handleFormSubmitRequest = () => {
+         // Trigger form submission
+         const syntheticEvent = {
+            preventDefault: () => {},
+         } as React.FormEvent<HTMLFormElement>;
+         handleSubmit(syntheticEvent);
+      };
+
+      // Add event listener
+      window.addEventListener(
+         "scriptbuilder:submitform",
+         handleFormSubmitRequest
+      );
+
+      // Clean up
+      return () => {
+         window.removeEventListener(
+            "scriptbuilder:submitform",
+            handleFormSubmitRequest
+         );
+      };
+   }, [formData]);
 
    const handleInputChange = (field: string, value: string) => {
       setFormData((prev) => ({ ...prev, [field]: value }));
    };
 
-   const handleSubmit = (e: React.FormEvent) => {
+   const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
 
       // Check if all fields are filled
@@ -67,9 +99,32 @@ export function UseTemplate() {
          return;
       }
 
-      // Handle form submission - in a real app, this would submit to your backend
-      console.log("Submitting template data:", formData);
-      window.location.href = "/script-builder/next-step"; // Navigate to the next step
+      setShowError(false);
+      setFormSubmitting(true);
+
+      try {
+         // Create a combined script text from all template parts
+         const fullText = `${formData.loudStart}\n\n${formData.textAmplifier}\n\n${formData.mainText}\n\n${formData.callToAction}`;
+
+         // Create a temp ID for tracking
+         const tempId = uuidv4();
+
+         // Send the data to the API
+         const response = await axiosWithAuth.post("/sandbox/scenarios", {
+            text: fullText,
+            temp_id: tempId,
+         });
+
+         if (response.data) {
+            // Navigate to success page on successful submission
+            router.push("/script-builder/next-step");
+         }
+      } catch (error) {
+         console.error("Error submitting template:", error);
+         // Show error message
+      } finally {
+         setFormSubmitting(false);
+      }
    };
 
    const handleAskAi = async (e: React.FormEvent) => {

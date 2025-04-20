@@ -60,6 +60,24 @@ export default function ScriptBuilderLayout({
       };
    }, []);
 
+   // Handle next button click - trigger form submission instead of direct navigation
+   const handleNextClick = () => {
+      if (
+         pathname === "/script-builder/write-script" ||
+         pathname === "/script-builder/use-template"
+      ) {
+         // Dispatch a custom event to trigger form submission
+         const formSubmitEvent = new CustomEvent("scriptbuilder:submitform");
+         window.dispatchEvent(formSubmitEvent);
+
+         // Don't navigate automatically - form submission will handle navigation on success
+         return false;
+      }
+
+      // For other pages, navigate normally
+      return true;
+   };
+
    // Don't show footer on next-step page
    const showFooter = !pathname.includes("next-step");
 
@@ -73,7 +91,12 @@ export default function ScriptBuilderLayout({
                   <ProgressFooter
                      progressValue={progressValue}
                      onPrevious={() => (window.location.href = prevPath)}
-                     onNext={() => (window.location.href = nextPath)}
+                     onNext={() => {
+                        // Only navigate directly if handleNextClick returns true
+                        if (handleNextClick()) {
+                           window.location.href = nextPath;
+                        }
+                     }}
                      isNextDisabled={isNextDisabled}
                   />
                </div>

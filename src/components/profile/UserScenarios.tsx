@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import {
    Pagination,
    PaginationContent,
-   PaginationEllipsis,
    PaginationItem,
    PaginationLink,
    PaginationNext,
@@ -24,107 +23,18 @@ const ITEMS_PER_PAGE = 5;
 
 export function UserScenarios() {
    const [currentPage, setCurrentPage] = useState(1);
-
-   const {
-      data: scenarios,
-      isLoading,
-      error,
-   } = useUserScenarios({
+   const { data, isLoading, error } = useUserScenarios({
       page: currentPage,
       size: ITEMS_PER_PAGE,
    });
 
-   const handlePageChange = (page: number) => {
-      setCurrentPage(page);
-   };
-
-   // Function to format date
-   const formatDate = (dateString: string) => {
-      try {
-         return format(new Date(dateString), "dd.MM.yyyy HH:mm");
-      } catch {
-         return "Invalid date";
-      }
-   };
-
-   // Generate pagination items
-   const renderPaginationItems = () => {
-      const totalPages = scenarios?.pages || 1;
-
-      if (totalPages <= 5) {
-         return Array.from({ length: totalPages }, (_, i) => (
-            <PaginationItem key={i + 1}>
-               <PaginationLink
-                  isActive={currentPage === i + 1}
-                  onClick={() => handlePageChange(i + 1)}
-               >
-                  {i + 1}
-               </PaginationLink>
-            </PaginationItem>
-         ));
-      }
-
-      // For more than 5 pages, show first, last, and pages around current
-      const items = [];
-
-      // First page
-      items.push(
-         <PaginationItem key={1}>
-            <PaginationLink
-               isActive={currentPage === 1}
-               onClick={() => handlePageChange(1)}
-            >
-               1
-            </PaginationLink>
-         </PaginationItem>
-      );
-
-      // Ellipsis if needed
-      if (currentPage > 3) {
-         items.push(<PaginationEllipsis key="start-ellipsis" />);
-      }
-
-      // Pages around current
-      for (
-         let i = Math.max(2, currentPage - 1);
-         i <= Math.min(totalPages - 1, currentPage + 1);
-         i++
-      ) {
-         items.push(
-            <PaginationItem key={i}>
-               <PaginationLink
-                  isActive={currentPage === i}
-                  onClick={() => handlePageChange(i)}
-               >
-                  {i}
-               </PaginationLink>
-            </PaginationItem>
-         );
-      }
-
-      // Ellipsis if needed
-      if (currentPage < totalPages - 2) {
-         items.push(<PaginationEllipsis key="end-ellipsis" />);
-      }
-
-      // Last page
-      items.push(
-         <PaginationItem key={totalPages}>
-            <PaginationLink
-               isActive={currentPage === totalPages}
-               onClick={() => handlePageChange(totalPages)}
-            >
-               {totalPages}
-            </PaginationLink>
-         </PaginationItem>
-      );
-
-      return items;
+   const handlePageChange = (newPage: number) => {
+      setCurrentPage(newPage);
    };
 
    if (isLoading) {
       return (
-         <div className="flex justify-center py-8">
+         <div className="flex justify-center p-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
          </div>
       );
@@ -132,21 +42,17 @@ export function UserScenarios() {
 
    if (error) {
       return (
-         <div className="text-center py-8 text-red-500">
-            <p>Ошибка при загрузке сценариев</p>
-            <p className="text-sm">{(error as Error).message}</p>
+         <div className="text-center p-8 text-destructive">
+            <p>Ошибка загрузки сценариев: {error.message}</p>
          </div>
       );
    }
 
-   if (!scenarios?.items || scenarios.items.length === 0) {
+   if (!data || !data.items || data.items.length === 0) {
       return (
-         <div className="text-center py-8 text-muted-foreground">
-            <p>У вас пока нет сохраненных сценариев</p>
-            <p className="mt-2">
-               Создайте сценарий в разделе &quot;Сценарии&quot; и он появится
-               здесь
-            </p>
+         <div className="text-center p-8 text-muted-foreground">
+            <p>У вас пока нет сценариев</p>
+            <p className="mt-2">Создайте свой первый сценарий в конструкторе</p>
             <Button
                className="mt-4"
                onClick={() => (window.location.href = "/script-builder")}
@@ -158,19 +64,31 @@ export function UserScenarios() {
    }
 
    return (
-      <div className="space-y-4">
-         {scenarios.items.map((scenario) => (
-            <Card key={scenario.id}>
-               <CardHeader>
-                  <CardTitle>{scenario.title}</CardTitle>
-                  <CardDescription>
-                     Создан: {formatDate(scenario.created_at)}
-                  </CardDescription>
+      <div className="space-y-6">
+         {data.items.map((scenario) => (
+            <Card key={scenario.id} className="overflow-hidden">
+               <CardHeader className="bg-muted/30">
+                  <div className="flex justify-between items-start">
+                     <div>
+                        <CardTitle>
+                           {scenario.title || "Сценарий без названия"}
+                        </CardTitle>
+                        {scenario.created_at && (
+                           <CardDescription>
+                              Создан:{" "}
+                              {format(
+                                 new Date(scenario.created_at),
+                                 "dd.MM.yyyy HH:mm"
+                              )}
+                           </CardDescription>
+                        )}
+                     </div>
+                  </div>
                </CardHeader>
                <CardContent>
                   <div className="max-h-32 overflow-hidden relative">
                      <p className="text-sm whitespace-pre-wrap">
-                        {scenario.script}
+                        {scenario.text || "Нет текста сценария"}
                      </p>
                      <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-background to-transparent"></div>
                   </div>
@@ -199,15 +117,26 @@ export function UserScenarios() {
             </Card>
          ))}
 
-         {scenarios.pages > 1 && (
-            <Pagination>
+         {data.pages > 1 && (
+            <Pagination className="mt-6">
                {currentPage > 1 && (
                   <PaginationPrevious
                      onClick={() => handlePageChange(currentPage - 1)}
                   />
                )}
-               <PaginationContent>{renderPaginationItems()}</PaginationContent>
-               {currentPage < scenarios.pages && (
+               <PaginationContent>
+                  {Array.from({ length: data.pages }, (_, i) => (
+                     <PaginationItem key={i + 1}>
+                        <PaginationLink
+                           isActive={currentPage === i + 1}
+                           onClick={() => handlePageChange(i + 1)}
+                        >
+                           {i + 1}
+                        </PaginationLink>
+                     </PaginationItem>
+                  ))}
+               </PaginationContent>
+               {currentPage < data.pages && (
                   <PaginationNext
                      onClick={() => handlePageChange(currentPage + 1)}
                   />

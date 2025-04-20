@@ -43,6 +43,37 @@ export function WriteScript() {
       setTempId(uuidv4());
    }, []);
 
+   // Listen for form submission request from layout
+   useEffect(() => {
+      const handleFormSubmitRequest = () => {
+         if (scenarioText.trim()) {
+            // Call the submit function with a properly typed synthetic event
+            const syntheticEvent = {
+               preventDefault: () => {},
+            } as React.FormEvent<HTMLFormElement>;
+            handleSubmit(syntheticEvent);
+         } else {
+            // Show some validation error if needed
+            console.error("Scenario text cannot be empty");
+            // Could add a state to show an error message to the user
+         }
+      };
+
+      // Add event listener
+      window.addEventListener(
+         "scriptbuilder:submitform",
+         handleFormSubmitRequest
+      );
+
+      // Clean up
+      return () => {
+         window.removeEventListener(
+            "scriptbuilder:submitform",
+            handleFormSubmitRequest
+         );
+      };
+   }, [scenarioText]);
+
    const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
       if (!scenarioText.trim()) return;
