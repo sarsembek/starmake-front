@@ -5,12 +5,6 @@ export interface GenerateResponseRequest {
    source?: string;
 }
 
-export interface AIResponseVariant {
-   title: string;
-   content: string;
-   tags: string;
-}
-
 export interface AIResponse {
    idea: string;
    script: string;
@@ -38,10 +32,14 @@ export const generateSandboxResponse = async (
       }
 
       // Map the array elements to our expected format
+      // Remove "Теги: " prefix if it exists in the third element
+      const tagsString = variants[2] || "";
+      const cleanedTags = tagsString.replace(/^Теги:\s*/i, "");
+
       return {
          idea: variants[0] || "",
          script: variants[1] || "",
-         tags: variants[2] || "",
+         tags: cleanedTags,
       };
    } catch (error) {
       console.error("Failed to generate response:", error);

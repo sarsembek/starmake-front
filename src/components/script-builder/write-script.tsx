@@ -50,9 +50,9 @@ export function WriteScript() {
       try {
          // Show loading state while sending request
          const response = await createScenarioMutation.mutateAsync({
-            title: "Script from Builder",
-            script: scenarioText,
+            text: scenarioText, // Changed from 'script' to 'text'
             temp_id: tempId,
+            title: "Script from Builder", // Still sent but not used by API
          });
 
          // Only navigate after the request is successful and we have a response
