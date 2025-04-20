@@ -48,16 +48,24 @@ export function WriteScript() {
       if (!scenarioText.trim()) return;
 
       try {
-         await createScenarioMutation.mutateAsync({
+         // Show loading state while sending request
+         const response = await createScenarioMutation.mutateAsync({
             title: "Script from Builder",
             script: scenarioText,
             temp_id: tempId,
          });
 
-         // Navigate to success page
-         router.push("/script-builder/next-step");
+         // Only navigate after the request is successful and we have a response
+         if (response && response.id) {
+            // Navigate to success page
+            router.push("/script-builder/next-step");
+         } else {
+            console.error("Invalid response from server:", response);
+            throw new Error("Failed to create scenario: Invalid response");
+         }
       } catch (error) {
          console.error("Error saving scenario:", error);
+         // You might want to show an error message to the user here
       }
    };
 
@@ -71,7 +79,13 @@ export function WriteScript() {
             source: "write_script",
          });
 
-         setAiResponse(response);
+         // Ensure we have a valid response
+         if (response && typeof response === "object") {
+            setAiResponse(response);
+         } else {
+            console.error("Invalid response format:", response);
+            throw new Error("Received invalid response format");
+         }
       } catch (error) {
          console.error("Error generating response:", error);
       }

@@ -33,11 +33,16 @@ import {
 } from "@/components/ui/pagination";
 import { PromoCodeForm } from "@/components/profile/PromoCodeForm";
 import { UserScenarios } from "@/components/profile/UserScenarios";
+import { useSearchParams } from "next/navigation";
 
 // Define number of items per page
 const ITEMS_PER_PAGE = 12;
 
 export default function ProfilePage() {
+   // Add search params to handle tab selection from URL
+   const searchParams = useSearchParams();
+   const tabParam = searchParams.get("tab");
+
    // Fetch user profile from API
    const { data: apiUser, isLoading, error } = useProfile();
 
@@ -234,6 +239,23 @@ export default function ProfilePage() {
       }
    };
 
+   // Determine default tab based on URL parameter, mobile state, and allowed values
+   const getDefaultTab = () => {
+      if (tabParam) {
+         // Only accept valid tab values
+         if (["profile", "favorites", "scenarios"].includes(tabParam)) {
+            // If on mobile and trying to access profile tab, default to favorites
+            if (isMobile && tabParam === "profile") {
+               return "favorites";
+            }
+            return tabParam;
+         }
+      }
+
+      // Default behavior if no valid tab parameter
+      return isMobile ? "favorites" : "profile";
+   };
+
    // Show loading state
    if (isLoading || !user) {
       return (
@@ -407,7 +429,7 @@ export default function ProfilePage() {
                   )}
 
                   {/* Tabs - Mobile: 2 columns, Desktop: 3 columns */}
-                  <Tabs defaultValue={isMobile ? "favorites" : "profile"}>
+                  <Tabs defaultValue={getDefaultTab()}>
                      <TabsList className="grid w-full grid-cols-2 md:grid-cols-3">
                         {/* Profile tab only shown on desktop */}
                         {!isMobile && (

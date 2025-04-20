@@ -22,7 +22,9 @@ export default function NextStepPage() {
                               Вернуться на главную
                            </Button>
                         </Link>
-                        <Button>Продолжить</Button>
+                        <Link href="/profile?tab=scenarios" passHref>
+                           <Button>Перейти к моим сценариям</Button>
+                        </Link>
                      </div>
                   </CardContent>
                </Card>
