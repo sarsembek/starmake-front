@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useProfile } from "@/hooks/useProfile";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -38,7 +38,8 @@ import { useSearchParams } from "next/navigation";
 // Define number of items per page
 const ITEMS_PER_PAGE = 12;
 
-export default function ProfilePage() {
+// Create a client component that uses the search params
+function ProfileContent() {
    // Add search params to handle tab selection from URL
    const searchParams = useSearchParams();
    const tabParam = searchParams.get("tab");
@@ -617,5 +618,23 @@ export default function ProfilePage() {
             </div>
          </div>
       </VideoProvider>
+   );
+}
+
+// Main page component with Suspense boundary
+export default function ProfilePage() {
+   return (
+      <Suspense
+         fallback={
+            <div className="container mx-auto py-8 px-4 min-h-[80vh] flex items-center justify-center">
+               <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                  <p className="mt-4">Загрузка страницы...</p>
+               </div>
+            </div>
+         }
+      >
+         <ProfileContent />
+      </Suspense>
    );
 }
