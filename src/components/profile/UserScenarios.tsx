@@ -1,13 +1,9 @@
 import { useState } from "react";
-import { format } from "date-fns";
 import { useUserScenarios } from "@/hooks/sandbox/useUserScenarios";
 import {
    Card,
    CardContent,
-   CardDescription,
    CardFooter,
-   CardHeader,
-   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -67,33 +63,14 @@ export function UserScenarios() {
       <div className="space-y-6">
          {data.items.map((scenario) => (
             <Card key={scenario.id} className="overflow-hidden">
-               <CardHeader className="bg-muted/30">
-                  <div className="flex justify-between items-start">
-                     <div>
-                        <CardTitle>
-                           {scenario.title || "Сценарий без названия"}
-                        </CardTitle>
-                        {scenario.created_at && (
-                           <CardDescription>
-                              Создан:{" "}
-                              {format(
-                                 new Date(scenario.created_at),
-                                 "dd.MM.yyyy HH:mm"
-                              )}
-                           </CardDescription>
-                        )}
-                     </div>
-                  </div>
-               </CardHeader>
                <CardContent>
-                  <div className="max-h-32 overflow-hidden relative">
+                  <div className="h-32 overflow-y-auto pr-2">
                      <p className="text-sm whitespace-pre-wrap">
                         {scenario.text || "Нет текста сценария"}
                      </p>
-                     <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-background to-transparent"></div>
                   </div>
                </CardContent>
-               <CardFooter className="flex justify-between">
+               <CardFooter className="flex justify-start">
                   <div className="flex flex-wrap gap-2">
                      {scenario.tags?.map((tag, idx) => (
                         <span
@@ -104,15 +81,6 @@ export function UserScenarios() {
                         </span>
                      ))}
                   </div>
-                  <Button
-                     variant="outline"
-                     size="sm"
-                     onClick={() =>
-                        (window.location.href = `/script-builder/edit/${scenario.id}`)
-                     }
-                  >
-                     Редактировать
-                  </Button>
                </CardFooter>
             </Card>
          ))}
