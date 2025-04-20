@@ -32,6 +32,7 @@ import {
    PaginationPrevious,
 } from "@/components/ui/pagination";
 import { PromoCodeForm } from "@/components/profile/PromoCodeForm";
+import { UserScenarios } from "@/components/profile/UserScenarios";
 
 // Define number of items per page
 const ITEMS_PER_PAGE = 12;
@@ -297,10 +298,13 @@ export default function ProfilePage() {
                {/* Main Content Area */}
                <div className="md:col-span-2">
                   <Tabs defaultValue="profile" className="w-full">
-                     <TabsList className="grid w-full grid-cols-2">
+                     <TabsList className="grid w-full grid-cols-3">
                         <TabsTrigger value="profile">Профиль</TabsTrigger>
                         <TabsTrigger value="favorites">
                            Избранные ролики
+                        </TabsTrigger>
+                        <TabsTrigger value="scenarios">
+                           Мои сценарии
                         </TabsTrigger>
                      </TabsList>
 
@@ -434,9 +438,7 @@ export default function ProfilePage() {
                                           onClick={() =>
                                              handlePageChange(currentPage - 1)
                                           }
-                                       >
-                                          Previous
-                                       </PaginationPrevious>
+                                       />
                                     )}
                                     <PaginationContent>
                                        {renderPaginationItems()}
@@ -447,13 +449,26 @@ export default function ProfilePage() {
                                           onClick={() =>
                                              handlePageChange(currentPage + 1)
                                           }
-                                       >
-                                          Next
-                                       </PaginationNext>
+                                       />
                                     )}
                                  </Pagination>
                               )}
                            </CardFooter>
+                        </Card>
+                     </TabsContent>
+
+                     {/* Scenarios Tab Content */}
+                     <TabsContent value="scenarios">
+                        <Card>
+                           <CardHeader>
+                              <CardTitle>Мои сценарии</CardTitle>
+                              <CardDescription>
+                                 Сценарии, которые вы создали
+                              </CardDescription>
+                           </CardHeader>
+                           <CardContent>
+                              <UserScenarios />
+                           </CardContent>
                         </Card>
                      </TabsContent>
                   </Tabs>
