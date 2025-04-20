@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSubscription } from "@/context/SubscriptionContext";
+import { useAuth } from "@/context/AuthContext";
 
 interface UsePaginationLimitProps {
    currentPage: number;
@@ -11,6 +12,7 @@ export function usePaginationLimit({
    maxPages = 3,
 }: UsePaginationLimitProps) {
    const { showLimitedModal } = useSubscription();
+   const { user } = useAuth();
    const [hasExceededLimit, setHasExceededLimit] = useState(false);
 
    // Track if we've shown the modal already
@@ -18,8 +20,11 @@ export function usePaginationLimit({
 
    // Check if the user has exceeded their page limit
    useEffect(() => {
-      // If on page 4 or higher, they've exceeded the limit
-      if (currentPage > maxPages) {
+      // Only apply page limit if user is actually limited
+      const isUserLimited = user?.is_limited === true;
+
+      // If on page 4 or higher AND user is limited, they've exceeded the limit
+      if (currentPage > maxPages && isUserLimited) {
          setHasExceededLimit(true);
 
          // Only show the modal once per session
@@ -27,8 +32,10 @@ export function usePaginationLimit({
             showLimitedModal();
             setHasShownModal(true);
          }
+      } else {
+         setHasExceededLimit(false);
       }
-   }, [currentPage, maxPages, showLimitedModal, hasShownModal]);
+   }, [currentPage, maxPages, showLimitedModal, hasShownModal, user]);
 
    return { hasExceededLimit };
 }
