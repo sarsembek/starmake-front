@@ -59,6 +59,26 @@ export default function ProfilePage() {
       instagram: "",
    });
 
+   // For mobile detection
+   const [isMobile, setIsMobile] = useState(false);
+
+   // Detect screen size
+   useEffect(() => {
+      const checkIfMobile = () => {
+         setIsMobile(window.innerWidth < 768);
+      };
+
+      // Set initial value
+      checkIfMobile();
+
+      // Add window resize listener
+      window.addEventListener("resize", checkIfMobile);
+
+      return () => {
+         window.removeEventListener("resize", checkIfMobile);
+      };
+   }, []);
+
    // Initialize user data from API or localStorage
    useEffect(() => {
       if (apiUser) {
@@ -92,9 +112,11 @@ export default function ProfilePage() {
 
    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const { id, value } = e.target;
+      // Extract main ID without potential suffix (for mobile/desktop variants)
+      const mainId = id.split("-")[0];
       setFormData((prev) => ({
          ...prev,
-         [id]: value,
+         [mainId]: value,
       }));
    };
 
@@ -202,6 +224,16 @@ export default function ProfilePage() {
       return items;
    };
 
+   // Format dates with error handling
+   const formatDate = (dateString?: string) => {
+      if (!dateString) return "Not specified";
+      try {
+         return format(new Date(dateString), "dd.MM.yyyy");
+      } catch {
+         return "Invalid date";
+      }
+   };
+
    // Show loading state
    if (isLoading || !user) {
       return (
@@ -213,16 +245,6 @@ export default function ProfilePage() {
          </div>
       );
    }
-
-   // Format dates with error handling
-   const formatDate = (dateString?: string) => {
-      if (!dateString) return "Not specified";
-      try {
-         return format(new Date(dateString), "dd.MM.yyyy");
-      } catch {
-         return "Invalid date";
-      }
-   };
 
    return (
       <VideoProvider>
@@ -297,19 +319,9 @@ export default function ProfilePage() {
 
                {/* Main Content Area */}
                <div className="md:col-span-2">
-                  <Tabs defaultValue="profile" className="w-full">
-                     <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="profile">Профиль</TabsTrigger>
-                        <TabsTrigger value="favorites">
-                           Избранные ролики
-                        </TabsTrigger>
-                        <TabsTrigger value="scenarios">
-                           Мои сценарии
-                        </TabsTrigger>
-                     </TabsList>
-
-                     {/* Profile Tab Content */}
-                     <TabsContent value="profile">
+                  {/* Profile Section for Mobile (always visible on mobile) */}
+                  {isMobile && (
+                     <div className="mb-6">
                         <Card>
                            <CardHeader>
                               <CardTitle>Информация профиля</CardTitle>
@@ -319,64 +331,64 @@ export default function ProfilePage() {
                            </CardHeader>
                            <CardContent className="space-y-4">
                               <div className="space-y-2">
-                                 <Label htmlFor="email">Email</Label>
+                                 <Label htmlFor="email-mobile">Email</Label>
                                  <Input
-                                    id="email"
+                                    id="email-mobile"
                                     value={formData.email}
                                     onChange={handleInputChange}
                                  />
                               </div>
 
                               <div className="space-y-2">
-                                 <Label htmlFor="name_tg">Имя в Telegram</Label>
+                                 <Label htmlFor="name_tg-mobile">
+                                    Имя в Telegram
+                                 </Label>
                                  <Input
-                                    id="name_tg"
+                                    id="name_tg-mobile"
                                     value={formData.name_tg}
                                     onChange={handleInputChange}
                                  />
                               </div>
 
                               <div className="space-y-2">
-                                 <Label htmlFor="email_tg">
+                                 <Label htmlFor="email_tg-mobile">
                                     Email в Telegram
                                  </Label>
                                  <Input
-                                    id="email_tg"
+                                    id="email_tg-mobile"
                                     value={formData.email_tg}
                                     onChange={handleInputChange}
                                  />
                               </div>
 
                               <div className="space-y-2">
-                                 <Label htmlFor="instagram">Instagram</Label>
+                                 <Label htmlFor="instagram-mobile">
+                                    Instagram
+                                 </Label>
                                  <Input
-                                    id="instagram"
+                                    id="instagram-mobile"
                                     value={formData.instagram}
                                     onChange={handleInputChange}
                                  />
                               </div>
 
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                 <div className="space-y-2">
-                                    <Label htmlFor="start_date">
-                                       Дата начала подписки
-                                    </Label>
-                                    <div className="flex items-center border rounded-md px-3 py-2">
-                                       <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
-                                       <span>
-                                          {formatDate(user.start_date)}
-                                       </span>
-                                    </div>
+                              <div className="space-y-2">
+                                 <Label htmlFor="start_date-mobile">
+                                    Дата начала подписки
+                                 </Label>
+                                 <div className="flex items-center border rounded-md px-3 py-2">
+                                    <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
+                                    <span>{formatDate(user.start_date)}</span>
                                  </div>
+                              </div>
 
-                                 <div className="space-y-2">
-                                    <Label htmlFor="end_date">
-                                       Дата окончания подписки
-                                    </Label>
-                                    <div className="flex items-center border rounded-md px-3 py-2">
-                                       <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
-                                       <span>{formatDate(user.end_date)}</span>
-                                    </div>
+                              <div className="space-y-2">
+                                 <Label htmlFor="end_date-mobile">
+                                    Дата окончания подписки
+                                 </Label>
+                                 <div className="flex items-center border rounded-md px-3 py-2">
+                                    <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
+                                    <span>{formatDate(user.end_date)}</span>
                                  </div>
                               </div>
                            </CardContent>
@@ -391,7 +403,114 @@ export default function ProfilePage() {
                            <h2 className="text-2xl font-bold">Промокоды</h2>
                            <PromoCodeForm />
                         </section>
-                     </TabsContent>
+                     </div>
+                  )}
+
+                  {/* Tabs - Mobile: 2 columns, Desktop: 3 columns */}
+                  <Tabs defaultValue={isMobile ? "favorites" : "profile"}>
+                     <TabsList className="grid w-full grid-cols-2 md:grid-cols-3">
+                        {/* Profile tab only shown on desktop */}
+                        {!isMobile && (
+                           <TabsTrigger value="profile">Профиль</TabsTrigger>
+                        )}
+                        <TabsTrigger value="favorites">
+                           Избранные ролики
+                        </TabsTrigger>
+                        <TabsTrigger value="scenarios">
+                           Мои сценарии
+                        </TabsTrigger>
+                     </TabsList>
+
+                     {/* Profile Tab Content - Only visible on desktop */}
+                     {!isMobile && (
+                        <TabsContent value="profile">
+                           <Card>
+                              <CardHeader>
+                                 <CardTitle>Информация профиля</CardTitle>
+                                 <CardDescription>
+                                    Управляйте своей личной информацией
+                                 </CardDescription>
+                              </CardHeader>
+                              <CardContent className="space-y-4">
+                                 <div className="space-y-2">
+                                    <Label htmlFor="email">Email</Label>
+                                    <Input
+                                       id="email"
+                                       value={formData.email}
+                                       onChange={handleInputChange}
+                                    />
+                                 </div>
+
+                                 <div className="space-y-2">
+                                    <Label htmlFor="name_tg">
+                                       Имя в Telegram
+                                    </Label>
+                                    <Input
+                                       id="name_tg"
+                                       value={formData.name_tg}
+                                       onChange={handleInputChange}
+                                    />
+                                 </div>
+
+                                 <div className="space-y-2">
+                                    <Label htmlFor="email_tg">
+                                       Email в Telegram
+                                    </Label>
+                                    <Input
+                                       id="email_tg"
+                                       value={formData.email_tg}
+                                       onChange={handleInputChange}
+                                    />
+                                 </div>
+
+                                 <div className="space-y-2">
+                                    <Label htmlFor="instagram">Instagram</Label>
+                                    <Input
+                                       id="instagram"
+                                       value={formData.instagram}
+                                       onChange={handleInputChange}
+                                    />
+                                 </div>
+
+                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                       <Label htmlFor="start_date">
+                                          Дата начала подписки
+                                       </Label>
+                                       <div className="flex items-center border rounded-md px-3 py-2">
+                                          <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
+                                          <span>
+                                             {formatDate(user.start_date)}
+                                          </span>
+                                       </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                       <Label htmlFor="end_date">
+                                          Дата окончания подписки
+                                       </Label>
+                                       <div className="flex items-center border rounded-md px-3 py-2">
+                                          <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
+                                          <span>
+                                             {formatDate(user.end_date)}
+                                          </span>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </CardContent>
+                              <CardFooter>
+                                 <Button onClick={handleSaveChanges}>
+                                    Сохранить изменения
+                                 </Button>
+                              </CardFooter>
+                           </Card>
+
+                           <section className="space-y-4 mt-6">
+                              <h2 className="text-2xl font-bold">Промокоды</h2>
+                              <PromoCodeForm />
+                           </section>
+                        </TabsContent>
+                     )}
 
                      {/* Favorites Tab Content */}
                      <TabsContent value="favorites">

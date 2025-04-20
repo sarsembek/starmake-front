@@ -66,9 +66,9 @@ export default function LibraryPage() {
    const renderPaginationItems = () => {
       const totalPages = reelsData?.pages || 1;
 
-      // For small number of pages, show all of them
-      if (totalPages <= 5) {
-         return Array.from({ length: totalPages }, (_, i) => (
+      // For small number of pages, show all of them except the last one
+      if (totalPages <= 6) {
+         const items = Array.from({ length: totalPages - 1 }, (_, i) => (
             <PaginationItem key={i + 1}>
                <PaginationLink
                   isActive={currentPage === i + 1}
@@ -78,37 +78,29 @@ export default function LibraryPage() {
                </PaginationLink>
             </PaginationItem>
          ));
+
+         // Add the last page with text "Последний"
+         if (totalPages > 1) {
+            items.push(
+               <PaginationItem key={totalPages}>
+                  <PaginationLink
+                     isActive={currentPage === totalPages}
+                     onClick={() => handlePageChange(totalPages)}
+                  >
+                     Последний
+                  </PaginationLink>
+               </PaginationItem>
+            );
+         }
+
+         return items;
       }
 
-      // For larger number of pages, show a limited set with ellipsis
+      // For larger number of pages, show a wider range with ellipsis
       const items = [];
 
-      // Always include first page
-      items.push(
-         <PaginationItem key={1}>
-            <PaginationLink
-               isActive={currentPage === 1}
-               onClick={() => handlePageChange(1)}
-            >
-               1
-            </PaginationLink>
-         </PaginationItem>
-      );
-
-      // Add ellipsis if needed
-      if (currentPage > 3) {
-         items.push(
-            <PaginationItem key="ellipsis-1">
-               <PaginationEllipsis />
-            </PaginationItem>
-         );
-      }
-
-      // Add pages around current page
-      const start = Math.max(2, currentPage - 1);
-      const end = Math.min(totalPages - 1, currentPage + 1);
-
-      for (let i = start; i <= end; i++) {
+      // Always show first 5 pages
+      for (let i = 1; i <= Math.min(5, totalPages - 1); i++) {
          items.push(
             <PaginationItem key={i}>
                <PaginationLink
@@ -121,28 +113,58 @@ export default function LibraryPage() {
          );
       }
 
-      // Add ellipsis if needed
-      if (currentPage < totalPages - 2) {
+      // Add ellipsis if current page is far from the range displayed
+      if (currentPage > 5 && currentPage < totalPages - 1) {
+         items.push(
+            <PaginationItem key="ellipsis-middle">
+               <PaginationEllipsis />
+            </PaginationItem>
+         );
+
+         // Add current page if it's not in the first 5 or last position
+         items.push(
+            <PaginationItem key={currentPage}>
+               <PaginationLink
+                  isActive={true}
+                  onClick={() => handlePageChange(currentPage)}
+               >
+                  {currentPage}
+               </PaginationLink>
+            </PaginationItem>
+         );
+
          items.push(
             <PaginationItem key="ellipsis-2">
                <PaginationEllipsis />
             </PaginationItem>
          );
-      }
-
-      // Always include last page
-      if (totalPages > 1) {
+      } else if (currentPage >= totalPages - 1) {
+         // If we're near the end, just show ellipsis between first 5 and current
          items.push(
-            <PaginationItem key={totalPages}>
-               <PaginationLink
-                  isActive={currentPage === totalPages}
-                  onClick={() => handlePageChange(totalPages)}
-               >
-                  {totalPages}
-               </PaginationLink>
+            <PaginationItem key="ellipsis-end">
+               <PaginationEllipsis />
+            </PaginationItem>
+         );
+      } else {
+         // Just show ellipsis before the last page
+         items.push(
+            <PaginationItem key="ellipsis-simple">
+               <PaginationEllipsis />
             </PaginationItem>
          );
       }
+
+      // Always include last page with "Последний" label
+      items.push(
+         <PaginationItem key={totalPages}>
+            <PaginationLink
+               isActive={currentPage === totalPages}
+               onClick={() => handlePageChange(totalPages)}
+            >
+               Последний
+            </PaginationLink>
+         </PaginationItem>
+      );
 
       return items;
    };
