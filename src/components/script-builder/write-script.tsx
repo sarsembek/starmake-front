@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { v4 as uuidv4 } from "uuid";
@@ -43,6 +43,36 @@ export function WriteScript() {
       setTempId(uuidv4());
    }, []);
 
+   // Define handleSubmit with useCallback to avoid dependency cycle
+   const handleSubmit = useCallback(
+      async (e: React.FormEvent) => {
+         e.preventDefault();
+         if (!scenarioText.trim()) return;
+
+         try {
+            // Show loading state while sending request
+            const response = await createScenarioMutation.mutateAsync({
+               text: scenarioText, // Changed from 'script' to 'text'
+               temp_id: tempId,
+               title: "Script from Builder", // Still sent but not used by API
+            });
+
+            // Only navigate after the request is successful and we have a response
+            if (response && response.id) {
+               // Navigate to success page
+               router.push("/script-builder/next-step");
+            } else {
+               console.error("Invalid response from server:", response);
+               throw new Error("Failed to create scenario: Invalid response");
+            }
+         } catch (error) {
+            console.error("Error saving scenario:", error);
+            // You might want to show an error message to the user here
+         }
+      },
+      [scenarioText, tempId, createScenarioMutation, router]
+   );
+
    // Listen for form submission request from layout
    useEffect(() => {
       const handleFormSubmitRequest = () => {
@@ -72,33 +102,7 @@ export function WriteScript() {
             handleFormSubmitRequest
          );
       };
-   }, [scenarioText]);
-
-   const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!scenarioText.trim()) return;
-
-      try {
-         // Show loading state while sending request
-         const response = await createScenarioMutation.mutateAsync({
-            text: scenarioText, // Changed from 'script' to 'text'
-            temp_id: tempId,
-            title: "Script from Builder", // Still sent but not used by API
-         });
-
-         // Only navigate after the request is successful and we have a response
-         if (response && response.id) {
-            // Navigate to success page
-            router.push("/script-builder/next-step");
-         } else {
-            console.error("Invalid response from server:", response);
-            throw new Error("Failed to create scenario: Invalid response");
-         }
-      } catch (error) {
-         console.error("Error saving scenario:", error);
-         // You might want to show an error message to the user here
-      }
-   };
+   }, [scenarioText, handleSubmit]);
 
    const handleAskAi = async (e: React.FormEvent) => {
       e.preventDefault();

@@ -9,6 +9,8 @@ interface ActionButtonProps {
    onClick?: () => void;
    planName?: string;
    planPrice?: number;
+   planId?: number;
+   planFeatures?: string[];
 }
 
 export const ActionButton: FC<ActionButtonProps> = ({
@@ -16,6 +18,8 @@ export const ActionButton: FC<ActionButtonProps> = ({
    onClick,
    planName,
    planPrice,
+   planId,
+   planFeatures,
 }) => {
    const router = useRouter();
 
@@ -27,6 +31,15 @@ export const ActionButton: FC<ActionButtonProps> = ({
          const searchParams = new URLSearchParams();
          if (planName) searchParams.append("plan", planName);
          if (planPrice) searchParams.append("price", planPrice.toString());
+         if (planId) searchParams.append("planId", planId.toString());
+
+         // Add features as encoded JSON string if available
+         if (planFeatures && planFeatures.length > 0) {
+            searchParams.append(
+               "features",
+               encodeURIComponent(JSON.stringify(planFeatures))
+            );
+         }
 
          router.push(`/profile/plan/payment?${searchParams.toString()}`);
       }

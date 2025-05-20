@@ -11,13 +11,22 @@ interface OrderSummaryProps {
    planName: string;
    /** The price of the plan in dollars */
    planPrice: number;
+   /** Additional features of the plan (optional) */
+   planFeatures?: string[];
+   /** Subscription duration in months (defaults to 1) */
+   durationMonths?: number;
 }
 
 /**
  * Component that displays the order summary with plan details
  * Shows plan name, period, total price and subscription terms
  */
-export const OrderSummary = ({ planName, planPrice }: OrderSummaryProps) => {
+export const OrderSummary = ({
+   planName,
+   planPrice,
+   planFeatures = [],
+   durationMonths = 1,
+}: OrderSummaryProps) => {
    return (
       <div className="relative">
          <div
@@ -36,8 +45,28 @@ export const OrderSummary = ({ planName, planPrice }: OrderSummaryProps) => {
 
                <div className="flex justify-between">
                   <span className="text-muted-foreground">Период:</span>
-                  <span className="font-medium">1 месяц</span>
+                  <span className="font-medium">
+                     {durationMonths}{" "}
+                     {durationMonths === 1
+                        ? "месяц"
+                        : durationMonths < 5
+                        ? "месяца"
+                        : "месяцев"}
+                  </span>
                </div>
+
+               {planFeatures.length > 0 && (
+                  <div className="mt-2">
+                     <span className="text-sm text-muted-foreground">
+                        Включает:
+                     </span>
+                     <ul className="list-disc list-inside text-sm mt-1 space-y-1">
+                        {planFeatures.map((feature, index) => (
+                           <li key={index}>{feature}</li>
+                        ))}
+                     </ul>
+                  </div>
+               )}
 
                <Separator />
 

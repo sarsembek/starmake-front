@@ -40,11 +40,24 @@ export function ThreeDSAuthModal({
       if (!isOpen || !threeDsData) return;
 
       const handleMessage = (event: MessageEvent) => {
-         // This implementation depends on the specific 3DS provider
-         // Here's a generic example of handling 3DS completion
-         if (event.data && event.data.type === "3ds-complete") {
-            const { transaction_id, threeDSSessionData, cres } = event.data;
-            onComplete({ transaction_id, threeDSSessionData, cres });
+         try {
+            // Handle standard 3DS provider responses
+            if (event.data && typeof event.data === "object") {
+               if (
+                  event.data.type === "3ds-complete" ||
+                  event.data.type === "3ds-authentication-complete"
+               ) {
+                  const { transaction_id, threeDSSessionData, cres } =
+                     event.data;
+                  // Make sure we have all the required data before completing
+                  if (transaction_id && threeDSSessionData && cres) {
+                     onComplete({ transaction_id, threeDSSessionData, cres });
+                     onClose();
+                  }
+               }
+            }
+         } catch (error) {
+            console.error("Error handling 3DS message:", error);
          }
       };
 
@@ -58,7 +71,7 @@ export function ThreeDSAuthModal({
       return () => {
          window.removeEventListener("message", handleMessage);
       };
-   }, [isOpen, threeDsData, onComplete]);
+   }, [isOpen, threeDsData, onComplete, onClose]);
 
    if (!threeDsData) return null;
 

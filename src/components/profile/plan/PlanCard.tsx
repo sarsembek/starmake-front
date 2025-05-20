@@ -11,6 +11,7 @@ import { ActionButton } from "./ActionButton";
 
 // Define PlanCard props
 interface PlanCardProps {
+   id?: number; // Added plan ID
    name: string;
    price: number;
    messageCount?: number | string;
@@ -21,6 +22,7 @@ interface PlanCardProps {
 }
 
 export const PlanCard: FC<PlanCardProps> = ({
+   id,
    name,
    price,
    messageCount,
@@ -55,94 +57,49 @@ export const PlanCard: FC<PlanCardProps> = ({
       },
    ];
 
-   // Handle buy button click for premium variant
-   //  const handleBuyClick = () => {
-   //     if (variant === "premium") {
-   //        alert("Спасибо за покупку тарифа «Эксклюзив»!");
-   //     }
-   //  };
+   // Combine default styles with any passed className
+   const cardClasses = `relative h-full p-6 rounded-xl overflow-hidden transition-all duration-200 ${
+      className || ""
+   }`;
 
-   if (variant === "premium") {
-      return (
-         <div className={`w-full ${className}`}>
-            <div className="bg-[#5d2de6] rounded-3xl shadow-[0px_0px_40px_rgba(93,45,230,0.35)] overflow-hidden relative text-white">
-               <PopularBadge />
-               <div className="p-6 flex flex-col md:flex-row h-full">
-                  {/* Content Column - Title and Features */}
-                  <div className="flex-1 pr-4">
-                     {/* Plan Title */}
-                     <PlanTitle name={name} variant="premium" />
-
-                     {/* Features section - horizontal on desktop, vertical on mobile */}
-                     <div className="flex flex-col md:flex-row gap-6">
-                        {/* Standard Features */}
-                        <div className="flex-1">
-                           <FeaturesList
-                              features={standardFeatures}
-                              textColor="text-white"
-                           />
-                        </div>
-
-                        {/* Premium Features */}
-                        <div className="flex-1">
-                           <PremiumFeaturesList
-                              features={defaultPremiumFeatures}
-                              textColor="text-white"
-                           />
-                        </div>
-                     </div>
-                  </div>
-
-                  {/* Pricing and CTA Column - Desktop only */}
-                  <div className="hidden md:flex flex-col min-w-[220px] h-full">
-                     {/* Price aligned to top */}
-                     <div className="mt-14">
-                        <PricingDisplay price={price} variant="premium" />
-                     </div>
-
-                     {/* Button aligned to bottom with margin-top to push it down */}
-                     <div className="mt-auto self-start">
-                        <ActionButton
-                           variant="premium"
-                           planName={name}
-                           planPrice={price}
-                        />
-                     </div>
-                  </div>
-               </div>
-
-               {/* Mobile-only pricing and CTA */}
-               <div className="md:hidden p-6 pt-0">
-                  <div className="flex flex-col items-center mb-4">
-                     <PricingDisplay price={price} variant="premium" />
-                  </div>
-                  <div className="flex justify-center">
-                     <ActionButton
-                        variant="premium"
-                        planName={name}
-                        planPrice={price}
-                     />
-                  </div>
-               </div>
-            </div>
-         </div>
-      );
-   }
-
-   // Standard variant
    return (
-      <div className="flex flex-col bg-white w-full p-4 rounded-3xl">
-         <PlanTitle name={name} variant="standard" />
-         <PricingDisplay price={price} variant="standard" />
-         <div className="border-t border-gray"></div>
-         <div className="my-4">
+      <div
+         className={
+            variant === "standard"
+               ? `${cardClasses} border border-gray-700 bg-[#0F1624]`
+               : `${cardClasses} border-2 border-blue-400 bg-gradient-to-br from-[#0F1624] to-[#142032]`
+         }
+      >
+         {/* Popular badge for premium variant */}
+         {variant === "premium" && <PopularBadge />}
+
+         {/* Plan title section */}
+         <PlanTitle name={name} variant={variant} />
+
+         {/* Pricing display */}
+         <PricingDisplay price={price} variant={variant} />
+
+         {/* Features lists */}
+         {variant === "standard" ? (
             <FeaturesList features={standardFeatures} />
-         </div>
-         <div className="min-w-[200px] flex justify-start">
+         ) : (
+            <PremiumFeaturesList
+               features={[...standardFeatures, ...defaultPremiumFeatures]}
+            />
+         )}
+
+         {/* Action button */}
+         <div
+            className={`mt-6 ${
+               variant === "premium" ? "flex justify-center" : ""
+            }`}
+         >
             <ActionButton
-               variant="standard"
+               variant={variant}
                planName={name}
                planPrice={price}
+               planId={id}
+               planFeatures={standardFeatures.map((f) => f.text)}
             />
          </div>
       </div>

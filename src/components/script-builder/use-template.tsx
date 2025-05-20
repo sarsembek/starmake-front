@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import { Button } from "@/components/ui/button";
@@ -54,7 +54,57 @@ export function UseTemplate() {
       script: string;
       tags: string;
    } | null>(null);
-   const [, setFormSubmitting] = useState(false);
+   const [formSubmitting, setFormSubmitting] = useState(false);
+
+   const handleInputChange = (field: string, value: string) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+   };
+
+   // Define handleSubmit with useCallback to avoid dependency cycle
+   const handleSubmit = useCallback(
+      async (e: React.FormEvent) => {
+         e.preventDefault();
+
+         // Check if all fields are filled
+         if (
+            !formData.loudStart ||
+            !formData.textAmplifier ||
+            !formData.mainText ||
+            !formData.callToAction
+         ) {
+            setShowError(true);
+            return;
+         }
+
+         setShowError(false);
+         setFormSubmitting(true);
+
+         try {
+            // Create a combined script text from all template parts
+            const fullText = `${formData.loudStart}\n\n${formData.textAmplifier}\n\n${formData.mainText}\n\n${formData.callToAction}`;
+
+            // Create a temp ID for tracking
+            const tempId = uuidv4();
+
+            // Send the data to the API
+            const response = await axiosWithAuth.post("/sandbox/scenarios", {
+               text: fullText,
+               temp_id: tempId,
+            });
+
+            if (response.data) {
+               // Navigate to success page on successful submission
+               router.push("/script-builder/next-step");
+            }
+         } catch (error) {
+            console.error("Error submitting template:", error);
+            // Show error message
+         } finally {
+            setFormSubmitting(false);
+         }
+      },
+      [formData, router, setShowError, setFormSubmitting]
+   );
 
    // Listen for form submission request from layout
    useEffect(() => {
@@ -79,53 +129,7 @@ export function UseTemplate() {
             handleFormSubmitRequest
          );
       };
-   }, [formData]);
-
-   const handleInputChange = (field: string, value: string) => {
-      setFormData((prev) => ({ ...prev, [field]: value }));
-   };
-
-   const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-
-      // Check if all fields are filled
-      if (
-         !formData.loudStart ||
-         !formData.textAmplifier ||
-         !formData.mainText ||
-         !formData.callToAction
-      ) {
-         setShowError(true);
-         return;
-      }
-
-      setShowError(false);
-      setFormSubmitting(true);
-
-      try {
-         // Create a combined script text from all template parts
-         const fullText = `${formData.loudStart}\n\n${formData.textAmplifier}\n\n${formData.mainText}\n\n${formData.callToAction}`;
-
-         // Create a temp ID for tracking
-         const tempId = uuidv4();
-
-         // Send the data to the API
-         const response = await axiosWithAuth.post("/sandbox/scenarios", {
-            text: fullText,
-            temp_id: tempId,
-         });
-
-         if (response.data) {
-            // Navigate to success page on successful submission
-            router.push("/script-builder/next-step");
-         }
-      } catch (error) {
-         console.error("Error submitting template:", error);
-         // Show error message
-      } finally {
-         setFormSubmitting(false);
-      }
-   };
+   }, [handleSubmit]);
 
    const handleAskAi = async (e: React.FormEvent) => {
       e.preventDefault();
@@ -285,6 +289,18 @@ export function UseTemplate() {
                            placeholder="Пример: Ставь лайк, подписывайся в инстаграм."
                            className="bg-background border-input"
                         />
+                     </div>
+
+                     <div className="mt-6">
+                        <Button
+                           type="submit"
+                           className="w-full"
+                           disabled={formSubmitting}
+                        >
+                           {formSubmitting
+                              ? "Сохранение..."
+                              : "Сохранить и продолжить"}
+                        </Button>
                      </div>
                   </form>
                </div>

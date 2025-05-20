@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 
@@ -10,13 +10,10 @@ import { PaymentForm, PaymentFormData } from "@/components/payment/PaymentForm";
 import { PaymentSuccess } from "@/components/payment/PaymentSuccess";
 import { OrderSummary } from "@/components/payment/OrderSummary";
 import { usePaymentProcessing } from "@/hooks/payments/usePaymentProcessing";
-import { PaymentRequest } from "@/api/payments/processPayment";
+import { CardData } from "@/api/payments/processPayment";
 
-/**
- * PaymentPage component for handling the payment process
- * Manages form state, submission logic, and displays appropriate UI based on payment status
- */
-export default function PaymentPage() {
+// Client Component that uses useSearchParams
+function PaymentPageContent() {
    const router = useRouter();
    const searchParams = useSearchParams();
 
@@ -25,9 +22,15 @@ export default function PaymentPage() {
    const planPrice = Number(searchParams.get("price")) || 16;
    const planId = Number(searchParams.get("planId")) || 1;
 
+   // Get plan features from URL if available
+   const planFeaturesParam = searchParams.get("features");
+   const planFeatures = planFeaturesParam
+      ? JSON.parse(decodeURIComponent(planFeaturesParam))
+      : [];
+
    // Initialize payment processing hook
    const {
-      processCardPayment,
+      purchaseSubscription,
       isProcessingPayment,
       paymentError,
       paymentStatus,
@@ -72,8 +75,8 @@ export default function PaymentPage() {
    };
 
    /**
-    * Handle direct card payment submission
-    * Processes payment through payment API with card details
+    * Handle direct subscription payment submission
+    * Processes payment through subscription API with card details
     */
    const onSubmit = async (data: PaymentFormData, planId: number) => {
       setError("");
@@ -82,22 +85,17 @@ export default function PaymentPage() {
          // Format card data for API
          const [expiryMonth, expiryYear] = data.expiryDate.split("/");
 
-         // Create payment request
-         const paymentData: PaymentRequest = {
-            card_data: {
-               cardNumber: data.cardNumber.replace(/\s/g, ""),
-               expiryMonth,
-               expiryYear,
-               cvv: data.cvc,
-               cardholderName: data.cardName,
-            },
-            metadata: {
-               plan_id: planId,
-            },
+         // Create card data object
+         const cardData: CardData = {
+            cardNumber: data.cardNumber.replace(/\s/g, ""),
+            expiryMonth,
+            expiryYear,
+            cvv: data.cvc,
+            cardholderName: data.cardName,
          };
 
-         // Process the payment
-         processCardPayment(paymentData);
+         // Purchase subscription directly with card
+         purchaseSubscription(planId, cardData);
       } catch (error: unknown) {
          const errorMessage =
             error instanceof Error
@@ -157,8 +155,41 @@ export default function PaymentPage() {
 
                {/* Order summary */}
                <div className="md:col-span-1 w-full">
-                  <OrderSummary planName={planName} planPrice={planPrice} />
+                  <OrderSummary
+                     planName={planName}
+                     planPrice={planPrice}
+                     planFeatures={planFeatures}
+                  />
                </div>
+            </div>
+         </div>
+      </div>
+   );
+}
+
+/**
+ * Main Payment Page component that wraps the content with Suspense
+ */
+export default function PaymentPage() {
+   return (
+      <Suspense fallback={<PaymentLoading />}>
+         <PaymentPageContent />
+      </Suspense>
+   );
+}
+
+/**
+ * Loading state component for the payment page
+ */
+function PaymentLoading() {
+   return (
+      <div className="container max-w-4xl px-4 sm:px-6 py-10">
+         <div className="flex justify-center items-center min-h-[60vh]">
+            <div className="flex flex-col items-center">
+               <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+               <p className="mt-4 text-lg font-medium">
+                  Загрузка формы оплаты...
+               </p>
             </div>
          </div>
       </div>

@@ -33,6 +33,13 @@ export interface PaymentResponse {
    requires_3ds: boolean;
    threeds_data?: ThreeDSData;
    message?: string;
+   subscription?: {
+      id: number;
+      plan_id: number;
+      status: string;
+      start_date: string;
+      end_date: string;
+   };
 }
 
 // Types for 3DS completion request
@@ -46,6 +53,12 @@ export interface Complete3DSRequest {
 export interface PurchaseSubscriptionRequest {
    planId: number;
    returnUrl: string;
+}
+
+// Types for direct subscription purchase request
+export interface DirectSubscriptionRequest {
+   plan_id: number;
+   card_data: CardData;
 }
 
 // Types for subscription purchase response
@@ -66,6 +79,13 @@ export interface PaymentStatusResponse {
    success: boolean;
    status: "paid" | "pending" | "failed";
    message?: string;
+   subscription?: {
+      id: number;
+      plan_id: number;
+      status: string;
+      start_date: string;
+      end_date: string;
+   };
 }
 
 // Custom error interface
@@ -91,6 +111,24 @@ export const processPayment = async (
       return response.data;
    } catch (error: unknown) {
       console.error("Failed to process payment:", error);
+      throw error as PaymentError;
+   }
+};
+
+/**
+ * Purchase a subscription directly with card details
+ */
+export const purchaseSubscriptionWithCard = async (
+   data: DirectSubscriptionRequest
+): Promise<PaymentResponse> => {
+   try {
+      const response = await axiosWithAuth.post<PaymentResponse>(
+         `/subscriptions/purchase/${data.plan_id}`,
+         { card_data: data.card_data }
+      );
+      return response.data;
+   } catch (error: unknown) {
+      console.error("Failed to process subscription payment:", error);
       throw error as PaymentError;
    }
 };

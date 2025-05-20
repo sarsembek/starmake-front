@@ -3,10 +3,13 @@ import {
    processPayment,
    complete3DSAuthentication as complete3DSAuth,
    checkPaymentStatus,
+   purchaseSubscriptionWithCard,
    PaymentRequest,
    Complete3DSRequest,
+   DirectSubscriptionRequest,
    ThreeDSData,
    PaymentError,
+   CardData,
 } from "@/api/payments/processPayment";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -70,6 +73,50 @@ export function usePaymentProcessing(
          const paymentError = error as PaymentError;
          const errorMessage =
             paymentError.response?.data?.message || "Failed to process payment";
+         handlePaymentError({ message: errorMessage });
+         throw error;
+      } finally {
+         setIsProcessingPayment(false);
+      }
+   };
+
+   // Purchase subscription with direct card payment
+   const purchaseSubscription = async (planId: number, cardData: CardData) => {
+      setIsProcessingPayment(true);
+      setPaymentError(null);
+      setPaymentStatus(null);
+
+      try {
+         const requestData: DirectSubscriptionRequest = {
+            plan_id: planId,
+            card_data: cardData,
+         };
+
+         const response = await purchaseSubscriptionWithCard(requestData);
+
+         if (response.success) {
+            setPaymentId(response.payment_id);
+            setPaymentStatus(response.status);
+
+            if (response.requires_3ds && response.threeds_data) {
+               setRequires3DS(true);
+               setThreeDsData(response.threeds_data);
+            } else if (response.status === "paid") {
+               await handlePaymentSuccess();
+            }
+         } else {
+            handlePaymentError({
+               message:
+                  response.message || "Subscription payment processing error",
+            });
+         }
+
+         return response;
+      } catch (error: unknown) {
+         const paymentError = error as PaymentError;
+         const errorMessage =
+            paymentError.response?.data?.message ||
+            "Failed to process subscription payment";
          handlePaymentError({ message: errorMessage });
          throw error;
       } finally {
@@ -175,6 +222,7 @@ export function usePaymentProcessing(
       threeDsData,
       paymentError,
       processCardPayment,
+      purchaseSubscription,
       complete3DSAuthentication,
       checkPayment,
    };

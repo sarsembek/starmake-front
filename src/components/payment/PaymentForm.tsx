@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
    Card,
    CardContent,
@@ -94,11 +94,11 @@ export const PaymentForm = ({
    };
 
    // Show 3DS modal when 3DS is required
-   useState(() => {
+   useEffect(() => {
       if (requires3DS && threeDsData) {
          setShow3DSModal(true);
       }
-   });
+   }, [requires3DS, threeDsData]);
 
    return (
       <div className="relative md:col-span-2">
