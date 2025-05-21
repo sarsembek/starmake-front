@@ -9,11 +9,11 @@ interface PlanTitleProps {
 
 export const PlanTitle: FC<PlanTitleProps> = ({ name, variant }) =>
    variant === "premium" ? (
-      <div className="mt-14 mb-8">
-         <p className="text-2xl font-semibold text-[#f1eefd] capitalize">
+      <div className="mb-6">
+         <p className="text-xl md:text-2xl font-semibold text-[#f1eefd] capitalize">
             тариф
          </p>
-         <h1 className="text-5xl font-semibold text-[#c5f500] uppercase">
+         <h1 className="text-3xl md:text-5xl font-semibold text-[#c5f500] uppercase">
             «{name}»
          </h1>
       </div>

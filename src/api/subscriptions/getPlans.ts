@@ -21,7 +21,7 @@ interface GetSubscriptionPlansResponse {
 export const getSubscriptionPlans = async (): Promise<SubscriptionPlan[]> => {
    try {
       const response = await axiosWithAuth.get<GetSubscriptionPlansResponse>(
-         "/subscriptions/plans"
+         "auth/subscriptions/plans"
       );
 
       if (response.data.success) {

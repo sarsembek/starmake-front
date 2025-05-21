@@ -66,42 +66,70 @@ export const PlanCard: FC<PlanCardProps> = ({
       <div
          className={
             variant === "standard"
-               ? `${cardClasses} border border-gray-700 bg-[#0F1624]`
-               : `${cardClasses} border-2 border-blue-400 bg-gradient-to-br from-[#0F1624] to-[#142032]`
+               ? `${cardClasses} border border-gray-700 bg-white`
+               : `${cardClasses}  bg-[#5D2DE6]`
          }
       >
          {/* Popular badge for premium variant */}
          {variant === "premium" && <PopularBadge />}
 
-         {/* Plan title section */}
-         <PlanTitle name={name} variant={variant} />
-
-         {/* Pricing display */}
-         <PricingDisplay price={price} variant={variant} />
-
-         {/* Features lists */}
          {variant === "standard" ? (
-            <FeaturesList features={standardFeatures} />
-         ) : (
-            <PremiumFeaturesList
-               features={[...standardFeatures, ...defaultPremiumFeatures]}
-            />
-         )}
+            // Standard card layout (vertical)
+            <>
+               {/* Plan title section */}
+               <PlanTitle name={name} variant={variant} />
 
-         {/* Action button */}
-         <div
-            className={`mt-6 ${
-               variant === "premium" ? "flex justify-center" : ""
-            }`}
-         >
-            <ActionButton
-               variant={variant}
-               planName={name}
-               planPrice={price}
-               planId={id}
-               planFeatures={standardFeatures.map((f) => f.text)}
-            />
-         </div>
+               {/* Pricing display */}
+               <PricingDisplay price={price} variant={variant} />
+
+               {/* Features list */}
+               <FeaturesList features={standardFeatures} />
+               {/* Action button */}
+               <div
+                  className="mt-6"
+               >
+                  <ActionButton
+                     variant={variant}
+                     planName={name}
+                     planPrice={price}
+                     planId={id}
+                     planFeatures={standardFeatures.map((f) => f.text)}
+                  />
+               </div>
+            </>
+         ) : (
+            // Premium card layout (horizontal)
+            <div className="flex flex-col md:flex-row md:justify-between md:items-start">
+               <div className="md:w-2/3">
+                  {/* Plan title section */}
+                  <PlanTitle name={name} variant={variant} />
+                  <div className="flex items-start gap-4">
+                     {/* Features list */}
+                     <FeaturesList
+                        textColor="text-white"
+                        features={standardFeatures}
+                     />
+
+                     {/* Premium features list */}
+                     <PremiumFeaturesList
+                        features={[...defaultPremiumFeatures]}
+                     />
+                  </div>
+               </div>
+
+               <div className="flex flex-col justify-between h-[264px] md:text-right mt-6 md:mt-0">
+                  {/* Pricing display */}
+                  <PricingDisplay price={price} variant={variant} />
+                  <ActionButton
+                     variant={variant}
+                     planName={name}
+                     planPrice={price}
+                     planId={id}
+                     planFeatures={standardFeatures.map((f) => f.text)}
+                  />
+               </div>
+            </div>
+         )}
       </div>
    );
 };

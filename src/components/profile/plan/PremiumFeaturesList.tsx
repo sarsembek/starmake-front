@@ -12,7 +12,7 @@ export const PremiumFeaturesList: FC<PremiumFeaturesListProps> = ({
    features,
    textColor = "text-base",
 }) => (
-   <ul className="space-y-2 text-base">
+   <ul className="space-y-2 text-sm md:text-base">
       {features.map((feature) => (
          <li key={feature.id} className="flex items-start gap-2">
             <span className="flex-shrink-0 mt-0.5">
@@ -29,7 +29,9 @@ export const PremiumFeaturesList: FC<PremiumFeaturesListProps> = ({
                   />
                </svg>
             </span>
-            <span className={`font-semibold ${textColor}`}>{feature.text}</span>
+            <span className={`font-semibold text-[#f1eefd] ${textColor}`}>
+               {feature.text}
+            </span>
          </li>
       ))}
    </ul>
