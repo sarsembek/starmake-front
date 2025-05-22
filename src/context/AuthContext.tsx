@@ -178,12 +178,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    }, []);
 
    const logout = useCallback(async () => {
-      logoutUser();
+      try {
+         const response = await logoutUser();
 
-      setUser(null);
-      setIsAuthenticated(false);
-      localStorage.removeItem("user_cache");
-      window.location.href = "/login";
+         // Only perform logout actions if the server confirms successful logout
+         if (
+            response &&
+            response.message === "Logged out successfully"
+         ) {
+            setUser(null);
+            setIsAuthenticated(false);
+            localStorage.removeItem("user_cache");
+            window.location.href = "/login";
+         } else {
+            console.error("Logout failed: Server did not confirm logout");
+         }
+      } catch (error) {
+         console.error("Logout error:", error);
+      }
    }, []);
 
    // Initialize auth state
