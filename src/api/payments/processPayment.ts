@@ -105,7 +105,7 @@ export const processPayment = async (
 ): Promise<PaymentResponse> => {
    try {
       const response = await axiosWithAuth.post<PaymentResponse>(
-         "/payments/process",
+         "auth/payments/process",
          data
       );
       return response.data;
@@ -123,7 +123,7 @@ export const purchaseSubscriptionWithCard = async (
 ): Promise<PaymentResponse> => {
    try {
       const response = await axiosWithAuth.post<PaymentResponse>(
-         `/subscriptions/purchase/${data.plan_id}`,
+         `auth/subscriptions/purchase/${data.plan_id}`,
          { card_data: data.card_data }
       );
       return response.data;
@@ -141,7 +141,7 @@ export const complete3DSAuthentication = async (
 ): Promise<PaymentResponse> => {
    try {
       const response = await axiosWithAuth.post<PaymentResponse>(
-         "/payments/complete-3ds",
+         "auth/payments/complete-3ds",
          data
       );
       return response.data;
@@ -159,7 +159,7 @@ export const purchaseSubscription = async (
 ): Promise<PurchaseSubscriptionResponse> => {
    try {
       const response = await axiosWithAuth.post<PurchaseSubscriptionResponse>(
-         `/subscriptions/purchase/${data.planId}`,
+         `auth/subscriptions/purchase/${data.planId}`,
          null,
          {
             params: { return_url: data.returnUrl },
@@ -180,7 +180,7 @@ export const checkPaymentStatus = async (
 ): Promise<PaymentStatusResponse> => {
    try {
       const response = await axiosWithAuth.get<PaymentStatusResponse>(
-         "/payments/status",
+         "auth/payments/status",
          {
             params: data,
          }
