@@ -34,7 +34,7 @@ export const purchaseSubscription = async (
 ): Promise<PurchaseSubscriptionResponse> => {
    try {
       const response = await axiosWithAuth.post<PurchaseSubscriptionResponse>(
-         `/auth/subscription/purchase/${planId}`,
+         `/auth/subscriptions/purchase/${planId}`,
          {
             return_url: returnUrl,
             metadata,
