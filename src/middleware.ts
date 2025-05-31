@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Define routes configuration
-const protectedRoutes = [
-   "/library",
-   "/dashboard",
-   "/profile",
-   "/script-builder", // Add this line
-];
 const publicRoutes = ["/login", "/register", "/"];
 
 export function middleware(req: NextRequest) {
@@ -14,28 +8,16 @@ export function middleware(req: NextRequest) {
 
    console.log(`[Middleware] Executing for path: ${path}`);
 
-   // Check if current path is protected
-   const isProtectedRoute = protectedRoutes.some(
-      (route) => path === route || path.startsWith(`${route}/`)
-   );
-
    // Check if current path is public
    const isPublicRoute = publicRoutes.some(
       (route) => path === route || path.startsWith(`${route}/`)
    );
 
-   // Get authentication token from cookies
+   // Get authentication token from cookies (just for redirects on public routes)
+   // We don't want to protect routes here since we're using AuthGuard for that
    const accessToken = req.cookies.get("access_token")?.value;
 
    console.log(`[Middleware] Path: ${path}, Token exists: ${!!accessToken}`);
-
-   // If accessing a protected route without authentication, redirect to login
-   if (isProtectedRoute && !accessToken) {
-      console.log(`[Middleware] Redirecting to login from ${path}`);
-      const url = new URL("/login", req.url);
-      url.searchParams.set("from", path);
-      return NextResponse.redirect(url);
-   }
 
    // If accessing login/register while already authenticated, redirect to library
    if (isPublicRoute && accessToken && path !== "/") {
@@ -43,16 +25,13 @@ export function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL("/library", req.url));
    }
 
+   // For all other cases, allow AuthGuard components to handle authentication status
    return NextResponse.next();
 }
 
 export const config = {
    matcher: [
-      // Only run middleware on specific paths that need protection
-      "/library/:path*",
-      "/dashboard/:path*",
-      "/profile/:path*",
-      "/script-builder/:path*",
+      // Only run middleware on specific paths that need redirection from public to protected routes
       "/login",
       "/register",
    ],
