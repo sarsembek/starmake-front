@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { ProgressFooter } from "@/components/script-builder/progress-footer";
+import { AuthGuard } from "@/components/auth/AuthGuard";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 export default function ScriptBuilderLayout({
    children,
@@ -82,26 +84,34 @@ export default function ScriptBuilderLayout({
    const showFooter = !pathname.includes("next-step");
 
    return (
-      <>
-         <div className="pb-24">{children}</div>
-
-         {showFooter && (
-            <div className="fixed bottom-0 left-0 right-0 bg-background border-t">
-               <div className="container mx-auto px-4 py-4">
-                  <ProgressFooter
-                     progressValue={progressValue}
-                     onPrevious={() => (window.location.href = prevPath)}
-                     onNext={() => {
-                        // Only navigate directly if handleNextClick returns true
-                        if (handleNextClick()) {
-                           window.location.href = nextPath;
-                        }
-                     }}
-                     isNextDisabled={isNextDisabled}
-                  />
-               </div>
+      <AuthGuard
+         fallback={
+            <div className="flex items-center justify-center min-h-screen">
+               <LoadingSpinner size="lg" />
             </div>
-         )}
-      </>
+         }
+      >
+         <>
+            <div className="pb-24">{children}</div>
+
+            {showFooter && (
+               <div className="fixed bottom-0 left-0 right-0 bg-background border-t">
+                  <div className="container mx-auto px-4 py-4">
+                     <ProgressFooter
+                        progressValue={progressValue}
+                        onPrevious={() => (window.location.href = prevPath)}
+                        onNext={() => {
+                           // Only navigate directly if handleNextClick returns true
+                           if (handleNextClick()) {
+                              window.location.href = nextPath;
+                           }
+                        }}
+                        isNextDisabled={isNextDisabled}
+                     />
+                  </div>
+               </div>
+            )}
+         </>
+      </AuthGuard>
    );
 }

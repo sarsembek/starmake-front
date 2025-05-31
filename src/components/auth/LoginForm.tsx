@@ -26,14 +26,28 @@ export function LoginForm() {
    } = useLoginMutation();
 
    const handleLoginSuccess = () => {
-      // Get any stored return path
-      const returnPath = localStorage.getItem("returnPath") || "/";
+      // Get any stored return path or the "from" parameter from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const fromParam = urlParams.get("from");
+      const returnPath = localStorage.getItem("returnPath") || fromParam || "/";
 
       // Clear it from storage
       localStorage.removeItem("returnPath");
 
+      // Clean up the URL if needed
+      if (fromParam) {
+         window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname
+         );
+      }
+
       // Navigate to the return path
-      router.push(returnPath);
+      // Add a small delay to ensure auth context is updated
+      setTimeout(() => {
+         router.push(returnPath);
+      }, 100);
    };
 
    const handleSubmit = (e: React.FormEvent) => {
@@ -49,12 +63,13 @@ export function LoginForm() {
                // This is already handled by needsVerification state
                if (
                   err.response?.status === 403 &&
-                  err.response.data.detail === "Please verify your email before logging in."
+                  err.response.data.detail ===
+                     "Please verify your email before logging in."
                ) {
                   // Don't set error message here
                   return;
                }
-               
+
                if (err.response?.status === 422) {
                   setErrorMessage("Неверный формат email или пароля");
                } else if (err.response?.status === 401) {
@@ -80,9 +95,7 @@ export function LoginForm() {
          {errorMessage && (
             <Alert variant="destructive">
                <AlertCircle className="h-4 w-4" />
-               <AlertDescription>
-                  {errorMessage}
-               </AlertDescription>
+               <AlertDescription>{errorMessage}</AlertDescription>
             </Alert>
          )}
 

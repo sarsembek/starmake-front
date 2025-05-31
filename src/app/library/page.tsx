@@ -19,7 +19,6 @@ import {
 const itemsPerPage = 12;
 
 export default function LibraryPage() {
-   // const { isAuthenticated } = useAuth();
    const [currentPage, setCurrentPage] = useState(1);
    const [activeCategory, setActiveCategory] = useState(0);
 

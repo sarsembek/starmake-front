@@ -4,7 +4,10 @@ import { ReactNode } from "react";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
-export default function PaymentLayout({ children }: { children: ReactNode }) {
+/**
+ * Layout for the library page to add authentication protection
+ */
+export default function LibraryLayout({ children }: { children: ReactNode }) {
    return (
       <AuthGuard
          fallback={
@@ -13,7 +16,7 @@ export default function PaymentLayout({ children }: { children: ReactNode }) {
             </div>
          }
       >
-         <div className="flex flex-col min-h-screen">{children}</div>
+         {children}
       </AuthGuard>
    );
 }

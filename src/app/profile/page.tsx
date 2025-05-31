@@ -22,18 +22,19 @@ import { User } from "@/types/auth/auth.type";
 import { useFavoriteReels } from "@/hooks/reels/useFavoriteReels";
 import { ReelCard } from "@/components/reel/reel-card/reel-card";
 import { VideoProvider } from "@/context/VideoContext";
+import { useSearchParams } from "next/navigation";
 import {
    Pagination,
    PaginationContent,
-   PaginationEllipsis,
    PaginationItem,
    PaginationLink,
    PaginationNext,
    PaginationPrevious,
+   PaginationEllipsis,
 } from "@/components/ui/pagination";
+import { AuthGuard } from "@/components/auth/AuthGuard";
 import { PromoCodeForm } from "@/components/profile/PromoCodeForm";
 import { UserScenarios } from "@/components/profile/UserScenarios";
-import { useSearchParams } from "next/navigation";
 
 // Define number of items per page
 const ITEMS_PER_PAGE = 12;
@@ -624,17 +625,19 @@ function ProfileContent() {
 // Main page component with Suspense boundary
 export default function ProfilePage() {
    return (
-      <Suspense
-         fallback={
-            <div className="container mx-auto py-8 px-4 min-h-[80vh] flex items-center justify-center">
-               <div className="text-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-                  <p className="mt-4">Загрузка страницы...</p>
+      <AuthGuard>
+         <Suspense
+            fallback={
+               <div className="container mx-auto py-8 px-4 min-h-[80vh] flex items-center justify-center">
+                  <div className="text-center">
+                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                     <p className="mt-4">Загрузка страницы...</p>
+                  </div>
                </div>
-            </div>
-         }
-      >
-         <ProfileContent />
-      </Suspense>
+            }
+         >
+            <ProfileContent />
+         </Suspense>
+      </AuthGuard>
    );
 }

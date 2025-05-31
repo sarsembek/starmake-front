@@ -16,7 +16,7 @@ const TOKEN_COOKIE_NAME = "auth_token";
 // const TOKEN_EXPIRY_DAYS = 7; // Store token for 7 days
 
 export function useLoginMutation() {
-   const { setUser, checkAuthStatus } = useAuth();
+   const { setUser, checkAuthStatus, refreshProtectedRoutes } = useAuth();
    const [needsVerification, setNeedsVerification] = useState(false);
    const [emailForVerification, setEmailForVerification] = useState<
       string | null
@@ -37,6 +37,9 @@ export function useLoginMutation() {
 
          // Verify our auth status (cookie should now be set)
          checkAuthStatus();
+
+         // Force a router refresh to update all protected routes
+         refreshProtectedRoutes();
 
          // Reset verification state
          setNeedsVerification(false);
@@ -76,7 +79,7 @@ export function useLoginMutation() {
             // Optional callbacks if needed
             onError: (error) => {
                console.error("Failed to resend confirmation email:", error);
-            }
+            },
          }
       );
    };

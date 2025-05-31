@@ -16,18 +16,20 @@ import {
    cleanupPaymentParams,
    getPaymentStatusFromUrl,
 } from "@/utils/payment-utils";
+import { useRouter } from "next/navigation";
 
 interface AuthContextType {
    user: User | null;
    isAuthenticated: boolean;
    isLoading: boolean;
-   isLimited: boolean; // Uncomment this state
+   isLimited: boolean;
    setUser: (user: User | null) => void;
    logout: () => void;
    checkAuthStatus: () => Promise<boolean>;
-   setIsLimited: (state: boolean) => void; // Uncomment setter function
+   setIsLimited: (state: boolean) => void;
    processPaymentReturn: () => { status: string | null };
    updateSubscriptionStatus: () => Promise<void>;
+   refreshProtectedRoutes: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -36,9 +38,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    const [user, setUser] = useState<User | null>(null);
    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
    const [isLoading, setIsLoading] = useState(true);
-   const [isLimited, setIsLimited] = useState(false); // Uncomment state for limited access
+   const [isLimited, setIsLimited] = useState(false);
    const { refresh } = useRefreshToken();
    const authCheckInProgress = useRef(false);
+   const router = useRouter();
 
    // Store initial checkAuthStatus implementation in ref to avoid dependency cycles
    const checkAuthStatusRef = useRef<() => Promise<boolean> | null>(null);
@@ -320,19 +323,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
    }, []);
 
+   // Function to force refresh all protected routes after login
+   const refreshProtectedRoutes = useCallback(() => {
+      console.log("Refreshing protected routes after authentication");
+      // Force router to refresh current route - this will re-run data fetching
+      router.refresh();
+   }, [router]);
+
    return (
       <AuthContext.Provider
          value={{
             user,
             isAuthenticated,
             isLoading,
-            isLimited, // Provide this to consumers
+            isLimited,
             setUser,
             logout,
             checkAuthStatus,
-            setIsLimited, // Provide the setter
+            setIsLimited,
             processPaymentReturn,
             updateSubscriptionStatus,
+            refreshProtectedRoutes,
          }}
       >
          {children}
