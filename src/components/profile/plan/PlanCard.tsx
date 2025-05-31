@@ -85,15 +85,14 @@ export const PlanCard: FC<PlanCardProps> = ({
                {/* Features list */}
                <FeaturesList features={standardFeatures} />
                {/* Action button */}
-               <div
-                  className="mt-6"
-               >
+               <div className="mt-6">
                   <ActionButton
                      variant={variant}
                      planName={name}
                      planPrice={price}
                      planId={id}
                      planFeatures={standardFeatures.map((f) => f.text)}
+                     useDirectPurchase={true}
                   />
                </div>
             </>
@@ -126,6 +125,7 @@ export const PlanCard: FC<PlanCardProps> = ({
                      planPrice={price}
                      planId={id}
                      planFeatures={standardFeatures.map((f) => f.text)}
+                     useDirectPurchase={true}
                   />
                </div>
             </div>

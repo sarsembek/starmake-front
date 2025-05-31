@@ -12,6 +12,10 @@ import {
    useRef,
 } from "react";
 import { logoutUser } from "@/api/auth/logoutUser";
+import {
+   cleanupPaymentParams,
+   getPaymentStatusFromUrl,
+} from "@/utils/payment-utils";
 
 interface AuthContextType {
    user: User | null;
@@ -22,6 +26,8 @@ interface AuthContextType {
    logout: () => void;
    checkAuthStatus: () => Promise<boolean>;
    setIsLimited: (state: boolean) => void; // Uncomment setter function
+   processPaymentReturn: () => { status: string | null };
+   updateSubscriptionStatus: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -182,10 +188,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
          const response = await logoutUser();
 
          // Only perform logout actions if the server confirms successful logout
-         if (
-            response &&
-            response.message === "Logged out successfully"
-         ) {
+         if (response && response.message === "Logged out successfully") {
             setUser(null);
             setIsAuthenticated(false);
             localStorage.removeItem("user_cache");
@@ -245,6 +248,78 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
    }, [logout]); // Include 'logout' in the dependency array
 
+   const processPaymentReturn = () => {
+      const status = getPaymentStatusFromUrl();
+
+      if (status) {
+         // Update user state based on payment status
+         setUser((prevUser) => {
+            if (prevUser) {
+               return {
+                  ...prevUser,
+                  subscription_status: status,
+               };
+            }
+            return prevUser;
+         });
+
+         // Update limited state if necessary
+         if (status === "active") {
+            setIsLimited(false);
+         } else if (status === "canceled" || status === "expired") {
+            setIsLimited(true);
+         }
+      }
+
+      // Clean up URL parameters after processing
+      cleanupPaymentParams();
+
+      // Return the status to match the interface
+      return { status };
+   };
+
+   const updateSubscriptionStatus = useCallback(async () => {
+      try {
+         const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/auth/update-subscription-status`,
+            {
+               method: "POST",
+               credentials: "include",
+               headers: {
+                  "Content-Type": "application/json",
+               },
+               body: JSON.stringify({}),
+            }
+         );
+
+         if (response.ok) {
+            const data = await response.json();
+            console.log("Subscription status updated:", data);
+
+            // Update user state with new subscription status
+            setUser((prevUser) => {
+               if (prevUser) {
+                  return {
+                     ...prevUser,
+                     subscription_status: data.status,
+                  };
+               }
+               return prevUser;
+            });
+
+            // Update limited state based on new status
+            setIsLimited(data.status === "active" ? false : true);
+         } else {
+            console.error(
+               "Failed to update subscription status:",
+               response.status
+            );
+         }
+      } catch (error) {
+         console.error("Error updating subscription status:", error);
+      }
+   }, []);
+
    return (
       <AuthContext.Provider
          value={{
@@ -256,6 +331,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             logout,
             checkAuthStatus,
             setIsLimited, // Provide the setter
+            processPaymentReturn,
+            updateSubscriptionStatus,
          }}
       >
          {children}
