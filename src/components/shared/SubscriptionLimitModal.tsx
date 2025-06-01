@@ -25,7 +25,7 @@ export function SubscriptionLimitModal({
    const router = useRouter();
 
    const handleUpgrade = () => {
-      router.push("/profile");
+      router.push("/profile/plan");
       onClose();
    };
 
@@ -48,9 +48,7 @@ export function SubscriptionLimitModal({
                <AlertDialogAction onClick={handleUpgrade}>
                   Обновить подписку
                </AlertDialogAction>
-               <AlertDialogCancel onClick={onClose}>
-                  Закрыть
-               </AlertDialogCancel>
+               <AlertDialogCancel onClick={onClose}>Закрыть</AlertDialogCancel>
             </AlertDialogFooter>
          </AlertDialogContent>
       </AlertDialog>

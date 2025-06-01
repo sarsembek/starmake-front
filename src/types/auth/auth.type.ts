@@ -1,5 +1,6 @@
 export type User = {
-   id: number;
+   id?: number;
+   user_id?: number;
    email: string;
    is_verified: boolean;
    is_active: boolean;
@@ -13,6 +14,12 @@ export type User = {
    start_date?: string;
    end_date?: string;
    left_days?: number;
+   request_count?: number;
+   subscription?: {
+      tier: string;
+      expires_at: string;
+      messages_left: number;
+   };
    subscription_expired?: boolean;
 };
 

@@ -19,6 +19,10 @@ import { Label } from "@/components/ui/label";
 import { Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { User } from "@/types/auth/auth.type";
+import {
+   getSubscriptionStatusMessage,
+   formatExpiryDate,
+} from "@/utils/subscriptionUtils";
 import { useFavoriteReels } from "@/hooks/reels/useFavoriteReels";
 import { ReelCard } from "@/components/reel/reel-card/reel-card";
 import { VideoProvider } from "@/context/VideoContext";
@@ -305,7 +309,9 @@ function ProfileContent() {
                         <div className="flex items-center justify-between">
                            <span className="text-sm font-medium">План:</span>
                            <Badge variant="outline" className="capitalize">
-                              {user.plan_type || "Basic"}
+                              {user.subscription?.tier ||
+                                 user.plan_type ||
+                                 "Basic"}
                            </Badge>
                         </div>
 
@@ -313,12 +319,12 @@ function ProfileContent() {
                            <span className="text-sm font-medium">Статус:</span>
                            <Badge
                               variant={
-                                 user.subscription_expired
+                                 user.subscription_expired || !user.is_active
                                     ? "destructive"
                                     : "default"
                               }
                            >
-                              {user.subscription_expired ? "Истек" : "Активен"}
+                              {getSubscriptionStatusMessage(user)}
                            </Badge>
                         </div>
 
@@ -329,12 +335,43 @@ function ProfileContent() {
                            <span>{user.left_days || 0}</span>
                         </div>
 
+                        {user.subscription?.messages_left !== undefined && (
+                           <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium">
+                                 Осталось сообщений:
+                              </span>
+                              <span>{user.subscription.messages_left}</span>
+                           </div>
+                        )}
+
+                        {user.request_count !== undefined && (
+                           <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium">
+                                 Использовано запросов:
+                              </span>
+                              <span>{user.request_count}</span>
+                           </div>
+                        )}
+
                         <div className="flex items-center justify-between">
                            <span className="text-sm font-medium">Роль:</span>
                            <span className="capitalize">
                               {user.role || "user"}
                            </span>
                         </div>
+
+                        {user.subscription?.expires_at && (
+                           <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium">
+                                 Действует до:
+                              </span>
+                              <span>
+                                 {formatExpiryDate(
+                                    user.subscription.expires_at
+                                 )}
+                              </span>
+                           </div>
+                        )}
                      </div>
                   </CardContent>
                   <CardFooter>
