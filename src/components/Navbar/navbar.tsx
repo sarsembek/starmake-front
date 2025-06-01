@@ -27,6 +27,7 @@ import {
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Logo } from "@/components/shared/Logo";
+import { shouldShowChatbot } from "@/utils/subscriptionUtils";
 
 export function Navbar() {
    const { user, isAuthenticated, logout } = useAuth();
@@ -61,13 +62,13 @@ export function Navbar() {
    };
 
    // Function to handle chatbot navigation
-   // const navigateToChatbot = () => {
-   //    setIsDropdownOpen(false);
-   //    setIsSheetOpen(false);
+   const navigateToChatbot = () => {
+      setIsDropdownOpen(false);
+      setIsSheetOpen(false);
 
-   //    // Navigate to chatbot domain - the HTTP-only cookie will be sent automatically
-   //    window.location.href = "https://direct.starmake.ai";
-   // };
+      // Navigate to chatbot domain - the HTTP-only cookie will be sent automatically
+      window.location.href = "https://direct.starmake.ai";
+   };
 
    // Don't render authentication-dependent UI until after client-side hydration
    if (!mounted) {
@@ -129,14 +130,17 @@ export function Navbar() {
                               </NavigationMenuLink>
                            </Link>
                         </NavigationMenuItem>
-                        {/* <NavigationMenuItem>
-                           <NavigationMenuLink
-                              className={navLinkStyle}
-                              onClick={navigateToChatbot}
-                           >
-                              Чатбот
-                           </NavigationMenuLink>
-                        </NavigationMenuItem> */}
+                        {shouldShowChatbot(user) && (
+                           <NavigationMenuItem>
+                              <NavigationMenuLink
+                                 className={navLinkStyle}
+                                 onClick={navigateToChatbot}
+                                 style={{ cursor: 'pointer' }}
+                              >
+                                 Чатбот
+                              </NavigationMenuLink>
+                           </NavigationMenuItem>
+                        )}
                      </NavigationMenuList>
                   </NavigationMenu>
                </div>
@@ -168,12 +172,14 @@ export function Navbar() {
                            Профиль
                         </DropdownMenuItem>
                         {/* Chatbot link in dropdown menu */}
-                        {/* <DropdownMenuItem
-                           className="font-medium cursor-pointer"
-                           onClick={navigateToChatbot}
-                        >
-                           <span>Чатбот</span>
-                        </DropdownMenuItem> */}
+                        {shouldShowChatbot(user) && (
+                           <DropdownMenuItem
+                              className="font-medium cursor-pointer"
+                              onClick={navigateToChatbot}
+                           >
+                              <span>Чатбот</span>
+                           </DropdownMenuItem>
+                        )}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                            onClick={handleLogout}
@@ -238,15 +244,17 @@ export function Navbar() {
                                  Конструктор сценария
                               </Link>
                               {/* Chatbot link in mobile menu */}
-                              {/* <button
-                                 onClick={() => {
-                                    setIsSheetOpen(false);
-                                    navigateToChatbot();
-                                 }}
-                                 className="flex items-center gap-2 text-left text-lg font-medium hover:text-primary"
-                              >
-                                 <span>Чатбот</span>
-                              </button> */}
+                              {shouldShowChatbot(user) && (
+                                 <button
+                                    onClick={() => {
+                                       setIsSheetOpen(false);
+                                       navigateToChatbot();
+                                    }}
+                                    className="flex items-center gap-2 text-left text-lg font-medium hover:text-primary"
+                                 >
+                                    <span>Чатбот</span>
+                                 </button>
+                              )}
 
                               {/* Show user email or login link based on auth state */}
                               {isAuthenticated ? (

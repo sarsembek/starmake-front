@@ -114,3 +114,15 @@ export function formatExpiryDate(dateString: string | Date): string {
       day: "numeric",
    });
 }
+
+/**
+ * Determines if chatbot should be accessible based on user subscription
+ * Chatbot is available for users with any active subscription (not null/None)
+ */
+export function shouldShowChatbot(user: User | null): boolean {
+   if (!user) return false;
+   
+   const subscriptionStatus = getSubscriptionStatus(user);
+   // Show chatbot if user has any active subscription (not null/None tier)
+   return subscriptionStatus.isActive && subscriptionStatus.tier !== "None";
+}
