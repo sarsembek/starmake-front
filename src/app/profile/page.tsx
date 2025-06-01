@@ -22,7 +22,7 @@ import { User } from "@/types/auth/auth.type";
 import { useFavoriteReels } from "@/hooks/reels/useFavoriteReels";
 import { ReelCard } from "@/components/reel/reel-card/reel-card";
 import { VideoProvider } from "@/context/VideoContext";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
    Pagination,
    PaginationContent,
@@ -44,6 +44,7 @@ function ProfileContent() {
    // Add search params to handle tab selection from URL
    const searchParams = useSearchParams();
    const tabParam = searchParams.get("tab");
+   const router = useRouter();
 
    // Fetch user profile from API
    const { data: apiUser, isLoading, error } = useProfile();
@@ -337,7 +338,12 @@ function ProfileContent() {
                      </div>
                   </CardContent>
                   <CardFooter>
-                     <Button className="w-full">Обновить план</Button>
+                     <Button
+                        className="w-full"
+                        onClick={() => router.push("/profile/plan")}
+                     >
+                        Обновить план
+                     </Button>
                   </CardFooter>
                </Card>
 
