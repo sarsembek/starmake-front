@@ -65,22 +65,23 @@ export default function RegisterSuccessPage() {
 
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                      <p className="text-sm text-blue-800">
-                        Теперь вы можете войти в систему, используя свои учетные данные.
+                        Теперь вы можете войти в систему, используя свои учетные
+                        данные.
                      </p>
                   </div>
 
                   <div className="space-y-3">
-                     <Button 
-                        onClick={handleGoToLogin} 
+                     <Button
+                        onClick={handleGoToLogin}
                         className="w-full"
                         size="lg"
                      >
                         Войти в аккаунт
                      </Button>
-                     
-                     <Button 
-                        onClick={handleGoHome} 
-                        variant="outline" 
+
+                     <Button
+                        onClick={handleGoHome}
+                        variant="outline"
                         className="w-full"
                         size="lg"
                      >
@@ -93,8 +94,8 @@ export default function RegisterSuccessPage() {
             <div className="text-center">
                <p className="text-sm text-gray-500">
                   Возникли проблемы?{" "}
-                  <a 
-                     href="mailto:support@starmake.ai" 
+                  <a
+                     href="mailto:support@starmake.ai"
                      className="font-medium text-primary hover:underline"
                   >
                      Обратитесь в поддержку

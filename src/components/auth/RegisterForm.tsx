@@ -38,7 +38,9 @@ export function RegisterForm() {
          {
             onSuccess: () => {
                // Redirect to success page with email parameter
-               router.push(`/register-success?email=${encodeURIComponent(email)}`);
+               router.push(
+                  `/register-success?email=${encodeURIComponent(email)}`
+               );
             },
             onError: (err) => {
                if (err.response?.status === 400) {

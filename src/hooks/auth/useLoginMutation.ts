@@ -1,8 +1,5 @@
 import { loginUser } from "@/api/auth/loginUser";
-import {
-   LoginRequest,
-   LoginResponse,
-} from "@/types/auth/auth.type";
+import { LoginRequest, LoginResponse } from "@/types/auth/auth.type";
 import { useAuth } from "@/context/AuthContext";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
@@ -14,11 +11,7 @@ const TOKEN_COOKIE_NAME = "auth_token";
 export function useLoginMutation() {
    const { setUser, checkAuthStatus, refreshProtectedRoutes } = useAuth();
 
-   const loginMutation = useMutation<
-      LoginResponse,
-      AxiosError,
-      LoginRequest
-   >({
+   const loginMutation = useMutation<LoginResponse, AxiosError, LoginRequest>({
       mutationFn: loginUser,
       onSuccess: (data) => {
          // Store user in localStorage for caching
