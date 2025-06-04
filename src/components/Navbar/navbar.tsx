@@ -135,7 +135,7 @@ export function Navbar() {
                               <NavigationMenuLink
                                  className={navLinkStyle}
                                  onClick={navigateToChatbot}
-                                 style={{ cursor: 'pointer' }}
+                                 style={{ cursor: "pointer" }}
                               >
                                  Чатбот
                               </NavigationMenuLink>

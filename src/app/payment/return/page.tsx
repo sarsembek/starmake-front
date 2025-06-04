@@ -68,7 +68,13 @@ export default function PaymentReturnPage() {
                   <div className="max-w-md w-full">
                      <PaymentStatusHandler onComplete={() => {}} />
                      <PaymentStatusCard
-                        status={paymentStatus as "success" | "failure" | "cancel" | null}
+                        status={
+                           paymentStatus as
+                              | "success"
+                              | "failure"
+                              | "cancel"
+                              | null
+                        }
                         redirectPath="/profile/plan"
                      />
                   </div>

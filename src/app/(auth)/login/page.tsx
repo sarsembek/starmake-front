@@ -4,15 +4,13 @@ import Image from "next/image";
 import { SocialAuth } from "@/components/shared/auth/SocialAuth";
 import { Logo } from "@/components/shared/Logo";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, CheckCircle } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LoginForm } from "@/components/auth/LoginForm";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function LoginPage() {
    const router = useRouter();
    const searchParams = useSearchParams();
-   const isRegistered = searchParams.get("registered") === "true";
    const fromProtectedRoute = searchParams.has("from");
 
    const handleGoogleAuth = () => {
@@ -78,16 +76,6 @@ export default function LoginPage() {
                      Введите данные для входа
                   </p>
                </div>
-
-               {isRegistered && (
-                  <Alert className="border-green-500 bg-green-50">
-                     <CheckCircle className="h-4 w-4 text-green-500" />
-                     <AlertDescription className="text-green-700">
-                        Регистрация успешна! Пожалуйста, подтвердите ваш email
-                        адрес, перейдя по ссылке в письме.
-                     </AlertDescription>
-                  </Alert>
-               )}
 
                <LoginForm />
 

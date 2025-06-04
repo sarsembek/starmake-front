@@ -121,7 +121,7 @@ export function formatExpiryDate(dateString: string | Date): string {
  */
 export function shouldShowChatbot(user: User | null): boolean {
    if (!user) return false;
-   
+
    const subscriptionStatus = getSubscriptionStatus(user);
    // Show chatbot if user has any active subscription (not null/None tier)
    return subscriptionStatus.isActive && subscriptionStatus.tier !== "None";
