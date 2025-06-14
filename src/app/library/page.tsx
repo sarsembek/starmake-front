@@ -64,12 +64,12 @@ export default function LibraryPage() {
    // Function to generate pagination items with centered sliding effect
    const renderPaginationItems = () => {
       const totalPages = reelsData?.pages || 1;
-      
+
       return generateCenteredPaginationItems({
          currentPage,
          totalPages,
          onPageChange: handlePageChange,
-         maxVisiblePages: 5
+         maxVisiblePages: 5,
       });
    };
 
@@ -216,14 +216,17 @@ export default function LibraryPage() {
                               </PaginationItem>
 
                               {/* 4. Last page button */}
-                              {reelsData.pages > 5 && currentPage < reelsData.pages && (
-                                 <PaginationItem>
-                                    <PaginationLast
-                                       onClick={() => handlePageChange(reelsData.pages)}
-                                       className="cursor-pointer"
-                                    />
-                                 </PaginationItem>
-                              )}
+                              {reelsData.pages > 5 &&
+                                 currentPage < reelsData.pages && (
+                                    <PaginationItem>
+                                       <PaginationLast
+                                          onClick={() =>
+                                             handlePageChange(reelsData.pages)
+                                          }
+                                          className="cursor-pointer"
+                                       />
+                                    </PaginationItem>
+                                 )}
                            </PaginationContent>
                         </Pagination>
                      </div>

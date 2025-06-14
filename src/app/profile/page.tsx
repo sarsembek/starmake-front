@@ -163,12 +163,12 @@ function ProfileContent() {
    // Function to generate pagination items with centered sliding effect
    const renderPaginationItems = () => {
       const totalPages = favoriteReelsData?.pages || 1;
-      
+
       return generateCenteredPaginationItems({
          currentPage,
          totalPages,
          onPageChange: handlePageChange,
-         maxVisiblePages: 5
+         maxVisiblePages: 5,
       });
    };
 
@@ -560,7 +560,9 @@ function ProfileContent() {
                                        <PaginationItem>
                                           <PaginationPrevious
                                              onClick={() =>
-                                                handlePageChange(Math.max(1, currentPage - 1))
+                                                handlePageChange(
+                                                   Math.max(1, currentPage - 1)
+                                                )
                                              }
                                              aria-disabled={currentPage === 1}
                                              className={
@@ -580,16 +582,19 @@ function ProfileContent() {
                                              onClick={() =>
                                                 handlePageChange(
                                                    Math.min(
-                                                      favoriteReelsData?.pages || 1,
+                                                      favoriteReelsData?.pages ||
+                                                         1,
                                                       currentPage + 1
                                                    )
                                                 )
                                              }
                                              aria-disabled={
-                                                currentPage === (favoriteReelsData?.pages || 1)
+                                                currentPage ===
+                                                (favoriteReelsData?.pages || 1)
                                              }
                                              className={
-                                                currentPage === (favoriteReelsData?.pages || 1)
+                                                currentPage ===
+                                                (favoriteReelsData?.pages || 1)
                                                    ? "pointer-events-none opacity-50"
                                                    : "cursor-pointer"
                                              }
@@ -597,17 +602,22 @@ function ProfileContent() {
                                        </PaginationItem>
 
                                        {/* 4. Last page button */}
-                                       {(favoriteReelsData?.pages || 0) > 5 && 
-                                        currentPage < (favoriteReelsData?.pages || 1) && (
-                                          <PaginationItem>
-                                             <PaginationLast
-                                                onClick={() => 
-                                                   handlePageChange(favoriteReelsData?.pages || 1)
-                                                }
-                                                className="cursor-pointer"
-                                             />
-                                          </PaginationItem>
-                                       )}
+                                       {(favoriteReelsData?.pages || 0) > 5 &&
+                                          currentPage <
+                                             (favoriteReelsData?.pages ||
+                                                1) && (
+                                             <PaginationItem>
+                                                <PaginationLast
+                                                   onClick={() =>
+                                                      handlePageChange(
+                                                         favoriteReelsData?.pages ||
+                                                            1
+                                                      )
+                                                   }
+                                                   className="cursor-pointer"
+                                                />
+                                             </PaginationItem>
+                                          )}
                                     </PaginationContent>
                                  </Pagination>
                               )}

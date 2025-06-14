@@ -17,7 +17,7 @@ export interface SubscriptionStatus {
  * Determines the current subscription status of a user
  * Handles both new and legacy subscription structures
  */
-export function getSubscriptionStatus(user: User | null): SubscriptionStatus {
+export function wgetSubscriptionStatus(user: User | null): SubscriptionStatus {
    if (!user) {
       return {
          isActive: false,
@@ -73,7 +73,7 @@ export function hasExceededPageLimit(
    currentPage: number,
    maxPages: number = 3
 ): boolean {
-   const status = getSubscriptionStatus(user);
+   const status = wgetSubscriptionStatus(user);
    return currentPage > maxPages && status.isLimited;
 }
 
@@ -81,7 +81,7 @@ export function hasExceededPageLimit(
  * Gets a user-friendly subscription status message
  */
 export function getSubscriptionStatusMessage(user: User | null): string {
-   const status = getSubscriptionStatus(user);
+   const status = wgetSubscriptionStatus(user);
 
    if (!status.isActive) {
       if (status.isExpired) {
