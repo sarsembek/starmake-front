@@ -9,12 +9,12 @@ import { VideoProvider } from "@/context/VideoContext";
 import {
    Pagination,
    PaginationContent,
-   PaginationEllipsis,
    PaginationItem,
-   PaginationLink,
    PaginationNext,
    PaginationPrevious,
+   PaginationLast,
 } from "@/components/ui/pagination";
+import { generateCenteredPaginationItems } from "@/utils/paginationUtils";
 
 const itemsPerPage = 12;
 
@@ -61,111 +61,16 @@ export default function LibraryPage() {
       return selectedCategory?.name_rus || "Reels";
    };
 
-   // Function to generate pagination items
+   // Function to generate pagination items with centered sliding effect
    const renderPaginationItems = () => {
       const totalPages = reelsData?.pages || 1;
-
-      // For small number of pages, show all of them except the last one
-      if (totalPages <= 6) {
-         const items = Array.from({ length: totalPages - 1 }, (_, i) => (
-            <PaginationItem key={i + 1}>
-               <PaginationLink
-                  isActive={currentPage === i + 1}
-                  onClick={() => handlePageChange(i + 1)}
-               >
-                  {i + 1}
-               </PaginationLink>
-            </PaginationItem>
-         ));
-
-         // Add the last page with text "Последний"
-         if (totalPages > 1) {
-            items.push(
-               <PaginationItem key={totalPages}>
-                  <PaginationLink
-                     isActive={currentPage === totalPages}
-                     onClick={() => handlePageChange(totalPages)}
-                  >
-                     Последний
-                  </PaginationLink>
-               </PaginationItem>
-            );
-         }
-
-         return items;
-      }
-
-      // For larger number of pages, show a wider range with ellipsis
-      const items = [];
-
-      // Always show first 5 pages
-      for (let i = 1; i <= Math.min(5, totalPages - 1); i++) {
-         items.push(
-            <PaginationItem key={i}>
-               <PaginationLink
-                  isActive={currentPage === i}
-                  onClick={() => handlePageChange(i)}
-               >
-                  {i}
-               </PaginationLink>
-            </PaginationItem>
-         );
-      }
-
-      // Add ellipsis if current page is far from the range displayed
-      if (currentPage > 5 && currentPage < totalPages - 1) {
-         items.push(
-            <PaginationItem key="ellipsis-middle">
-               <PaginationEllipsis />
-            </PaginationItem>
-         );
-
-         // Add current page if it's not in the first 5 or last position
-         items.push(
-            <PaginationItem key={currentPage}>
-               <PaginationLink
-                  isActive={true}
-                  onClick={() => handlePageChange(currentPage)}
-               >
-                  {currentPage}
-               </PaginationLink>
-            </PaginationItem>
-         );
-
-         items.push(
-            <PaginationItem key="ellipsis-2">
-               <PaginationEllipsis />
-            </PaginationItem>
-         );
-      } else if (currentPage >= totalPages - 1) {
-         // If we're near the end, just show ellipsis between first 5 and current
-         items.push(
-            <PaginationItem key="ellipsis-end">
-               <PaginationEllipsis />
-            </PaginationItem>
-         );
-      } else {
-         // Just show ellipsis before the last page
-         items.push(
-            <PaginationItem key="ellipsis-simple">
-               <PaginationEllipsis />
-            </PaginationItem>
-         );
-      }
-
-      // Always include last page with "Последний" label
-      items.push(
-         <PaginationItem key={totalPages}>
-            <PaginationLink
-               isActive={currentPage === totalPages}
-               onClick={() => handlePageChange(totalPages)}
-            >
-               Последний
-            </PaginationLink>
-         </PaginationItem>
-      );
-
-      return items;
+      
+      return generateCenteredPaginationItems({
+         currentPage,
+         totalPages,
+         onPageChange: handlePageChange,
+         maxVisiblePages: 5
+      });
    };
 
    return (
@@ -264,6 +169,7 @@ export default function LibraryPage() {
                      <div className="mt-8">
                         <Pagination>
                            <PaginationContent>
+                              {/* 1. Previous button */}
                               <PaginationItem>
                                  <PaginationPrevious
                                     onClick={() =>
@@ -276,13 +182,15 @@ export default function LibraryPage() {
                                     className={
                                        currentPage === 1
                                           ? "pointer-events-none opacity-50"
-                                          : ""
+                                          : "cursor-pointer"
                                     }
                                  />
                               </PaginationItem>
 
+                              {/* 2. Pagination numbers */}
                               {renderPaginationItems()}
 
+                              {/* 3. Next page button */}
                               <PaginationItem>
                                  <PaginationNext
                                     onClick={() =>
@@ -302,10 +210,20 @@ export default function LibraryPage() {
                                     className={
                                        currentPage === reelsData.pages
                                           ? "pointer-events-none opacity-50"
-                                          : ""
+                                          : "cursor-pointer"
                                     }
                                  />
                               </PaginationItem>
+
+                              {/* 4. Last page button */}
+                              {reelsData.pages > 5 && currentPage < reelsData.pages && (
+                                 <PaginationItem>
+                                    <PaginationLast
+                                       onClick={() => handlePageChange(reelsData.pages)}
+                                       className="cursor-pointer"
+                                    />
+                                 </PaginationItem>
+                              )}
                            </PaginationContent>
                         </Pagination>
                      </div>

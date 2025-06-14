@@ -27,7 +27,7 @@ function PaginationContent({
   return (
     <ul
       data-slot="pagination-content"
-      className={cn("flex flex-row items-center gap-1", className)}
+      className={cn("flex flex-row items-center gap-2", className)}
       {...props}
     />
   )
@@ -58,6 +58,7 @@ function PaginationLink({
           variant: isActive ? "outline" : "ghost",
           size,
         }),
+        "min-w-9 h-9 text-sm font-medium transition-all duration-200",
         className
       )}
       {...props}
@@ -73,11 +74,11 @@ function PaginationPrevious({
     <PaginationLink
       aria-label="Go to previous page"
       size="default"
-      className={cn("gap-1 px-2.5 sm:pl-2.5", className)}
+      className={cn("gap-1 px-2 sm:px-3", className)}
       {...props}
     >
-      <ChevronLeftIcon />
-      <span className="hidden sm:block">Пред.</span>
+      <ChevronLeftIcon className="h-4 w-4" />
+      <span className="hidden sm:block text-sm">Пред.</span>
     </PaginationLink>
   )
 }
@@ -90,11 +91,27 @@ function PaginationNext({
     <PaginationLink
       aria-label="Go to next page"
       size="default"
-      className={cn("gap-1 px-2.5 sm:pr-2.5", className)}
+      className={cn("gap-1 px-2 sm:px-3", className)}
       {...props}
     >
-      <span className="hidden sm:block">Cлед.</span>
-      <ChevronRightIcon />
+      <span className="hidden sm:block text-sm">След.</span>
+      <ChevronRightIcon className="h-4 w-4" />
+    </PaginationLink>
+  )
+}
+
+function PaginationLast({
+  className,
+  ...props
+}: React.ComponentProps<typeof PaginationLink>) {
+  return (
+    <PaginationLink
+      aria-label="Go to last page"
+      size="default"
+      className={cn("px-2 sm:px-3", className)}
+      {...props}
+    >
+      <span className="text-sm">Последняя</span>
     </PaginationLink>
   )
 }
@@ -107,11 +124,11 @@ function PaginationEllipsis({
     <span
       aria-hidden
       data-slot="pagination-ellipsis"
-      className={cn("flex size-9 items-center justify-center", className)}
+      className={cn("flex size-9 items-center justify-center text-sm", className)}
       {...props}
     >
       <MoreHorizontalIcon className="size-4" />
-      <span className="sr-only">More pages</span>
+      <span className="sr-only">Больше страниц</span>
     </span>
   )
 }
@@ -123,5 +140,6 @@ export {
   PaginationItem,
   PaginationPrevious,
   PaginationNext,
+  PaginationLast,
   PaginationEllipsis,
 }

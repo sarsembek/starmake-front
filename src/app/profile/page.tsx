@@ -31,11 +31,11 @@ import {
    Pagination,
    PaginationContent,
    PaginationItem,
-   PaginationLink,
    PaginationNext,
    PaginationPrevious,
-   PaginationEllipsis,
+   PaginationLast,
 } from "@/components/ui/pagination";
+import { generateCenteredPaginationItems } from "@/utils/paginationUtils";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { PromoCodeForm } from "@/components/profile/PromoCodeForm";
 import { UserScenarios } from "@/components/profile/UserScenarios";
@@ -160,80 +160,16 @@ function ProfileContent() {
       });
    };
 
-   // Function to generate pagination items
+   // Function to generate pagination items with centered sliding effect
    const renderPaginationItems = () => {
       const totalPages = favoriteReelsData?.pages || 1;
-
-      // For small number of pages, show all of them
-      if (totalPages <= 5) {
-         return Array.from({ length: totalPages }, (_, i) => (
-            <PaginationItem key={i + 1}>
-               <PaginationLink
-                  isActive={currentPage === i + 1}
-                  onClick={() => handlePageChange(i + 1)}
-               >
-                  {i + 1}
-               </PaginationLink>
-            </PaginationItem>
-         ));
-      }
-
-      // For larger number of pages, show a limited set with ellipsis
-      const items = [];
-
-      // Always show the first page
-      items.push(
-         <PaginationItem key={1}>
-            <PaginationLink
-               isActive={currentPage === 1}
-               onClick={() => handlePageChange(1)}
-            >
-               1
-            </PaginationLink>
-         </PaginationItem>
-      );
-
-      // Show ellipsis if current page is far from the first page
-      if (currentPage > 3) {
-         items.push(<PaginationEllipsis key="start-ellipsis" />);
-      }
-
-      // Show pages around the current page
-      for (
-         let i = Math.max(2, currentPage - 1);
-         i <= Math.min(totalPages - 1, currentPage + 1);
-         i++
-      ) {
-         items.push(
-            <PaginationItem key={i}>
-               <PaginationLink
-                  isActive={currentPage === i}
-                  onClick={() => handlePageChange(i)}
-               >
-                  {i}
-               </PaginationLink>
-            </PaginationItem>
-         );
-      }
-
-      // Show ellipsis if current page is far from the last page
-      if (currentPage < totalPages - 2) {
-         items.push(<PaginationEllipsis key="end-ellipsis" />);
-      }
-
-      // Always show the last page
-      items.push(
-         <PaginationItem key={totalPages}>
-            <PaginationLink
-               isActive={currentPage === totalPages}
-               onClick={() => handlePageChange(totalPages)}
-            >
-               {totalPages}
-            </PaginationLink>
-         </PaginationItem>
-      );
-
-      return items;
+      
+      return generateCenteredPaginationItems({
+         currentPage,
+         totalPages,
+         onPageChange: handlePageChange,
+         maxVisiblePages: 5
+      });
    };
 
    // Format dates with error handling
@@ -619,24 +555,60 @@ function ProfileContent() {
                               {/* Only show pagination when there's more than one page */}
                               {(favoriteReelsData?.pages ?? 0) > 1 && (
                                  <Pagination>
-                                    {currentPage > 1 && (
-                                       <PaginationPrevious
-                                          onClick={() =>
-                                             handlePageChange(currentPage - 1)
-                                          }
-                                       />
-                                    )}
                                     <PaginationContent>
+                                       {/* 1. Previous button */}
+                                       <PaginationItem>
+                                          <PaginationPrevious
+                                             onClick={() =>
+                                                handlePageChange(Math.max(1, currentPage - 1))
+                                             }
+                                             aria-disabled={currentPage === 1}
+                                             className={
+                                                currentPage === 1
+                                                   ? "pointer-events-none opacity-50"
+                                                   : "cursor-pointer"
+                                             }
+                                          />
+                                       </PaginationItem>
+
+                                       {/* 2. Pagination numbers */}
                                        {renderPaginationItems()}
+
+                                       {/* 3. Next page button */}
+                                       <PaginationItem>
+                                          <PaginationNext
+                                             onClick={() =>
+                                                handlePageChange(
+                                                   Math.min(
+                                                      favoriteReelsData?.pages || 1,
+                                                      currentPage + 1
+                                                   )
+                                                )
+                                             }
+                                             aria-disabled={
+                                                currentPage === (favoriteReelsData?.pages || 1)
+                                             }
+                                             className={
+                                                currentPage === (favoriteReelsData?.pages || 1)
+                                                   ? "pointer-events-none opacity-50"
+                                                   : "cursor-pointer"
+                                             }
+                                          />
+                                       </PaginationItem>
+
+                                       {/* 4. Last page button */}
+                                       {(favoriteReelsData?.pages || 0) > 5 && 
+                                        currentPage < (favoriteReelsData?.pages || 1) && (
+                                          <PaginationItem>
+                                             <PaginationLast
+                                                onClick={() => 
+                                                   handlePageChange(favoriteReelsData?.pages || 1)
+                                                }
+                                                className="cursor-pointer"
+                                             />
+                                          </PaginationItem>
+                                       )}
                                     </PaginationContent>
-                                    {currentPage <
-                                       (favoriteReelsData?.pages || 1) && (
-                                       <PaginationNext
-                                          onClick={() =>
-                                             handlePageChange(currentPage + 1)
-                                          }
-                                       />
-                                    )}
                                  </Pagination>
                               )}
                            </CardFooter>
