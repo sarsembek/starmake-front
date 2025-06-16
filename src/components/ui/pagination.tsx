@@ -58,7 +58,7 @@ function PaginationLink({
                variant: isActive ? "outline" : "ghost",
                size,
             }),
-            "min-w-9 h-9 text-sm font-medium transition-all duration-200",
+            "min-w-9 h-9 text-sm font-medium transition-all duration-200 cursor-pointer",
             className
          )}
          {...props}
@@ -74,7 +74,7 @@ function PaginationPrevious({
       <PaginationLink
          aria-label="Go to previous page"
          size="default"
-         className={cn("gap-1 px-2 sm:px-3", className)}
+         className={cn("gap-1 px-2 sm:px-3 cursor-pointer", className)}
          {...props}
       >
          <ChevronLeftIcon className="h-4 w-4" />
@@ -91,7 +91,7 @@ function PaginationNext({
       <PaginationLink
          aria-label="Go to next page"
          size="default"
-         className={cn("gap-1 px-2 sm:px-3", className)}
+         className={cn("gap-1 px-2 sm:px-3 cursor-pointer", className)}
          {...props}
       >
          <span className="hidden sm:block text-sm">След.</span>
@@ -108,7 +108,7 @@ function PaginationLast({
       <PaginationLink
          aria-label="Go to last page"
          size="default"
-         className={cn("px-2 sm:px-3", className)}
+         className={cn("px-2 sm:px-3 cursor-pointer", className)}
          {...props}
       >
          <span className="text-sm">Последняя</span>

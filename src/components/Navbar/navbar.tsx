@@ -61,6 +61,12 @@ export function Navbar() {
       router.push("/profile/");
    };
 
+   const navigateToPlans = () => {
+      setIsDropdownOpen(false);
+      setIsSheetOpen(false);
+      router.push("/profile/plan");
+   };
+
    // Function to handle chatbot navigation
    const navigateToChatbot = () => {
       setIsDropdownOpen(false);
@@ -141,6 +147,17 @@ export function Navbar() {
                               </NavigationMenuLink>
                            </NavigationMenuItem>
                         )}
+                        {isAuthenticated && (
+                           <NavigationMenuItem>
+                              <NavigationMenuLink
+                                 className={navLinkStyle}
+                                 onClick={navigateToPlans}
+                                 style={{ cursor: "pointer" }}
+                              >
+                                 Купить тариф
+                              </NavigationMenuLink>
+                           </NavigationMenuItem>
+                        )}
                      </NavigationMenuList>
                   </NavigationMenu>
                </div>
@@ -180,6 +197,12 @@ export function Navbar() {
                               <span>Чатбот</span>
                            </DropdownMenuItem>
                         )}
+                        <DropdownMenuItem
+                           className="font-medium cursor-pointer"
+                           onClick={navigateToPlans}
+                        >
+                           <span>Купить тариф</span>
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                            onClick={handleLogout}
@@ -253,6 +276,19 @@ export function Navbar() {
                                     className="flex items-center gap-2 text-left text-lg font-medium hover:text-primary"
                                  >
                                     <span>Чатбот</span>
+                                 </button>
+                              )}
+
+                              {/* Buy plan link in mobile menu */}
+                              {isAuthenticated && (
+                                 <button
+                                    onClick={() => {
+                                       setIsSheetOpen(false);
+                                       navigateToPlans();
+                                    }}
+                                    className="flex items-center gap-2 text-left text-lg font-medium hover:text-primary"
+                                 >
+                                    <span>Купить тариф</span>
                                  </button>
                               )}
 

@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Mail } from "lucide-react";
 import { Logo } from "@/components/shared/Logo";
 import {
    Card,
@@ -50,7 +50,7 @@ export default function RegisterSuccessPage() {
                      Регистрация успешна!
                   </CardTitle>
                   <CardDescription className="text-gray-600 mt-2">
-                     Ваш аккаунт был успешно создан
+                     Подтвердите ваш email адрес для завершения регистрации
                   </CardDescription>
                </CardHeader>
 
@@ -64,9 +64,28 @@ export default function RegisterSuccessPage() {
                   )}
 
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                     <p className="text-sm text-blue-800">
-                        Теперь вы можете войти в систему, используя свои учетные
-                        данные.
+                     <div className="flex items-start gap-3">
+                        <Mail className="h-5 w-5 text-blue-600 mt-0.5" />
+                        <div className="flex-1">
+                           <h3 className="text-sm font-medium text-blue-800 mb-1">
+                              Письмо с подтверждением отправлено
+                           </h3>
+                           <p className="text-sm text-blue-700">
+                              Мы отправили письмо с подтверждением на ваш email
+                              адрес. Пожалуйста, проверьте почту и перейдите по
+                              ссылке для подтверждения аккаунта.
+                           </p>
+                           <p className="text-xs text-blue-600 mt-2">
+                              Не забудьте проверить папку &quot;Спам&quot;, если
+                              письмо не пришло.
+                           </p>
+                        </div>
+                     </div>
+                  </div>
+
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                     <p className="text-sm text-amber-800 text-center">
+                        После подтверждения email вы сможете войти в систему
                      </p>
                   </div>
 
@@ -76,7 +95,7 @@ export default function RegisterSuccessPage() {
                         className="w-full"
                         size="lg"
                      >
-                        Войти в аккаунт
+                        Перейти к входу
                      </Button>
 
                      <Button
