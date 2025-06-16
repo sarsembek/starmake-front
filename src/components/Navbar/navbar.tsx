@@ -136,7 +136,7 @@ export function Navbar() {
                               </NavigationMenuLink>
                            </Link>
                         </NavigationMenuItem>
-                        {shouldShowChatbot(user) && (
+                        {/* {shouldShowChatbot(user) && ( */}
                            <NavigationMenuItem>
                               <NavigationMenuLink
                                  className={navLinkStyle}
@@ -146,7 +146,7 @@ export function Navbar() {
                                  Чатбот
                               </NavigationMenuLink>
                            </NavigationMenuItem>
-                        )}
+                        {/* )} */}
                         {isAuthenticated && (
                            <NavigationMenuItem>
                               <NavigationMenuLink
