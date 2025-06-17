@@ -59,8 +59,8 @@ export default function PlansPage() {
 
    // Default plans to show while loading or if there's an error
    const defaultPlans = [
-      { id: 1, name: "Только посмотреть", price: 11, message_count: 100 },
-      { id: 2, name: "Стандартный", price: 16, message_count: 1000 },
+      { id: 1, name: "Только посмотреть", price: 11, message_count: 1000 },
+      { id: 2, name: "Стандартный", price: 16, message_count: 2000 },
       { id: 3, name: "Безлимитный", price: 29, message_count: "безлимит" },
       {
          id: 4,
