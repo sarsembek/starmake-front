@@ -20,13 +20,13 @@ function GoogleCallbackContent() {
 
     if (error) {
       setStatus("error");
-      setErrorMessage("Google authentication was cancelled or failed.");
+      setErrorMessage("Аутентификация Google была отменена или завершилась с ошибкой.");
       return;
     }
 
     if (!code) {
       setStatus("error");
-      setErrorMessage("No authorization code received from Google.");
+      setErrorMessage("Код авторизации от Google не получен.");
       return;
     }
 
@@ -42,14 +42,14 @@ function GoogleCallbackContent() {
           if (error && typeof error === 'object' && 'response' in error) {
             const axiosError = error as { response?: { status?: number } };
             if (axiosError.response?.status === 400) {
-              setErrorMessage("Invalid authorization code.");
+              setErrorMessage("Неверный код авторизации.");
             } else if (axiosError.response?.status === 401) {
-              setErrorMessage("Authentication failed. Please try again.");
+              setErrorMessage("Ошибка аутентификации. Пожалуйста, попробуйте еще раз.");
             } else {
-              setErrorMessage("An error occurred during authentication. Please try again.");
+              setErrorMessage("Произошла ошибка во время аутентификации. Пожалуйста, попробуйте еще раз.");
             }
           } else {
-            setErrorMessage("An error occurred during authentication. Please try again.");
+            setErrorMessage("Произошла ошибка во время аутентификации. Пожалуйста, попробуйте еще раз.");
           }
         },
       }
@@ -74,16 +74,16 @@ function GoogleCallbackContent() {
           {status === "processing" && (
             <>
               <LoadingSpinner className="mx-auto mb-4" />
-              <h2 className="text-xl font-semibold mb-2">Authenticating with Google...</h2>
-              <p className="text-gray-600">Please wait while we complete your authentication.</p>
+              <h2 className="text-xl font-semibold mb-2">Аутентификация через Google...</h2>
+              <p className="text-gray-600">Пожалуйста, подождите, пока мы завершим вашу аутентификацию.</p>
             </>
           )}
 
           {status === "success" && (
             <>
               <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
-              <h2 className="text-xl font-semibold mb-2 text-green-700">Authentication Successful!</h2>
-              <p className="text-gray-600">Redirecting you to the application...</p>
+              <h2 className="text-xl font-semibold mb-2 text-green-700">Аутентификация прошла успешно!</h2>
+              <p className="text-gray-600">Перенаправляем вас в приложение...</p>
             </>
           )}
 
@@ -93,8 +93,8 @@ function GoogleCallbackContent() {
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>{errorMessage}</AlertDescription>
               </Alert>
-              <h2 className="text-xl font-semibold mb-2 text-red-700">Authentication Failed</h2>
-              <p className="text-gray-600">Redirecting you back to login page...</p>
+              <h2 className="text-xl font-semibold mb-2 text-red-700">Ошибка аутентификации</h2>
+              <p className="text-gray-600">Перенаправляем вас обратно на страницу входа...</p>
             </>
           )}
         </div>
@@ -110,8 +110,8 @@ export default function GoogleCallbackPage() {
         <div className="max-w-md w-full mx-auto p-6">
           <div className="bg-white rounded-lg shadow-md p-8 text-center">
             <LoadingSpinner className="mx-auto mb-4" />
-            <h2 className="text-xl font-semibold mb-2">Loading...</h2>
-            <p className="text-gray-600">Please wait while we process your request.</p>
+            <h2 className="text-xl font-semibold mb-2">Загрузка...</h2>
+            <p className="text-gray-600">Пожалуйста, подождите, пока мы обрабатываем ваш запрос.</p>
           </div>
         </div>
       </div>
