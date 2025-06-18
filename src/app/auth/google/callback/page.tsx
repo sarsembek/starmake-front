@@ -1,16 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useGoogleAuth } from "@/hooks/auth/useGoogleAuth";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle } from "lucide-react";
 
-export default function GoogleCallbackPage() {
+function GoogleCallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { handleGoogleAuthCallback, isCallbackLoading } = useGoogleAuth();
+  const { handleGoogleAuthCallback } = useGoogleAuth();
   const [status, setStatus] = useState<"processing" | "success" | "error">("processing");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -37,12 +37,17 @@ export default function GoogleCallbackPage() {
         onSuccess: () => {
           setStatus("success");
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
           setStatus("error");
-          if (error.response?.status === 400) {
-            setErrorMessage("Invalid authorization code.");
-          } else if (error.response?.status === 401) {
-            setErrorMessage("Authentication failed. Please try again.");
+          if (error && typeof error === 'object' && 'response' in error) {
+            const axiosError = error as { response?: { status?: number } };
+            if (axiosError.response?.status === 400) {
+              setErrorMessage("Invalid authorization code.");
+            } else if (axiosError.response?.status === 401) {
+              setErrorMessage("Authentication failed. Please try again.");
+            } else {
+              setErrorMessage("An error occurred during authentication. Please try again.");
+            }
           } else {
             setErrorMessage("An error occurred during authentication. Please try again.");
           }
@@ -95,5 +100,23 @@ export default function GoogleCallbackPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function GoogleCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="max-w-md w-full mx-auto p-6">
+          <div className="bg-white rounded-lg shadow-md p-8 text-center">
+            <LoadingSpinner className="mx-auto mb-4" />
+            <h2 className="text-xl font-semibold mb-2">Loading...</h2>
+            <p className="text-gray-600">Please wait while we process your request.</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <GoogleCallbackContent />
+    </Suspense>
   );
 } 

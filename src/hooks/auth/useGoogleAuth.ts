@@ -24,11 +24,19 @@ export function useGoogleAuth() {
   const handleGoogleAuthCallback = useMutation<GoogleAuthResponse, AxiosError, GoogleCallbackRequest>({
     mutationFn: handleGoogleCallback,
     onSuccess: (data) => {
+      // Convert null values to undefined to match User type
+      const user = {
+        ...data.user,
+        name_tg: data.user.name_tg || undefined,
+        instagram: data.user.instagram || undefined,
+        email_tg: data.user.email_tg || undefined,
+      };
+
       // Store user in localStorage for caching
-      localStorage.setItem("user_cache", JSON.stringify(data.user));
+      localStorage.setItem("user_cache", JSON.stringify(user));
 
       // Update auth context
-      setUser(data.user);
+      setUser(user);
 
       // Verify our auth status (cookie should now be set)
       checkAuthStatus();

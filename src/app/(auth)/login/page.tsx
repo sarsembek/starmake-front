@@ -13,11 +13,6 @@ export default function LoginPage() {
    const searchParams = useSearchParams();
    const fromProtectedRoute = searchParams.has("from");
 
-   const handleGoogleAuth = () => {
-      // Google auth is now handled by the SocialAuth component
-      console.log("Google auth initiated");
-   };
-
    const handleTelegramAuth = () => {
       // Implement Telegram auth logic
       console.log("Telegram auth clicked");

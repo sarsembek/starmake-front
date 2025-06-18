@@ -18,11 +18,6 @@ export default function RegisterPage() {
    // Redirect authenticated users to home page
    // useAuthRedirect();
 
-   const handleGoogleAuth = () => {
-      // Google auth is now handled by the SocialAuth component
-      console.log("Google auth initiated");
-   };
-
    const handleTelegramAuth = () => {
       // Implement Telegram auth logic
       console.log("Telegram auth clicked");
