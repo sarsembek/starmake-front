@@ -19,8 +19,8 @@ export default function RegisterPage() {
    // useAuthRedirect();
 
    const handleGoogleAuth = () => {
-      // Implement Google auth logic
-      console.log("Google auth clicked");
+      // Google auth is now handled by the SocialAuth component
+      console.log("Google auth initiated");
    };
 
    const handleTelegramAuth = () => {
@@ -84,8 +84,8 @@ export default function RegisterPage() {
                <RegisterForm />
 
                <SocialAuth
-                  onGoogleAuth={handleGoogleAuth}
                   onTelegramAuth={handleTelegramAuth}
+                  googleEnabled={true}
                />
 
                <div className="text-xs text-muted-foreground">

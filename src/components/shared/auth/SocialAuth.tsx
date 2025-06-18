@@ -7,18 +7,30 @@ import {
    TooltipProvider,
    TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useGoogleAuth } from "@/hooks/auth/useGoogleAuth";
 
 interface SocialAuthProps {
    onGoogleAuth?: () => void;
    onTelegramAuth?: () => void;
    disabled?: boolean; // Add disabled prop
+   googleEnabled?: boolean; // Add Google enabled prop
 }
 
 export function SocialAuth({
    onGoogleAuth,
    onTelegramAuth,
    disabled = true,
+   googleEnabled = true, // Enable Google by default
 }: SocialAuthProps) {
+   const { initiateGoogleAuth, isGoogleAuthLoading } = useGoogleAuth();
+
+   const handleGoogleClick = () => {
+      if (onGoogleAuth) {
+         onGoogleAuth();
+      } else {
+         initiateGoogleAuth();
+      }
+   };
    return (
       <>
          <div className="relative">
@@ -42,22 +54,22 @@ export function SocialAuth({
                         <Button
                            variant="outline"
                            className="w-full flex items-center gap-2"
-                           onClick={onGoogleAuth}
-                           disabled={disabled}
+                           onClick={handleGoogleClick}
+                           disabled={!googleEnabled || isGoogleAuthLoading}
                         >
                            <SocialIcon
                               network="google"
                               style={{ width: 24, height: 24 }}
                               className="!h-5 !w-5"
-                              fgColor={disabled ? "gray" : "currentColor"}
+                              fgColor={(!googleEnabled || isGoogleAuthLoading) ? "gray" : "currentColor"}
                               bgColor="transparent"
                            />
-                           Google
+                           {isGoogleAuthLoading ? "Загрузка..." : "Google"}
                         </Button>
                      </div>
                   </TooltipTrigger>
                   <TooltipContent>
-                     <p>Эта функция будет доступна в скоро</p>
+                     <p>{googleEnabled ? "Войти через Google" : "Эта функция будет доступна скоро"}</p>
                   </TooltipContent>
                </Tooltip>
             </TooltipProvider>

@@ -3,8 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLoginMutation } from "@/hooks/auth/useLoginMutation";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
@@ -14,8 +14,17 @@ export function LoginForm() {
    const [password, setPassword] = useState("");
    const [errorMessage, setErrorMessage] = useState("");
    const router = useRouter();
+   const searchParams = useSearchParams();
 
    const { mutate: login, isPending } = useLoginMutation();
+
+   // Check for Google auth errors
+   useEffect(() => {
+      const error = searchParams.get("error");
+      if (error === "google_auth_failed") {
+         setErrorMessage("Google authentication failed. Please try again.");
+      }
+   }, [searchParams]);
 
    const handleLoginSuccess = () => {
       // Get any stored return path or the "from" parameter from URL

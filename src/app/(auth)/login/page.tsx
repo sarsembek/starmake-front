@@ -14,8 +14,8 @@ export default function LoginPage() {
    const fromProtectedRoute = searchParams.has("from");
 
    const handleGoogleAuth = () => {
-      // Implement Google auth logic
-      console.log("Google auth clicked");
+      // Google auth is now handled by the SocialAuth component
+      console.log("Google auth initiated");
    };
 
    const handleTelegramAuth = () => {
@@ -80,8 +80,8 @@ export default function LoginPage() {
                <LoginForm />
 
                <SocialAuth
-                  onGoogleAuth={handleGoogleAuth}
                   onTelegramAuth={handleTelegramAuth}
+                  googleEnabled={true}
                />
 
                <div className="text-center text-sm">
