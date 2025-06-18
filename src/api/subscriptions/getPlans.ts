@@ -21,7 +21,7 @@ const defaultPlans: SubscriptionPlan[] = [
       id: 1,
       name: "Только посмотреть",
       price: 11,
-      message_count: 100,
+      message_count: 1000,
       description: "Basic plan",
       features: [
          "Возможность посмотреть всё на 30 дней",
@@ -32,7 +32,7 @@ const defaultPlans: SubscriptionPlan[] = [
       id: 2,
       name: "Стандартный",
       price: 16,
-      message_count: 1000,
+      message_count: 2000,
       description: "Standard plan",
       features: [
          "Возможность посмотреть всё на 30 дней",
