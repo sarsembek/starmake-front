@@ -37,7 +37,7 @@ export function wgetSubscriptionStatus(user: User | null): SubscriptionStatus {
       const tier = user.subscription.tier;
 
       // Determine if tier is limited (Basic, Trial, or other limited tiers)
-      const limitedTiers = ["Basic", "Trial", "Free"];
+      const limitedTiers = ["Basic", "Trial", "Free", "free"];
       const isLimited =
          limitedTiers.includes(tier) ||
          isExpired ||
