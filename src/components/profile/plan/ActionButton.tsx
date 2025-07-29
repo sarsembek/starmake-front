@@ -70,6 +70,7 @@ export const ActionButton: FC<ActionButtonProps> = ({
                plan={plan}
                size="lg"
                className="mt-4 bg-[#00b3ff] text-white font-semibold py-3 px-6 rounded-lg hover:bg-[#0099e6] transition-colors min-w-[220px]"
+               isPremium={true}
             >
                Купить
             </SubscriptionPurchaseButton>
@@ -82,6 +83,7 @@ export const ActionButton: FC<ActionButtonProps> = ({
             plan={plan}
             size="lg"
             className="min-w-[220px] bg-[#00B3FF] hover:bg-[#009CDE] transition-colors duration-200"
+            isPremium={false}
          >
             Купить
          </SubscriptionPurchaseButton>
