@@ -1,6 +1,17 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+declare global {
+  interface Window {
+    instgrm?: {
+      Embeds?: {
+        process: () => void
+      }
+    }
+  }
+}
+
+import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
    Heart,
@@ -9,12 +20,9 @@ import {
    Globe,
    Flag,
    Tag,
-   Volume2,
-   VolumeX,
    ArrowLeft,
    Copy,
 } from "lucide-react";
-import { useInView } from "react-intersection-observer";
 import {
    useFavoriteReel,
    useUnfavoriteReel,
@@ -33,7 +41,7 @@ export function ReelDetails({
    id, // Uncommented this as we need it for favorite API calls
    title,
    description,
-   file_url,
+   post_url,
    likes,
    view_count,
    comment_count,
@@ -50,8 +58,7 @@ export function ReelDetails({
 }: Reel) {
    // Track favorite state based on the API response
    const [isFavorite, setIsFavorite] = useState(is_favorite || false);
-   const [isMuted, setIsMuted] = useState(true);
-   const videoRef = useRef<HTMLVideoElement>(null);
+   const [isLoaded, setIsLoaded] = useState(false);
 
    // Initialize favorite hooks
    const addToFavorites = useFavoriteReel();
@@ -67,32 +74,22 @@ export function ReelDetails({
       setIsFavorite(is_favorite || false);
    }, [is_favorite]);
 
-   // Track if video is in view using IntersectionObserver
-   const { ref: inViewRef, inView } = useInView({
-      threshold: 0.5,
-      triggerOnce: false,
-   });
-
-   // Set up refs with callback to handle both video and intersection observer
-   const setRefs = (el: HTMLVideoElement | null) => {
-      // Set the videoRef
-      videoRef.current = el;
-      // Set the inViewRef (for intersection observer)
-      inViewRef(el);
-   };
-
-   // Autoplay/pause based on visibility
+   // Instagram embed script loading
    useEffect(() => {
-      if (videoRef.current) {
-         if (inView) {
-            videoRef.current.play().catch((err) => {
-               console.error("Autoplay failed:", err);
-            });
-         } else {
-            videoRef.current.pause();
-         }
+      // подключаем embed.js один раз
+      if (!document.querySelector("#instagram-embed-script")) {
+         const script = document.createElement("script");
+         script.id = "instagram-embed-script";
+         script.async = true;
+         script.src = "//www.instagram.com/embed.js";
+         script.onload = () => setIsLoaded(true);
+         document.body.appendChild(script);
+      } else {
+         // если скрипт уже есть, обновляем вставки
+         window.instgrm?.Embeds?.process();
+         setIsLoaded(true);
       }
-   }, [inView]);
+   }, [post_url]);
 
    // Handle favorite toggle with API calls
    const handleFavoriteToggle = () => {
@@ -109,27 +106,18 @@ export function ReelDetails({
       }
    };
 
-   const handleMuteToggle = () => {
-      if (videoRef.current) {
-         videoRef.current.muted = !videoRef.current.muted;
-         setIsMuted(!isMuted);
-      }
-   };
-
    const handleCopyLink = () => {
       navigator.clipboard.writeText(
          `${window.location.origin}/library/reel/${shortcode}`
       );
       // You could add a toast notification here
    };
-
-   const videoSrc = file_url;
    const hashtagArray = hashtags
       ? hashtags.split(",").map((tag) => tag.trim())
       : [];
 
    return (
-      <div className="container max-w-4xl mx-auto py-8 p-4">
+      <div className="max-w-4xl mx-auto py-8 px-4">
          <div className="flex items-center mb-6">
             <Link href="/library" className="mr-4">
                <Button variant="ghost" size="icon">
@@ -142,20 +130,36 @@ export function ReelDetails({
          <div className="grid grid-cols-1 md:grid-cols-2 md:gap-8 gap-4">
             <div className="md:col-span-1">
                <Card className="overflow-hidden pt-0">
-                  <div className="relative md:aspect-[9/16] w-full">
-                     <video
-                        ref={setRefs}
-                        src={videoSrc}
-                        className="w-full h-full object-cover"
-                        loop
-                        playsInline
-                        muted={isMuted}
-                        controls={false}
-                        poster={"/placeholder.svg"}
-                     />
+                  <CardContent className="p-0 relative">
+                     {!isLoaded && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
+                           <Image
+                              src="/placeholder.svg"
+                              alt="Loading..."
+                              width={100}
+                              height={100}
+                              className="opacity-50"
+                           />
+                        </div>
+                     )}
+                     <blockquote
+                        className="instagram-media"
+                        data-instgrm-permalink={post_url}
+                        data-instgrm-version="14"
+                        style={{
+                           background: "#FFF",
+                           border: 0,
+                           margin: 0,
+                           padding: 0,
+                           maxWidth: "540px",
+                           width: "100%",
+                           minHeight: "400px",
+                        }}
+                     >
+                     </blockquote>
 
                      {/* Control overlay */}
-                     <div className="absolute top-4 right-4 flex flex-col gap-4">
+                     <div className="absolute top-4 right-4 flex flex-col gap-4 z-30">
                         <Button
                            variant="secondary"
                            size="icon"
@@ -179,36 +183,23 @@ export function ReelDetails({
                            variant="secondary"
                            size="icon"
                            className="rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50"
-                           onClick={handleMuteToggle}
-                        >
-                           {isMuted ? (
-                              <VolumeX className="h-5 w-5 text-white" />
-                           ) : (
-                              <Volume2 className="h-5 w-5 text-white" />
-                           )}
-                        </Button>
-
-                        <Button
-                           variant="secondary"
-                           size="icon"
-                           className="rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50"
                            onClick={handleCopyLink}
                         >
                            <Copy className="h-5 w-5 text-white" />
                         </Button>
                      </div>
-                  </div>
+                  </CardContent>
 
                   <CardFooter className="flex justify-between">
                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-1">
+                        {/* <div className="flex items-center gap-1">
                            <Heart
                               className={`h-5 w-5 ${
                                  isFavorite ? "text-red-500 fill-red-500" : ""
                               }`}
                            />
                            <span className="text-sm">{likes}</span>
-                        </div>
+                        </div> */}
 
                         <div className="flex items-center gap-1">
                            <Eye className="h-5 w-5" />
@@ -311,9 +302,11 @@ export function ReelDetails({
             </div>
          </div>
 
-         {/* Add similar reels section */}
+         {/* Add similar reels section - full width */}
          <section className="mt-12">
-            <SimilarReelsSlider reelId={id} />
+            <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
+               <SimilarReelsSlider reelId={id} />
+            </div>
          </section>
       </div>
    );

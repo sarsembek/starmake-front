@@ -116,16 +116,16 @@ export default function LibraryPage() {
                   ) : (
                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {reelsData?.items.map((reel) => {
-                           // Find the matching category
-                           const category = apiCategories?.find(
-                              (cat) => cat.id === reel.category_id
-                           );
+                           // // Find the matching category
+                           // const category = apiCategories?.find(
+                           //    (cat) => cat.id === reel.category_id
+                           // );
 
                            return (
                               <ReelCardEmbed
                                  key={reel.id}
                                  url={reel.post_url}
-                                 // shortcode={reel.shortcode}
+                                 shortcode={reel.shortcode}
                                  // key={reel.id}
                                  // id={reel.id}
                                  // title={reel.title}
@@ -135,12 +135,12 @@ export default function LibraryPage() {
                                  // thumbnail_url={reel.thumbnail_url}
                                  // owner_username={reel.owner_username}
                                  // likes={reel.likes}
-                                 // view_count={reel.view_count}
-                                 // comment_count={reel.comment_count}
+                                 view_count={reel.view_count}
+                                 comment_count={reel.comment_count}
                                  // hashtags={reel.hashtags}
-                                 // language={reel.language}
-                                 // country={reel.country}
-                                 // category_id={reel.category_id}
+                                 language={reel.language}
+                                 country={reel.country}
+                                 category_id={reel.category_id}
                                  // tags={reel.tags}
                                  // transcribed_text={reel.transcribed_text}
                                  // repeat_instructions={reel.repeat_instructions}
