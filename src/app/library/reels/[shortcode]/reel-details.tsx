@@ -42,7 +42,7 @@ export function ReelDetails({
    title,
    description,
    post_url,
-   likes,
+   // likes,
    view_count,
    comment_count,
    hashtags,
