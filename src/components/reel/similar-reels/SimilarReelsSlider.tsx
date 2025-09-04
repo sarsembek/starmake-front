@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { ReelCard } from "@/components/reel/reel-card/reel-card";
+import { ReelCardEmbed } from "@/components/reel/reel-card/reel-card-embed";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -58,7 +58,7 @@ export function SimilarReelsSlider({
     const container = containerRef.current;
     if (!container) return;
     
-    const cardWidth = 280; // Approximate width of each card + margin
+    const cardWidth = 384; // 320 * 1.2 = 384 (20% increase from minimum width)
     const scrollAmount = direction === 'left' ? -cardWidth * 2 : cardWidth * 2;
     
     const newScrollPosition = Math.max(
@@ -80,11 +80,11 @@ export function SimilarReelsSlider({
   if (isLoading) {
     return (
       <div className={cn("space-y-4", className)}>
-        <h2 className="text-xl font-semibold">Похожие ролики</h2>
+        <h2 className="text-xl font-semibold px-4 max-w-4xl mx-auto">Похожие ролики</h2>
         <div className="relative">
-          <div className="flex gap-4 overflow-x-hidden py-4">
+          <div className="flex gap-4 overflow-x-hidden py-4 px-4 sm:px-6 lg:px-8">
             {Array(4).fill(0).map((_, index) => (
-              <div key={index} className="flex-shrink-0 w-64">
+              <div key={index} className="flex-shrink-0" style={{ width: '384px' }}>
                 <Skeleton className="aspect-[9/16] w-full rounded-lg" />
               </div>
             ))}
@@ -100,7 +100,7 @@ export function SimilarReelsSlider({
 
   return (
     <div className={cn("space-y-4", className)}>
-      <h2 className="text-xl font-semibold">Похожие ролики</h2>
+      <h2 className="text-xl font-semibold px-4 max-w-4xl mx-auto">Похожие ролики</h2>
       <div className="relative group">
         {canScrollLeft && (
           <Button
@@ -116,16 +116,24 @@ export function SimilarReelsSlider({
         
         <div 
           ref={containerRef}
-          className="flex gap-4 overflow-x-auto py-4 scrollbar-hide snap-x"
+          className="flex gap-4 overflow-x-auto py-4 scrollbar-hide snap-x px-4 sm:px-6 lg:px-8"
           onScroll={(e) => setScrollPosition(e.currentTarget.scrollLeft)}
         >
           {data.items.map((reel) => (
             <div 
               key={reel.id} 
               className="flex-shrink-0 snap-start" 
-              style={{ width: '260px' }}
+              style={{ width: '384px' }}
             >
-              <ReelCard {...reel} size="sm" />
+              <ReelCardEmbed 
+                url={reel.post_url}
+                shortcode={reel.shortcode}
+                view_count={reel.view_count}
+                comment_count={reel.comment_count}
+                language={reel.language}
+                country={reel.country}
+                category_id={reel.category_id}
+              />
             </div>
           ))}
         </div>

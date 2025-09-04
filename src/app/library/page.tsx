@@ -1,6 +1,5 @@
 "use client";
 
-import { ReelCard } from "@/components/reel/reel-card/reel-card";
 import { Sidebar } from "@/components/reel/sidebar/sidebar";
 import { useState } from "react";
 import { useCategories } from "@/hooks/reels/useCategories";
@@ -15,6 +14,7 @@ import {
    PaginationLast,
 } from "@/components/ui/pagination";
 import { generateCenteredPaginationItems } from "@/utils/paginationUtils";
+import { ReelCardEmbed } from "@/components/reel/reel-card/reel-card-embed";
 
 const itemsPerPage = 12;
 
@@ -116,48 +116,50 @@ export default function LibraryPage() {
                   ) : (
                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {reelsData?.items.map((reel) => {
-                           // Find the matching category
-                           const category = apiCategories?.find(
-                              (cat) => cat.id === reel.category_id
-                           );
+                           // // Find the matching category
+                           // const category = apiCategories?.find(
+                           //    (cat) => cat.id === reel.category_id
+                           // );
 
                            return (
-                              <ReelCard
-                                 shortcode={reel.shortcode}
+                              <ReelCardEmbed
                                  key={reel.id}
-                                 id={reel.id}
-                                 title={reel.title}
-                                 description={reel.description}
-                                 video_url={reel.video_url}
-                                 file_url={reel.file_url}
-                                 thumbnail_url={reel.thumbnail_url}
-                                 owner_username={reel.owner_username}
-                                 likes={reel.likes}
+                                 url={reel.post_url}
+                                 shortcode={reel.shortcode}
+                                 // key={reel.id}
+                                 // id={reel.id}
+                                 // title={reel.title}
+                                 // description={reel.description}
+                                 // video_url={reel.video_url}
+                                 // file_url={reel.file_url}
+                                 // thumbnail_url={reel.thumbnail_url}
+                                 // owner_username={reel.owner_username}
+                                 // likes={reel.likes}
                                  view_count={reel.view_count}
                                  comment_count={reel.comment_count}
-                                 hashtags={reel.hashtags}
+                                 // hashtags={reel.hashtags}
                                  language={reel.language}
                                  country={reel.country}
                                  category_id={reel.category_id}
-                                 tags={reel.tags}
-                                 transcribed_text={reel.transcribed_text}
-                                 repeat_instructions={reel.repeat_instructions}
-                                 improvement_suggestions={
-                                    reel.improvement_suggestions
-                                 }
-                                 source={reel.source}
-                                 created_at={reel.created_at}
-                                 is_favorite={reel.is_favorite}
-                                 post_url={reel.post_url}
-                                 category={
-                                    category
-                                       ? {
-                                            id: category.id,
-                                            name: category.name,
-                                            name_rus: category.name_rus,
-                                         }
-                                       : undefined
-                                 }
+                                 // tags={reel.tags}
+                                 // transcribed_text={reel.transcribed_text}
+                                 // repeat_instructions={reel.repeat_instructions}
+                                 // improvement_suggestions={
+                                 //    reel.improvement_suggestions
+                                 // }
+                                 // source={reel.source}
+                                 // created_at={reel.created_at}
+                                 // is_favorite={reel.is_favorite}
+                                 // post_url={reel.post_url}
+                                 // category={
+                                 //    category
+                                 //       ? {
+                                 //            id: category.id,
+                                 //            name: category.name,
+                                 //            name_rus: category.name_rus,
+                                 //         }
+                                 //       : undefined
+                                 // }
                               />
                            );
                         })}

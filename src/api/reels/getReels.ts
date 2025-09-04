@@ -34,6 +34,10 @@ export const getReels = async (
          queryParams.append("search", params.search);
       }
 
+      // Append locale parameter
+      queryParams.append("locale", "kz");
+      
+      // Make the GET request with query parameters
       const response = await axiosWithAuth.get<ReelsResponse>(
          `/library/api/v1/reels/?${queryParams.toString()}`
       );
